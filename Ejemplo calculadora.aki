@@ -1,0 +1,67 @@
+char c
+
+void error():
+    print("Espresión erronea\n")
+    exit()
+
+int numero():
+    int resultado = 0
+    if c not in '0'..'9':
+        error()
+    while c in '0'..'9':
+        resultado = resultado * 10 + c - '0'
+        c = getchar()
+    return resultado
+
+int factor():
+    int resultado
+    if c is '(':
+        c = getchar()
+        resultado = expresion()
+        if c is ')':
+            c = getchar()
+        else:
+            error()
+        return resultado
+    else:
+        return numero()
+
+int termino():
+    int resultado = factor(), aux
+    char op
+    while c is '*' or c is '/':
+        op = c
+        c = getchar()
+        aux = factor()
+        when op:
+            '*' -> resultado = resultado * aux
+            '/' -> resultado = resultado / aux
+    return resultado
+
+int expresion():
+    int resultado, aux
+    char op='+'
+    if c is '+' or c is '-':
+        op = c
+        c = getchar()
+    resultado = termino()
+    if op is '-':
+        resultado = -resultado
+    while c is '+' or c is '-':
+        op = c
+        c = getchar()
+        aux = termino()
+        when op:
+            '+' -> resultado = resultado + aux
+            '-' -> resultado = resultado - aux
+    return resultado
+
+int resultado
+c = getchar()
+while c is not '\n':
+	resultado = expresion()
+	if c is '\n':
+		print("=%i\n", resultado)
+		c = getchar()
+	else:
+		error()
