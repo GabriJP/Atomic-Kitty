@@ -33,6 +33,7 @@
 #define RETURN 291
 #define VALOR_CHAR 292
 #define VALOR_STRING 293
+#define VALOR_BOOL 294
 #define WHEN_CASE 294
 
 #define YY_USER_ACTION																	\
@@ -40,7 +41,7 @@
   if (tabulado<numtabs){																				\
   	printf("CIERRABLOQUE %d %d\n", tabulado, numtabs);															\
   	numtabs--;																					\
-    yyless(0);																			\																			\
+    yyless(0);																			\
     return CIERRABLOQUE;																	\
   } else if (tabulado>numtabs){																\
   	printf("ABREBLOQUE %d %d\n", tabulado, numtabs);															\
@@ -192,6 +193,10 @@ string																{
 																				return yytext[0];
 																			}
 
+"true"|"false"                        {
+											            		  printf( "A bool: %s\n", yytext );
+                                        return VALOR_BOOL;
+                                      }
 
 if                                    {
 											            		  printf( "A keyword: %s\n", yytext );
