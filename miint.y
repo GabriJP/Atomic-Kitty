@@ -1,3 +1,4 @@
+/* bison -d miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,66 +7,73 @@ extern FILE *yyin;
 int yydebug=1;
 %}
 
-%union { float real; int entero; char op; }
-%token <real> VALOR_FLOAT
-%token <entero> VALOR_INT
-%token <entero> OP
-%token FIN_DE_LINEA
-%type <real> expf
-%type <entero> expi
+%union { float f; double d; int i; long l; char c; char* str; }
+%token <f> VALOR_FLOAT
+%token <d> VALOR_DOUBLE
+%token <i> VALOR_INT VALOR_BOOL
+%token <l> VALOR_LONG
+%token <c> VALOR_CHAR
+%token <str> VALOR_STRING IDENTIFICADOR
+%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR RANGE RETURN ABREBLOQUE CIERRABLOQUE
 %left '-' '+'
 %left '*' '/'
 
 %%
 
+lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
+              |
+							;
+
+exp_l					: exp
+							| exp ',' exp_l
+							;
+
+tupla 				: '(' exp_l ')'
+							;
+
+func					: IDENTIFICADOR tupla
+							| IDENTIFICADOR '(' ')'
+							;
+
+exp						: exp '-' exp
+							| exp '+' exp
+							| exp '/' exp
+							| exp '*' exp
+							| func
+							| VALOR_INT
+							| VALOR_FLOAT
+							;
 
 
 
-lista	: exp {printf("%d\n", $1 );} FIN_DE_LINEA lista
-	|	
-	| error FIN_DE_LINEA {printf(" en expresión\n")} lista
-	;
-int a=2*(4);
-int a  = 1
-a = 3
+tipo					: tupla
+							| INT
+							| FLOAT
+							| LONG
+							| DOUBLE
+							| BOOL
+							| STRING
+							;
 
-list	: exp
-	| exp ',' list
-	;
-
-A : A x | y ;  y1 x x x   y2 x x x  y1 y2 
- 
-A : x A | y ;  x x x y   y
-
-exp , exp , exp   exp
+ret_tipo			: tipo
+							| VOID
+							;
 
 
-fun	: ID ABREPA list CIERRAPAR
-	| ID ABREPA CIERRAPAR
-	;
+init					: tipo IDENTIFICADOR '=' exp
+							;
 
-exp	: exp '-' exp	
-	| exp '+' exp	
-	| exp '/' exp	
-	| exp '*' exp
-	| fun
-	| VALOR_INT
-	| VALOR_FLOAT
-	;
+asign					: IDENTIFICADOR '=' exp
+							;
 
+decl					: tipo IDENTIFICADOR
+							;
 
-init	: PRIM ID IGUAL exp
-	;
-
-asign	: ID IGUAL exp
-	;
-
-decl	: PRIM ID
-	;
-
-inst	: exp
-	|init
-
+inst					: exp
+							| init
+							| asign
+							| decl
+							;
 
 %%
 
@@ -78,5 +86,5 @@ void  yyerror(char* str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n",yylineno,str );
     exit(-1);
-    
+
 }

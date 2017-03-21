@@ -1,0 +1,14 @@
+(int, int) fibo(int n):
+  if n is 0:
+    return (0, 0)
+  elif n is 1:
+    return (1, 0)
+  else:
+    (int, int) tupla = fibo(n-1)
+    int i = tupla[0]
+    int j = tupla[1]
+    return (i+j, i)
+
+int f = fibo(6)
+
+print("fibo(6)=%i\n", f)
