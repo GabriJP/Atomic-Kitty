@@ -1,0 +1,412 @@
+Terminals unused in grammar
+
+   OP
+
+
+Gramática
+
+    0 $accept: lista $end
+
+    1 $@1: /* vacío */
+
+    2 lista: expi $@1 FIN_DE_LINEA lista
+
+    3 $@2: /* vacío */
+
+    4 lista: expf $@2 FIN_DE_LINEA lista
+    5      | /* vacío */
+
+    6 $@3: /* vacío */
+
+    7 lista: error FIN_DE_LINEA $@3 lista
+
+    8 expi: expi '-' expi
+    9     | expi '+' expi
+   10     | expi '/' expi
+   11     | expi '*' expi
+   12     | VALOR_INT
+
+   13 expf: expf '-' expf
+   14     | expf '+' expf
+   15     | expf '/' expf
+   16     | expf '*' expf
+   17     | VALOR_FLOAT
+
+
+Terminales con las reglas donde aparecen
+
+$end (0) 0
+'*' (42) 11 16
+'+' (43) 9 14
+'-' (45) 8 13
+'/' (47) 10 15
+error (256) 7
+VALOR_FLOAT (258) 17
+VALOR_INT (259) 12
+OP (260)
+FIN_DE_LINEA (261) 2 4 7
+
+
+No terminales con las reglas donde aparecen
+
+$accept (11)
+    en la izquierda: 0
+lista (12)
+    en la izquierda: 2 4 5 7, en la derecha: 0 2 4 7
+$@1 (13)
+    en la izquierda: 1, en la derecha: 2
+$@2 (14)
+    en la izquierda: 3, en la derecha: 4
+$@3 (15)
+    en la izquierda: 6, en la derecha: 7
+expi (16)
+    en la izquierda: 8 9 10 11 12, en la derecha: 2 8 9 10 11
+expf (17)
+    en la izquierda: 13 14 15 16 17, en la derecha: 4 13 14 15 16
+
+
+estado 0
+
+    0 $accept: . lista $end
+
+    error        desplazar e ir al estado 1
+    VALOR_FLOAT  desplazar e ir al estado 2
+    VALOR_INT    desplazar e ir al estado 3
+
+    $end  reduce usando la regla 5 (lista)
+
+    lista  ir al estado 4
+    expi   ir al estado 5
+    expf   ir al estado 6
+
+
+estado 1
+
+    7 lista: error . FIN_DE_LINEA $@3 lista
+
+    FIN_DE_LINEA  desplazar e ir al estado 7
+
+
+estado 2
+
+   17 expf: VALOR_FLOAT .
+
+    $default  reduce usando la regla 17 (expf)
+
+
+estado 3
+
+   12 expi: VALOR_INT .
+
+    $default  reduce usando la regla 12 (expi)
+
+
+estado 4
+
+    0 $accept: lista . $end
+
+    $end  desplazar e ir al estado 8
+
+
+estado 5
+
+    2 lista: expi . $@1 FIN_DE_LINEA lista
+    8 expi: expi . '-' expi
+    9     | expi . '+' expi
+   10     | expi . '/' expi
+   11     | expi . '*' expi
+
+    '-'  desplazar e ir al estado 9
+    '+'  desplazar e ir al estado 10
+    '*'  desplazar e ir al estado 11
+    '/'  desplazar e ir al estado 12
+
+    $default  reduce usando la regla 1 ($@1)
+
+    $@1  ir al estado 13
+
+
+estado 6
+
+    4 lista: expf . $@2 FIN_DE_LINEA lista
+   13 expf: expf . '-' expf
+   14     | expf . '+' expf
+   15     | expf . '/' expf
+   16     | expf . '*' expf
+
+    '-'  desplazar e ir al estado 14
+    '+'  desplazar e ir al estado 15
+    '*'  desplazar e ir al estado 16
+    '/'  desplazar e ir al estado 17
+
+    $default  reduce usando la regla 3 ($@2)
+
+    $@2  ir al estado 18
+
+
+estado 7
+
+    7 lista: error FIN_DE_LINEA . $@3 lista
+
+    $default  reduce usando la regla 6 ($@3)
+
+    $@3  ir al estado 19
+
+
+estado 8
+
+    0 $accept: lista $end .
+
+    $default  aceptar
+
+
+estado 9
+
+    8 expi: expi '-' . expi
+
+    VALOR_INT  desplazar e ir al estado 3
+
+    expi  ir al estado 20
+
+
+estado 10
+
+    9 expi: expi '+' . expi
+
+    VALOR_INT  desplazar e ir al estado 3
+
+    expi  ir al estado 21
+
+
+estado 11
+
+   11 expi: expi '*' . expi
+
+    VALOR_INT  desplazar e ir al estado 3
+
+    expi  ir al estado 22
+
+
+estado 12
+
+   10 expi: expi '/' . expi
+
+    VALOR_INT  desplazar e ir al estado 3
+
+    expi  ir al estado 23
+
+
+estado 13
+
+    2 lista: expi $@1 . FIN_DE_LINEA lista
+
+    FIN_DE_LINEA  desplazar e ir al estado 24
+
+
+estado 14
+
+   13 expf: expf '-' . expf
+
+    VALOR_FLOAT  desplazar e ir al estado 2
+
+    expf  ir al estado 25
+
+
+estado 15
+
+   14 expf: expf '+' . expf
+
+    VALOR_FLOAT  desplazar e ir al estado 2
+
+    expf  ir al estado 26
+
+
+estado 16
+
+   16 expf: expf '*' . expf
+
+    VALOR_FLOAT  desplazar e ir al estado 2
+
+    expf  ir al estado 27
+
+
+estado 17
+
+   15 expf: expf '/' . expf
+
+    VALOR_FLOAT  desplazar e ir al estado 2
+
+    expf  ir al estado 28
+
+
+estado 18
+
+    4 lista: expf $@2 . FIN_DE_LINEA lista
+
+    FIN_DE_LINEA  desplazar e ir al estado 29
+
+
+estado 19
+
+    7 lista: error FIN_DE_LINEA $@3 . lista
+
+    error        desplazar e ir al estado 1
+    VALOR_FLOAT  desplazar e ir al estado 2
+    VALOR_INT    desplazar e ir al estado 3
+
+    $end  reduce usando la regla 5 (lista)
+
+    lista  ir al estado 30
+    expi   ir al estado 5
+    expf   ir al estado 6
+
+
+estado 20
+
+    8 expi: expi . '-' expi
+    8     | expi '-' expi .
+    9     | expi . '+' expi
+   10     | expi . '/' expi
+   11     | expi . '*' expi
+
+    '*'  desplazar e ir al estado 11
+    '/'  desplazar e ir al estado 12
+
+    $default  reduce usando la regla 8 (expi)
+
+
+estado 21
+
+    8 expi: expi . '-' expi
+    9     | expi . '+' expi
+    9     | expi '+' expi .
+   10     | expi . '/' expi
+   11     | expi . '*' expi
+
+    '*'  desplazar e ir al estado 11
+    '/'  desplazar e ir al estado 12
+
+    $default  reduce usando la regla 9 (expi)
+
+
+estado 22
+
+    8 expi: expi . '-' expi
+    9     | expi . '+' expi
+   10     | expi . '/' expi
+   11     | expi . '*' expi
+   11     | expi '*' expi .
+
+    $default  reduce usando la regla 11 (expi)
+
+
+estado 23
+
+    8 expi: expi . '-' expi
+    9     | expi . '+' expi
+   10     | expi . '/' expi
+   10     | expi '/' expi .
+   11     | expi . '*' expi
+
+    $default  reduce usando la regla 10 (expi)
+
+
+estado 24
+
+    2 lista: expi $@1 FIN_DE_LINEA . lista
+
+    error        desplazar e ir al estado 1
+    VALOR_FLOAT  desplazar e ir al estado 2
+    VALOR_INT    desplazar e ir al estado 3
+
+    $end  reduce usando la regla 5 (lista)
+
+    lista  ir al estado 31
+    expi   ir al estado 5
+    expf   ir al estado 6
+
+
+estado 25
+
+   13 expf: expf . '-' expf
+   13     | expf '-' expf .
+   14     | expf . '+' expf
+   15     | expf . '/' expf
+   16     | expf . '*' expf
+
+    '*'  desplazar e ir al estado 16
+    '/'  desplazar e ir al estado 17
+
+    $default  reduce usando la regla 13 (expf)
+
+
+estado 26
+
+   13 expf: expf . '-' expf
+   14     | expf . '+' expf
+   14     | expf '+' expf .
+   15     | expf . '/' expf
+   16     | expf . '*' expf
+
+    '*'  desplazar e ir al estado 16
+    '/'  desplazar e ir al estado 17
+
+    $default  reduce usando la regla 14 (expf)
+
+
+estado 27
+
+   13 expf: expf . '-' expf
+   14     | expf . '+' expf
+   15     | expf . '/' expf
+   16     | expf . '*' expf
+   16     | expf '*' expf .
+
+    $default  reduce usando la regla 16 (expf)
+
+
+estado 28
+
+   13 expf: expf . '-' expf
+   14     | expf . '+' expf
+   15     | expf . '/' expf
+   15     | expf '/' expf .
+   16     | expf . '*' expf
+
+    $default  reduce usando la regla 15 (expf)
+
+
+estado 29
+
+    4 lista: expf $@2 FIN_DE_LINEA . lista
+
+    error        desplazar e ir al estado 1
+    VALOR_FLOAT  desplazar e ir al estado 2
+    VALOR_INT    desplazar e ir al estado 3
+
+    $end  reduce usando la regla 5 (lista)
+
+    lista  ir al estado 32
+    expi   ir al estado 5
+    expf   ir al estado 6
+
+
+estado 30
+
+    7 lista: error FIN_DE_LINEA $@3 lista .
+
+    $default  reduce usando la regla 7 (lista)
+
+
+estado 31
+
+    2 lista: expi $@1 FIN_DE_LINEA lista .
+
+    $default  reduce usando la regla 2 (lista)
+
+
+estado 32
+
+    4 lista: expf $@2 FIN_DE_LINEA lista .
+
+    $default  reduce usando la regla 4 (lista)

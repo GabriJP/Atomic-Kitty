@@ -5,8 +5,9 @@
 %{
 /* need this for the call to atof() below */
 #include <math.h>
+#include "miint.tab.h"
 
-#define VALOR_INT 257
+
 #define VALOR_FLOAT 258
 #define ABREBLOQUE 259
 #define CIERRABLOQUE 260
@@ -18,7 +19,6 @@
 #define BOOL 266
 #define VOID 267
 #define STRING 278
-#define FIN_DE_LINEA 279
 #define IF 280
 #define WHILE 281
 #define FOR 282
@@ -35,6 +35,7 @@
 #define VALOR_STRING 293
 #define VALOR_BOOL 294
 #define WHEN_CASE 294
+
 
 #define YY_USER_ACTION																	\
 {																											\
@@ -61,12 +62,12 @@ DIGIT      														[0-9]
 LETTER     														[a-zA-Z]
 WORD															{LETTER}|{DIGIT}
 IDENTIFIER 														{LETTER}{WORD}*
-ENTERO 	   														[+-]?{DIGIT}+
-FLOTANTE															[+-]?{ENTERO}("."{DIGIT}+)?
+ENTERO 	   														{DIGIT}+
+FLOTANTE															{ENTERO}("."{DIGIT}+)?
 TABULADOR															\t|(" "{4})
 ABREPAR																"("
 CIERRAPAR															")"
-OPERADOR															["=""+""\-""*""/"]
+OPERADOR															[=/+*-]
 MAYORIGUAL														>=
 MENORIGUAL														<=
 ISNOT																	is not
@@ -88,10 +89,10 @@ TUPLA																	"("({SPACE_PRIMITIVE},)*{SPACE_PRIMITIVE}")"
 \n{WORD}												{
   																			tabulado = 0;
   																			yyless(1);
+																			return FIN_DE_LINEA;
 																			}
 
 \n																		{
-  																			printf( "FINLINEA\n");
 																				return FIN_DE_LINEA;
 																			}
 
@@ -174,8 +175,9 @@ string																{
 																			}
 
 {ENTERO}															{
-																				printf("Entero: %d\n", atoi( yytext ));
+																				yylval.entero = atoi(yytext);
 																				return VALOR_INT;
+
 																			}
 
 {FLOTANTE}														{
@@ -189,7 +191,7 @@ string																{
 																			}
 
 {OPERADOR}														{
-																				printf( "An operator: %s\n", yytext );
+																				
 																				return yytext[0];
 																			}
 
@@ -287,10 +289,10 @@ or                                    {
 
 %%
 
-int main(int argc, char** argv){
+/*int main(int argc, char** argv){
 	int s;
 	if(argc>1) yyin=fopen(argv[1],"r");
 	do printf("%i ",s=yylex());
 	while(s != 0);
   return 0;
-}
+}*/
