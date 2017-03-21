@@ -32,9 +32,8 @@ int yylex();
 
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
               				|
-					| bloque FIN_DE_LINEA lista
 					| func FIN_DE_LINEA lista
-					| inst_l FIN_DE_LINEA lista
+					/*| inst_l FIN_DE_LINEA lista //Como corregimos esto? */
 					;
 
 exp_l					: exp
@@ -134,7 +133,7 @@ cases					: exp WHEN_CASE exp
 					;	
 
 when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-/*					| WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE*/
+					| WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					;
 
 for					: FOR in ':' FIN_DE_LINEA bloque
