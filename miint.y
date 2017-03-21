@@ -19,6 +19,12 @@ int yylex();
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
 %token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN
+
+%right '='
+%left ','
+%left IN
+%left AND OR RANGE
+%left IS NOTIS	
 %left '-' '+'
 %left '*' '/'
 
@@ -27,6 +33,8 @@ int yylex();
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
               				|
 					| bloque FIN_DE_LINEA lista
+					| func FIN_DE_LINEA lista
+					| inst_l FIN_DE_LINEA lista
 					;
 
 exp_l					: exp
@@ -36,7 +44,9 @@ exp_l					: exp
 tupla 					: '(' exp_l ')'
 					;
 
-func					: IDENTIFICADOR tupla
+tupla_decl				: '(' tipo_l ')';
+
+func_call				: IDENTIFICADOR tupla
 					| IDENTIFICADOR '(' ')'
 					;
 
@@ -47,8 +57,7 @@ exp					: exp '-' exp
 					| exp AND exp
 					| exp OR exp
 					| is
-					| func
-					| in
+					| func_call
 					| VALOR_INT
 					| VALOR_FLOAT
 					| VALOR_DOUBLE
@@ -59,7 +68,7 @@ exp					: exp '-' exp
 					| IDENTIFICADOR
 					;
 
-tipo					: tupla
+tipo					: tupla_decl
 					| INT
 					| FLOAT
 					| LONG
@@ -69,11 +78,13 @@ tipo					: tupla
 					| CHAR
 					;
 
-
-ret_tipo				: tipo
-					| VOID
+tipo_l					: tipo
+					| tipo ',' tipo_l
 					;
 
+args					: tipo IDENTIFICADOR
+					| tipo IDENTIFICADOR ',' tipo_l
+					;
 
 init					: tipo IDENTIFICADOR '=' exp
 					;
@@ -82,10 +93,6 @@ asign					: IDENTIFICADOR '=' exp
 					;
 
 decl					: tipo IDENTIFICADOR
-					;
-
-rango					: exp RANGE exp
-					| exp RANGE exp ',' exp
 					;
 
 in					: IDENTIFICADOR IN rango
@@ -102,7 +109,10 @@ inst					: exp
 					| decl
 					| when
 					| for
+					| while
+					| if
 					| bloque
+					| RETURN exp
 					;
 
 inst_l					: inst
@@ -113,14 +123,42 @@ bloque					: ABREBLOQUE CIERRABLOQUE
 					| ABREBLOQUE inst_l CIERRABLOQUE
 					;
 
-cases					: exp WHEN_CASE exp
-					| exp WHEN_CASE exp FIN_DE_LINEA cases
-
-when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-
-for					: FOR exp ':' FIN_DE_LINEA bloque
+func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
+					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque
+					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
+					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque
 					;
 
+cases					: exp WHEN_CASE exp
+					| exp WHEN_CASE exp FIN_DE_LINEA cases
+					;	
+
+when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+/*					| WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE*/
+					;
+
+for					: FOR in ':' FIN_DE_LINEA bloque
+					;
+
+if					: IF exp ':' FIN_DE_LINEA bloque
+					| IF exp ':' FIN_DE_LINEA bloque else
+					| IF exp ':' FIN_DE_LINEA bloque elif_l
+					| IF exp ':' FIN_DE_LINEA bloque elif_l else
+					;
+
+elif_l					: ELIF exp ':' FIN_DE_LINEA bloque
+					| ELIF exp ':' FIN_DE_LINEA bloque elif_l
+					;
+
+else					: ELSE exp ':' FIN_DE_LINEA bloque
+					;
+
+while					: WHILE exp ':' FIN_DE_LINEA bloque
+					;
+
+rango					: exp RANGE exp
+					| exp RANGE exp ',' exp
+					;
 %%
 
 int main(int argc, char** argv) {
