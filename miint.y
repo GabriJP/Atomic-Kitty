@@ -5,6 +5,10 @@
 extern  void  yyerror(char *);
 extern FILE *yyin;
 int yydebug=1;
+#if YYBISON
+union YYSTYPE;
+int yylex();
+#endif
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; }

@@ -84,7 +84,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 10 "miint.y" /* yacc.c:1909  */
+#line 14 "miint.y" /* yacc.c:1909  */
  float f; double d; int i; long l; char c; char* str; 
 
 #line 91 "miint.tab.h" /* yacc.c:1909  */

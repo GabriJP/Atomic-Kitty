@@ -69,8 +69,12 @@
 extern  void  yyerror(char *);
 extern FILE *yyin;
 int yydebug=1;
+#if YYBISON
+union YYSTYPE;
+int yylex();
+#endif
 
-#line 74 "miint.tab.c" /* yacc.c:339  */
+#line 78 "miint.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -144,10 +148,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 10 "miint.y" /* yacc.c:355  */
+#line 14 "miint.y" /* yacc.c:355  */
  float f; double d; int i; long l; char c; char* str; 
 
-#line 151 "miint.tab.c" /* yacc.c:355  */
+#line 155 "miint.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -164,7 +168,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 168 "miint.tab.c" /* yacc.c:358  */
+#line 172 "miint.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -464,7 +468,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    23,    23,    23,    24
+       0,    27,    27,    27,    28
 };
 #endif
 
@@ -1239,13 +1243,13 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 23 "miint.y" /* yacc.c:1646  */
+#line 27 "miint.y" /* yacc.c:1646  */
     {printf(" en expresión\n");}
-#line 1245 "miint.tab.c" /* yacc.c:1646  */
+#line 1249 "miint.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1249 "miint.tab.c" /* yacc.c:1646  */
+#line 1253 "miint.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1473,7 +1477,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 78 "miint.y" /* yacc.c:1906  */
+#line 82 "miint.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {
