@@ -34,7 +34,7 @@
 # define YY_YY_MIINT_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -72,10 +72,13 @@ extern int yydebug;
     NOTIS = 282,
     IS = 283,
     OR = 284,
-    RANGE = 285,
-    RETURN = 286,
-    ABREBLOQUE = 287,
-    CIERRABLOQUE = 288
+    AND = 285,
+    RANGE = 286,
+    RETURN = 287,
+    ABREBLOQUE = 288,
+    CIERRABLOQUE = 289,
+    IN = 290,
+    NOTIN = 291
   };
 #endif
 
@@ -87,7 +90,7 @@ union YYSTYPE
 #line 14 "miint.y" /* yacc.c:1909  */
  float f; double d; int i; long l; char c; char* str; 
 
-#line 91 "miint.tab.h" /* yacc.c:1909  */
+#line 94 "miint.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

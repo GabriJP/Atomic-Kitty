@@ -18,66 +18,108 @@ int yylex();
 %token <l> VALOR_LONG
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
-%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR RANGE RETURN ABREBLOQUE CIERRABLOQUE
+%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN
 %left '-' '+'
 %left '*' '/'
 
 %%
 
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
-              |
-							;
+              				|
+					| bloque FIN_DE_LINEA lista
+					;
 
 exp_l					: exp
-							| exp ',' exp_l
-							;
+					| exp ',' exp_l
+					;
 
-tupla 				: '(' exp_l ')'
-							;
+tupla 					: '(' exp_l ')'
+					;
 
 func					: IDENTIFICADOR tupla
-							| IDENTIFICADOR '(' ')'
-							;
+					| IDENTIFICADOR '(' ')'
+					;
 
-exp						: exp '-' exp
-							| exp '+' exp
-							| exp '/' exp
-							| exp '*' exp
-							| func
-							| VALOR_INT
-							| VALOR_FLOAT
-							;
-
-
+exp					: exp '-' exp
+					| exp '+' exp
+					| exp '/' exp
+					| exp '*' exp
+					| exp AND exp
+					| exp OR exp
+					| is
+					| func
+					| in
+					| VALOR_INT
+					| VALOR_FLOAT
+					| VALOR_DOUBLE
+					| VALOR_LONG
+					| VALOR_BOOL
+					| VALOR_CHAR
+					| VALOR_STRING
+					| IDENTIFICADOR
+					;
 
 tipo					: tupla
-							| INT
-							| FLOAT
-							| LONG
-							| DOUBLE
-							| BOOL
-							| STRING
-							;
+					| INT
+					| FLOAT
+					| LONG
+					| DOUBLE
+					| BOOL
+					| STRING
+					| CHAR
+					;
 
-ret_tipo			: tipo
-							| VOID
-							;
+
+ret_tipo				: tipo
+					| VOID
+					;
 
 
 init					: tipo IDENTIFICADOR '=' exp
-							;
+					;
 
 asign					: IDENTIFICADOR '=' exp
-							;
+					;
 
 decl					: tipo IDENTIFICADOR
-							;
+					;
+
+rango					: exp RANGE exp
+					| exp RANGE exp ',' exp
+					;
+
+in					: IDENTIFICADOR IN rango
+					| IDENTIFICADOR NOTIN rango
+					;
+
+is					: exp IS exp
+					| exp NOTIS exp
+					;
 
 inst					: exp
-							| init
-							| asign
-							| decl
-							;
+					| init
+					| asign
+					| decl
+					| when
+					| for
+					| bloque
+					;
+
+inst_l					: inst
+					| inst FIN_DE_LINEA inst_l
+					;
+
+bloque					: ABREBLOQUE CIERRABLOQUE
+					| ABREBLOQUE inst_l CIERRABLOQUE
+					;
+
+cases					: exp WHEN_CASE exp
+					| exp WHEN_CASE exp FIN_DE_LINEA cases
+
+when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+
+for					: FOR exp ':' FIN_DE_LINEA bloque
+					;
 
 %%
 

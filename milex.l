@@ -181,6 +181,14 @@ or                                                       {
                                                              return OR;
                                                          }
 
+in							 {
+							     return IN;
+							 }
+
+"not is" 						 {
+							     return NOTIS;
+							 }
+
 ".."                                                     {
                                                              return RANGE;
                                                          }
