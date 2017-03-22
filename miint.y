@@ -33,7 +33,7 @@ int yylex();
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
               				|
 					| func FIN_DE_LINEA lista
-					/*| inst_l FIN_DE_LINEA lista //Como corregimos esto? */
+					| inst_l FIN_DE_LINEA lista //Como corregimos esto?
 					;
 
 exp_l					: exp
@@ -115,7 +115,7 @@ inst					: exp
 					| RETURN exp
 					;
 
-inst_l					: inst
+inst_l					: inst FIN_DE_LINEA
 					| inst FIN_DE_LINEA inst_l
 					;
 
