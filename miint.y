@@ -65,6 +65,7 @@ exp					: exp '-' exp
 					| VALOR_CHAR
 					| VALOR_STRING
 					| IDENTIFICADOR
+					| tupla
 					;
 
 tipo					: tupla_decl
@@ -149,7 +150,7 @@ elif_l					: ELIF exp ':' FIN_DE_LINEA bloque
 					| ELIF exp ':' FIN_DE_LINEA bloque elif_l
 					;
 
-else					: ELSE exp ':' FIN_DE_LINEA bloque
+else					: ELSE ':' FIN_DE_LINEA bloque
 					;
 
 while					: WHILE exp ':' FIN_DE_LINEA bloque
