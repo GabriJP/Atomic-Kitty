@@ -18,7 +18,7 @@ int yylex();
 %token <l> VALOR_LONG
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
-%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN
+%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN ACCESO
 
 %right '='
 %left ','
@@ -31,6 +31,7 @@ int yylex();
 %%
 
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
+					| FIN_DE_LINEA lista
               				|
 					| func FIN_DE_LINEA lista
 					| inst_l FIN_DE_LINEA lista //Como corregimos esto?
@@ -66,6 +67,7 @@ exp					: exp '-' exp
 					| VALOR_STRING
 					| IDENTIFICADOR
 					| tupla
+					| IDENTIFICADOR ACCESO
 					;
 
 tipo					: tupla_decl

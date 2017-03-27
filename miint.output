@@ -2,10 +2,10 @@ Gramática
 
     0 $accept: lista $end
 
-    1 $@1: %empty
+    1 $@1: /* vacío */
 
     2 lista: error FIN_DE_LINEA $@1 lista
-    3      | %empty
+    3      | /* vacío */
     4      | func FIN_DE_LINEA lista
     5      | inst_l FIN_DE_LINEA lista
 
@@ -225,7 +225,7 @@ rango (73)
     en la izquierda: 79 80, en la derecha: 44 45 69
 
 
-Estado 0
+estado 0
 
     0 $accept: . lista $end
 
@@ -276,63 +276,63 @@ Estado 0
     while       ir al estado 42
 
 
-Estado 1
+estado 1
 
     2 lista: error . FIN_DE_LINEA $@1 lista
 
     FIN_DE_LINEA  desplazar e ir al estado 43
 
 
-Estado 2
+estado 2
 
    21 exp: VALOR_FLOAT .
 
     $default  reduce usando la regla 21 (exp)
 
 
-Estado 3
+estado 3
 
    22 exp: VALOR_DOUBLE .
 
     $default  reduce usando la regla 22 (exp)
 
 
-Estado 4
+estado 4
 
    20 exp: VALOR_INT .
 
     $default  reduce usando la regla 20 (exp)
 
 
-Estado 5
+estado 5
 
    24 exp: VALOR_BOOL .
 
     $default  reduce usando la regla 24 (exp)
 
 
-Estado 6
+estado 6
 
    23 exp: VALOR_LONG .
 
     $default  reduce usando la regla 23 (exp)
 
 
-Estado 7
+estado 7
 
    25 exp: VALOR_CHAR .
 
     $default  reduce usando la regla 25 (exp)
 
 
-Estado 8
+estado 8
 
    26 exp: VALOR_STRING .
 
     $default  reduce usando la regla 26 (exp)
 
 
-Estado 9
+estado 9
 
    10 func_call: IDENTIFICADOR . tupla
    11          | IDENTIFICADOR . '(' ')'
@@ -347,49 +347,49 @@ Estado 9
     tupla  ir al estado 46
 
 
-Estado 10
+estado 10
 
    30 tipo: INT .
 
     $default  reduce usando la regla 30 (tipo)
 
 
-Estado 11
+estado 11
 
    32 tipo: LONG .
 
     $default  reduce usando la regla 32 (tipo)
 
 
-Estado 12
+estado 12
 
    31 tipo: FLOAT .
 
     $default  reduce usando la regla 31 (tipo)
 
 
-Estado 13
+estado 13
 
    33 tipo: DOUBLE .
 
     $default  reduce usando la regla 33 (tipo)
 
 
-Estado 14
+estado 14
 
    34 tipo: BOOL .
 
     $default  reduce usando la regla 34 (tipo)
 
 
-Estado 15
+estado 15
 
    35 tipo: STRING .
 
     $default  reduce usando la regla 35 (tipo)
 
 
-Estado 16
+estado 16
 
    64 func: VOID . IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
    65     | VOID . IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque
@@ -397,14 +397,14 @@ Estado 16
     IDENTIFICADOR  desplazar e ir al estado 47
 
 
-Estado 17
+estado 17
 
    36 tipo: CHAR .
 
     $default  reduce usando la regla 36 (tipo)
 
 
-Estado 18
+estado 18
 
    68 when: WHEN . exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
    69     | WHEN . rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
@@ -426,7 +426,7 @@ Estado 18
     rango      ir al estado 51
 
 
-Estado 19
+estado 19
 
    71 if: IF . exp ':' FIN_DE_LINEA bloque
    72   | IF . exp ':' FIN_DE_LINEA bloque else
@@ -449,7 +449,7 @@ Estado 19
     is         ir al estado 34
 
 
-Estado 20
+estado 20
 
    78 while: WHILE . exp ':' FIN_DE_LINEA bloque
 
@@ -469,7 +469,7 @@ Estado 20
     is         ir al estado 34
 
 
-Estado 21
+estado 21
 
    70 for: FOR . in ':' FIN_DE_LINEA bloque
 
@@ -478,7 +478,7 @@ Estado 21
     in  ir al estado 55
 
 
-Estado 22
+estado 22
 
    57 inst: RETURN . exp
 
@@ -498,7 +498,7 @@ Estado 22
     is         ir al estado 34
 
 
-Estado 23
+estado 23
 
    60 bloque: ABREBLOQUE . CIERRABLOQUE
    61       | ABREBLOQUE . inst_l CIERRABLOQUE
@@ -545,7 +545,7 @@ Estado 23
     while       ir al estado 42
 
 
-Estado 24
+estado 24
 
     8 tupla: '(' . exp_l ')'
     9 tupla_decl: '(' . tipo_l ')'
@@ -577,35 +577,35 @@ Estado 24
     is          ir al estado 34
 
 
-Estado 25
+estado 25
 
     0 $accept: lista . $end
 
     $end  desplazar e ir al estado 64
 
 
-Estado 26
+estado 26
 
    28 exp: tupla .
 
     $default  reduce usando la regla 28 (exp)
 
 
-Estado 27
+estado 27
 
    29 tipo: tupla_decl .
 
     $default  reduce usando la regla 29 (tipo)
 
 
-Estado 28
+estado 28
 
    19 exp: func_call .
 
     $default  reduce usando la regla 19 (exp)
 
 
-Estado 29
+estado 29
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -629,7 +629,7 @@ Estado 29
     $default  reduce usando la regla 48 (inst)
 
 
-Estado 30
+estado 30
 
    41 init: tipo . IDENTIFICADOR '=' exp
    43 decl: tipo . IDENTIFICADOR
@@ -639,35 +639,35 @@ Estado 30
     IDENTIFICADOR  desplazar e ir al estado 73
 
 
-Estado 31
+estado 31
 
    49 inst: init .
 
     $default  reduce usando la regla 49 (inst)
 
 
-Estado 32
+estado 32
 
    50 inst: asign .
 
     $default  reduce usando la regla 50 (inst)
 
 
-Estado 33
+estado 33
 
    51 inst: decl .
 
     $default  reduce usando la regla 51 (inst)
 
 
-Estado 34
+estado 34
 
    18 exp: is .
 
     $default  reduce usando la regla 18 (exp)
 
 
-Estado 35
+estado 35
 
    58 inst_l: inst . FIN_DE_LINEA
    59       | inst . FIN_DE_LINEA inst_l
@@ -675,56 +675,56 @@ Estado 35
     FIN_DE_LINEA  desplazar e ir al estado 74
 
 
-Estado 36
+estado 36
 
     5 lista: inst_l . FIN_DE_LINEA lista
 
     FIN_DE_LINEA  desplazar e ir al estado 75
 
 
-Estado 37
+estado 37
 
    56 inst: bloque .
 
     $default  reduce usando la regla 56 (inst)
 
 
-Estado 38
+estado 38
 
     4 lista: func . FIN_DE_LINEA lista
 
     FIN_DE_LINEA  desplazar e ir al estado 76
 
 
-Estado 39
+estado 39
 
    52 inst: when .
 
     $default  reduce usando la regla 52 (inst)
 
 
-Estado 40
+estado 40
 
    53 inst: for .
 
     $default  reduce usando la regla 53 (inst)
 
 
-Estado 41
+estado 41
 
    55 inst: if .
 
     $default  reduce usando la regla 55 (inst)
 
 
-Estado 42
+estado 42
 
    54 inst: while .
 
     $default  reduce usando la regla 54 (inst)
 
 
-Estado 43
+estado 43
 
     2 lista: error FIN_DE_LINEA . $@1 lista
 
@@ -733,7 +733,7 @@ Estado 43
     $@1  ir al estado 77
 
 
-Estado 44
+estado 44
 
    42 asign: IDENTIFICADOR '=' . exp
 
@@ -753,7 +753,7 @@ Estado 44
     is         ir al estado 34
 
 
-Estado 45
+estado 45
 
     8 tupla: '(' . exp_l ')'
    11 func_call: IDENTIFICADOR '(' . ')'
@@ -776,14 +776,14 @@ Estado 45
     is         ir al estado 34
 
 
-Estado 46
+estado 46
 
    10 func_call: IDENTIFICADOR tupla .
 
     $default  reduce usando la regla 10 (func_call)
 
 
-Estado 47
+estado 47
 
    64 func: VOID IDENTIFICADOR . '(' ')' ':' FIN_DE_LINEA bloque
    65     | VOID IDENTIFICADOR . '(' args ')' ':' FIN_DE_LINEA bloque
@@ -791,7 +791,7 @@ Estado 47
     '('  desplazar e ir al estado 80
 
 
-Estado 48
+estado 48
 
    10 func_call: IDENTIFICADOR . tupla
    11          | IDENTIFICADOR . '(' ')'
@@ -804,7 +804,7 @@ Estado 48
     tupla  ir al estado 46
 
 
-Estado 49
+estado 49
 
     8 tupla: '(' . exp_l ')'
 
@@ -825,7 +825,7 @@ Estado 49
     is         ir al estado 34
 
 
-Estado 50
+estado 50
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -851,14 +851,14 @@ Estado 50
     ':'    desplazar e ir al estado 82
 
 
-Estado 51
+estado 51
 
    69 when: WHEN rango . ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     ':'  desplazar e ir al estado 83
 
 
-Estado 52
+estado 52
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -884,7 +884,7 @@ Estado 52
     ':'    desplazar e ir al estado 84
 
 
-Estado 53
+estado 53
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -907,7 +907,7 @@ Estado 53
     ':'    desplazar e ir al estado 85
 
 
-Estado 54
+estado 54
 
    44 in: IDENTIFICADOR . IN rango
    45   | IDENTIFICADOR . NOTIN rango
@@ -916,14 +916,14 @@ Estado 54
     NOTIN  desplazar e ir al estado 87
 
 
-Estado 55
+estado 55
 
    70 for: FOR in . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 88
 
 
-Estado 56
+estado 56
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -947,14 +947,14 @@ Estado 56
     $default  reduce usando la regla 57 (inst)
 
 
-Estado 57
+estado 57
 
    60 bloque: ABREBLOQUE CIERRABLOQUE .
 
     $default  reduce usando la regla 60 (bloque)
 
 
-Estado 58
+estado 58
 
    41 init: tipo . IDENTIFICADOR '=' exp
    43 decl: tipo . IDENTIFICADOR
@@ -962,21 +962,21 @@ Estado 58
     IDENTIFICADOR  desplazar e ir al estado 89
 
 
-Estado 59
+estado 59
 
    61 bloque: ABREBLOQUE inst_l . CIERRABLOQUE
 
     CIERRABLOQUE  desplazar e ir al estado 90
 
 
-Estado 60
+estado 60
 
     8 tupla: '(' exp_l . ')'
 
     ')'  desplazar e ir al estado 91
 
 
-Estado 61
+estado 61
 
     6 exp_l: exp .
     7      | exp . ',' exp_l
@@ -1002,7 +1002,7 @@ Estado 61
     $default  reduce usando la regla 6 (exp_l)
 
 
-Estado 62
+estado 62
 
    37 tipo_l: tipo .
    38       | tipo . ',' tipo_l
@@ -1012,21 +1012,21 @@ Estado 62
     $default  reduce usando la regla 37 (tipo_l)
 
 
-Estado 63
+estado 63
 
     9 tupla_decl: '(' tipo_l . ')'
 
     ')'  desplazar e ir al estado 94
 
 
-Estado 64
+estado 64
 
     0 $accept: lista $end .
 
     $default  aceptar
 
 
-Estado 65
+estado 65
 
    47 is: exp NOTIS . exp
 
@@ -1046,7 +1046,7 @@ Estado 65
     is         ir al estado 34
 
 
-Estado 66
+estado 66
 
    46 is: exp IS . exp
 
@@ -1066,7 +1066,7 @@ Estado 66
     is         ir al estado 34
 
 
-Estado 67
+estado 67
 
    17 exp: exp OR . exp
 
@@ -1086,7 +1086,7 @@ Estado 67
     is         ir al estado 34
 
 
-Estado 68
+estado 68
 
    16 exp: exp AND . exp
 
@@ -1106,7 +1106,7 @@ Estado 68
     is         ir al estado 34
 
 
-Estado 69
+estado 69
 
    12 exp: exp '-' . exp
 
@@ -1126,7 +1126,7 @@ Estado 69
     is         ir al estado 34
 
 
-Estado 70
+estado 70
 
    13 exp: exp '+' . exp
 
@@ -1146,7 +1146,7 @@ Estado 70
     is         ir al estado 34
 
 
-Estado 71
+estado 71
 
    15 exp: exp '*' . exp
 
@@ -1166,7 +1166,7 @@ Estado 71
     is         ir al estado 34
 
 
-Estado 72
+estado 72
 
    14 exp: exp '/' . exp
 
@@ -1186,7 +1186,7 @@ Estado 72
     is         ir al estado 34
 
 
-Estado 73
+estado 73
 
    41 init: tipo IDENTIFICADOR . '=' exp
    43 decl: tipo IDENTIFICADOR .
@@ -1199,7 +1199,7 @@ Estado 73
     $default  reduce usando la regla 43 (decl)
 
 
-Estado 74
+estado 74
 
    58 inst_l: inst FIN_DE_LINEA .
    59       | inst FIN_DE_LINEA . inst_l
@@ -1247,7 +1247,7 @@ Estado 74
     while       ir al estado 42
 
 
-Estado 75
+estado 75
 
     5 lista: inst_l FIN_DE_LINEA . lista
 
@@ -1298,7 +1298,7 @@ Estado 75
     while       ir al estado 42
 
 
-Estado 76
+estado 76
 
     4 lista: func FIN_DE_LINEA . lista
 
@@ -1349,7 +1349,7 @@ Estado 76
     while       ir al estado 42
 
 
-Estado 77
+estado 77
 
     2 lista: error FIN_DE_LINEA $@1 . lista
 
@@ -1400,7 +1400,7 @@ Estado 77
     while       ir al estado 42
 
 
-Estado 78
+estado 78
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1424,14 +1424,14 @@ Estado 78
     $default  reduce usando la regla 42 (asign)
 
 
-Estado 79
+estado 79
 
    11 func_call: IDENTIFICADOR '(' ')' .
 
     $default  reduce usando la regla 11 (func_call)
 
 
-Estado 80
+estado 80
 
    64 func: VOID IDENTIFICADOR '(' . ')' ':' FIN_DE_LINEA bloque
    65     | VOID IDENTIFICADOR '(' . args ')' ':' FIN_DE_LINEA bloque
@@ -1451,7 +1451,7 @@ Estado 80
     args        ir al estado 112
 
 
-Estado 81
+estado 81
 
    79 rango: exp RANGE . exp
    80      | exp RANGE . exp ',' exp
@@ -1472,21 +1472,21 @@ Estado 81
     is         ir al estado 34
 
 
-Estado 82
+estado 82
 
    68 when: WHEN exp ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     FIN_DE_LINEA  desplazar e ir al estado 114
 
 
-Estado 83
+estado 83
 
    69 when: WHEN rango ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     FIN_DE_LINEA  desplazar e ir al estado 115
 
 
-Estado 84
+estado 84
 
    71 if: IF exp ':' . FIN_DE_LINEA bloque
    72   | IF exp ':' . FIN_DE_LINEA bloque else
@@ -1496,14 +1496,14 @@ Estado 84
     FIN_DE_LINEA  desplazar e ir al estado 116
 
 
-Estado 85
+estado 85
 
    78 while: WHILE exp ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 117
 
 
-Estado 86
+estado 86
 
    44 in: IDENTIFICADOR IN . rango
 
@@ -1524,7 +1524,7 @@ Estado 86
     rango      ir al estado 119
 
 
-Estado 87
+estado 87
 
    45 in: IDENTIFICADOR NOTIN . rango
 
@@ -1545,14 +1545,14 @@ Estado 87
     rango      ir al estado 120
 
 
-Estado 88
+estado 88
 
    70 for: FOR in ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 121
 
 
-Estado 89
+estado 89
 
    41 init: tipo IDENTIFICADOR . '=' exp
    43 decl: tipo IDENTIFICADOR .
@@ -1562,21 +1562,21 @@ Estado 89
     $default  reduce usando la regla 43 (decl)
 
 
-Estado 90
+estado 90
 
    61 bloque: ABREBLOQUE inst_l CIERRABLOQUE .
 
     $default  reduce usando la regla 61 (bloque)
 
 
-Estado 91
+estado 91
 
     8 tupla: '(' exp_l ')' .
 
     $default  reduce usando la regla 8 (tupla)
 
 
-Estado 92
+estado 92
 
     7 exp_l: exp ',' . exp_l
 
@@ -1597,7 +1597,7 @@ Estado 92
     is         ir al estado 34
 
 
-Estado 93
+estado 93
 
    38 tipo_l: tipo ',' . tipo_l
 
@@ -1615,14 +1615,14 @@ Estado 93
     tipo_l      ir al estado 123
 
 
-Estado 94
+estado 94
 
     9 tupla_decl: '(' tipo_l ')' .
 
     $default  reduce usando la regla 9 (tupla_decl)
 
 
-Estado 95
+estado 95
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1642,7 +1642,7 @@ Estado 95
     $default  reduce usando la regla 47 (is)
 
 
-Estado 96
+estado 96
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1662,7 +1662,7 @@ Estado 96
     $default  reduce usando la regla 46 (is)
 
 
-Estado 97
+estado 97
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1684,7 +1684,7 @@ Estado 97
     $default  reduce usando la regla 17 (exp)
 
 
-Estado 98
+estado 98
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1706,7 +1706,7 @@ Estado 98
     $default  reduce usando la regla 16 (exp)
 
 
-Estado 99
+estado 99
 
    12 exp: exp . '-' exp
    12    | exp '-' exp .
@@ -1724,7 +1724,7 @@ Estado 99
     $default  reduce usando la regla 12 (exp)
 
 
-Estado 100
+estado 100
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1742,7 +1742,7 @@ Estado 100
     $default  reduce usando la regla 13 (exp)
 
 
-Estado 101
+estado 101
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1757,7 +1757,7 @@ Estado 101
     $default  reduce usando la regla 15 (exp)
 
 
-Estado 102
+estado 102
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1772,7 +1772,7 @@ Estado 102
     $default  reduce usando la regla 14 (exp)
 
 
-Estado 103
+estado 103
 
    41 init: tipo IDENTIFICADOR '=' . exp
 
@@ -1792,7 +1792,7 @@ Estado 103
     is         ir al estado 34
 
 
-Estado 104
+estado 104
 
    62 func: tipo IDENTIFICADOR '(' . ')' ':' FIN_DE_LINEA bloque
    63     | tipo IDENTIFICADOR '(' . args ')' ':' FIN_DE_LINEA bloque
@@ -1812,35 +1812,35 @@ Estado 104
     args        ir al estado 126
 
 
-Estado 105
+estado 105
 
    59 inst_l: inst FIN_DE_LINEA inst_l .
 
     $default  reduce usando la regla 59 (inst_l)
 
 
-Estado 106
+estado 106
 
     5 lista: inst_l FIN_DE_LINEA lista .
 
     $default  reduce usando la regla 5 (lista)
 
 
-Estado 107
+estado 107
 
     4 lista: func FIN_DE_LINEA lista .
 
     $default  reduce usando la regla 4 (lista)
 
 
-Estado 108
+estado 108
 
     2 lista: error FIN_DE_LINEA $@1 lista .
 
     $default  reduce usando la regla 2 (lista)
 
 
-Estado 109
+estado 109
 
     9 tupla_decl: '(' . tipo_l ')'
 
@@ -1858,14 +1858,14 @@ Estado 109
     tipo_l      ir al estado 63
 
 
-Estado 110
+estado 110
 
    64 func: VOID IDENTIFICADOR '(' ')' . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 127
 
 
-Estado 111
+estado 111
 
    39 args: tipo . IDENTIFICADOR
    40     | tipo . IDENTIFICADOR ',' tipo_l
@@ -1873,14 +1873,14 @@ Estado 111
     IDENTIFICADOR  desplazar e ir al estado 128
 
 
-Estado 112
+estado 112
 
    65 func: VOID IDENTIFICADOR '(' args . ')' ':' FIN_DE_LINEA bloque
 
     ')'  desplazar e ir al estado 129
 
 
-Estado 113
+estado 113
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1906,21 +1906,21 @@ Estado 113
     $default  reduce usando la regla 79 (rango)
 
 
-Estado 114
+estado 114
 
    68 when: WHEN exp ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
 
     ABREBLOQUE  desplazar e ir al estado 131
 
 
-Estado 115
+estado 115
 
    69 when: WHEN rango ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
 
     ABREBLOQUE  desplazar e ir al estado 132
 
 
-Estado 116
+estado 116
 
    71 if: IF exp ':' FIN_DE_LINEA . bloque
    72   | IF exp ':' FIN_DE_LINEA . bloque else
@@ -1932,7 +1932,7 @@ Estado 116
     bloque  ir al estado 133
 
 
-Estado 117
+estado 117
 
    78 while: WHILE exp ':' FIN_DE_LINEA . bloque
 
@@ -1941,7 +1941,7 @@ Estado 117
     bloque  ir al estado 134
 
 
-Estado 118
+estado 118
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -1965,21 +1965,21 @@ Estado 118
     '/'    desplazar e ir al estado 72
 
 
-Estado 119
+estado 119
 
    44 in: IDENTIFICADOR IN rango .
 
     $default  reduce usando la regla 44 (in)
 
 
-Estado 120
+estado 120
 
    45 in: IDENTIFICADOR NOTIN rango .
 
     $default  reduce usando la regla 45 (in)
 
 
-Estado 121
+estado 121
 
    70 for: FOR in ':' FIN_DE_LINEA . bloque
 
@@ -1988,21 +1988,21 @@ Estado 121
     bloque  ir al estado 135
 
 
-Estado 122
+estado 122
 
     7 exp_l: exp ',' exp_l .
 
     $default  reduce usando la regla 7 (exp_l)
 
 
-Estado 123
+estado 123
 
    38 tipo_l: tipo ',' tipo_l .
 
     $default  reduce usando la regla 38 (tipo_l)
 
 
-Estado 124
+estado 124
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -2026,28 +2026,28 @@ Estado 124
     $default  reduce usando la regla 41 (init)
 
 
-Estado 125
+estado 125
 
    62 func: tipo IDENTIFICADOR '(' ')' . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 136
 
 
-Estado 126
+estado 126
 
    63 func: tipo IDENTIFICADOR '(' args . ')' ':' FIN_DE_LINEA bloque
 
     ')'  desplazar e ir al estado 137
 
 
-Estado 127
+estado 127
 
    64 func: VOID IDENTIFICADOR '(' ')' ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 138
 
 
-Estado 128
+estado 128
 
    39 args: tipo IDENTIFICADOR .
    40     | tipo IDENTIFICADOR . ',' tipo_l
@@ -2057,14 +2057,14 @@ Estado 128
     $default  reduce usando la regla 39 (args)
 
 
-Estado 129
+estado 129
 
    65 func: VOID IDENTIFICADOR '(' args ')' . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 140
 
 
-Estado 130
+estado 130
 
    80 rango: exp RANGE exp ',' . exp
 
@@ -2084,7 +2084,7 @@ Estado 130
     is         ir al estado 34
 
 
-Estado 131
+estado 131
 
    68 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
 
@@ -2105,7 +2105,7 @@ Estado 131
     cases      ir al estado 143
 
 
-Estado 132
+estado 132
 
    69 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
 
@@ -2126,7 +2126,7 @@ Estado 132
     cases      ir al estado 144
 
 
-Estado 133
+estado 133
 
    71 if: IF exp ':' FIN_DE_LINEA bloque .
    72   | IF exp ':' FIN_DE_LINEA bloque . else
@@ -2142,35 +2142,35 @@ Estado 133
     else    ir al estado 148
 
 
-Estado 134
+estado 134
 
    78 while: WHILE exp ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 78 (while)
 
 
-Estado 135
+estado 135
 
    70 for: FOR in ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 70 (for)
 
 
-Estado 136
+estado 136
 
    62 func: tipo IDENTIFICADOR '(' ')' ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 149
 
 
-Estado 137
+estado 137
 
    63 func: tipo IDENTIFICADOR '(' args ')' . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 150
 
 
-Estado 138
+estado 138
 
    64 func: VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA . bloque
 
@@ -2179,7 +2179,7 @@ Estado 138
     bloque  ir al estado 151
 
 
-Estado 139
+estado 139
 
    40 args: tipo IDENTIFICADOR ',' . tipo_l
 
@@ -2197,14 +2197,14 @@ Estado 139
     tipo_l      ir al estado 152
 
 
-Estado 140
+estado 140
 
    65 func: VOID IDENTIFICADOR '(' args ')' ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 153
 
 
-Estado 141
+estado 141
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -2228,7 +2228,7 @@ Estado 141
     $default  reduce usando la regla 80 (rango)
 
 
-Estado 142
+estado 142
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -2252,21 +2252,21 @@ Estado 142
     '/'        desplazar e ir al estado 72
 
 
-Estado 143
+estado 143
 
    68 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
 
     CIERRABLOQUE  desplazar e ir al estado 155
 
 
-Estado 144
+estado 144
 
    69 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
 
     CIERRABLOQUE  desplazar e ir al estado 156
 
 
-Estado 145
+estado 145
 
    75 elif_l: ELIF . exp ':' FIN_DE_LINEA bloque
    76       | ELIF . exp ':' FIN_DE_LINEA bloque elif_l
@@ -2287,14 +2287,14 @@ Estado 145
     is         ir al estado 34
 
 
-Estado 146
+estado 146
 
    77 else: ELSE . ':' FIN_DE_LINEA bloque
 
     ':'  desplazar e ir al estado 158
 
 
-Estado 147
+estado 147
 
    73 if: IF exp ':' FIN_DE_LINEA bloque elif_l .
    74   | IF exp ':' FIN_DE_LINEA bloque elif_l . else
@@ -2306,14 +2306,14 @@ Estado 147
     else  ir al estado 159
 
 
-Estado 148
+estado 148
 
    72 if: IF exp ':' FIN_DE_LINEA bloque else .
 
     $default  reduce usando la regla 72 (if)
 
 
-Estado 149
+estado 149
 
    62 func: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA . bloque
 
@@ -2322,28 +2322,28 @@ Estado 149
     bloque  ir al estado 160
 
 
-Estado 150
+estado 150
 
    63 func: tipo IDENTIFICADOR '(' args ')' ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 161
 
 
-Estado 151
+estado 151
 
    64 func: VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 64 (func)
 
 
-Estado 152
+estado 152
 
    40 args: tipo IDENTIFICADOR ',' tipo_l .
 
     $default  reduce usando la regla 40 (args)
 
 
-Estado 153
+estado 153
 
    65 func: VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA . bloque
 
@@ -2352,7 +2352,7 @@ Estado 153
     bloque  ir al estado 162
 
 
-Estado 154
+estado 154
 
    66 cases: exp WHEN_CASE . exp
    67      | exp WHEN_CASE . exp FIN_DE_LINEA cases
@@ -2373,21 +2373,21 @@ Estado 154
     is         ir al estado 34
 
 
-Estado 155
+estado 155
 
    68 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
 
     $default  reduce usando la regla 68 (when)
 
 
-Estado 156
+estado 156
 
    69 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
 
     $default  reduce usando la regla 69 (when)
 
 
-Estado 157
+estado 157
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -2411,28 +2411,28 @@ Estado 157
     ':'    desplazar e ir al estado 164
 
 
-Estado 158
+estado 158
 
    77 else: ELSE ':' . FIN_DE_LINEA bloque
 
     FIN_DE_LINEA  desplazar e ir al estado 165
 
 
-Estado 159
+estado 159
 
    74 if: IF exp ':' FIN_DE_LINEA bloque elif_l else .
 
     $default  reduce usando la regla 74 (if)
 
 
-Estado 160
+estado 160
 
    62 func: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 62 (func)
 
 
-Estado 161
+estado 161
 
    63 func: tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA . bloque
 
@@ -2441,14 +2441,14 @@ Estado 161
     bloque  ir al estado 166
 
 
-Estado 162
+estado 162
 
    65 func: VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 65 (func)
 
 
-Estado 163
+estado 163
 
    12 exp: exp . '-' exp
    13    | exp . '+' exp
@@ -2474,7 +2474,7 @@ Estado 163
     $default  reduce usando la regla 66 (cases)
 
 
-Estado 164
+estado 164
 
    75 elif_l: ELIF exp ':' . FIN_DE_LINEA bloque
    76       | ELIF exp ':' . FIN_DE_LINEA bloque elif_l
@@ -2482,7 +2482,7 @@ Estado 164
     FIN_DE_LINEA  desplazar e ir al estado 168
 
 
-Estado 165
+estado 165
 
    77 else: ELSE ':' FIN_DE_LINEA . bloque
 
@@ -2491,14 +2491,14 @@ Estado 165
     bloque  ir al estado 169
 
 
-Estado 166
+estado 166
 
    63 func: tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 63 (func)
 
 
-Estado 167
+estado 167
 
    67 cases: exp WHEN_CASE exp FIN_DE_LINEA . cases
 
@@ -2519,7 +2519,7 @@ Estado 167
     cases      ir al estado 170
 
 
-Estado 168
+estado 168
 
    75 elif_l: ELIF exp ':' FIN_DE_LINEA . bloque
    76       | ELIF exp ':' FIN_DE_LINEA . bloque elif_l
@@ -2529,21 +2529,21 @@ Estado 168
     bloque  ir al estado 171
 
 
-Estado 169
+estado 169
 
    77 else: ELSE ':' FIN_DE_LINEA bloque .
 
     $default  reduce usando la regla 77 (else)
 
 
-Estado 170
+estado 170
 
    67 cases: exp WHEN_CASE exp FIN_DE_LINEA cases .
 
     $default  reduce usando la regla 67 (cases)
 
 
-Estado 171
+estado 171
 
    75 elif_l: ELIF exp ':' FIN_DE_LINEA bloque .
    76       | ELIF exp ':' FIN_DE_LINEA bloque . elif_l
@@ -2555,7 +2555,7 @@ Estado 171
     elif_l  ir al estado 172
 
 
-Estado 172
+estado 172
 
    76 elif_l: ELIF exp ':' FIN_DE_LINEA bloque elif_l .
 
