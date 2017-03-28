@@ -1,4 +1,4 @@
-/* bison -d miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
+/* bison -dt miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
 #include <stdio.h>
 #include <stdlib.h>

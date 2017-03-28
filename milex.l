@@ -1,22 +1,51 @@
 /* scanner for a toy Pascal-like language */
 
-%option noyywrap
+
 
 %{
 /* need this for the call to atof() below */
 #include <math.h>
 #include "miint.tab.h"
 
-
+/*#define VALOR_INT 257
+#define VALOR_FLOAT 258
+#define ABREBLOQUE 259
+#define CIERRABLOQUE 260
+#define INT 261
+#define FLOAT 262
+#define LONG 263
+#define DOUBLE 264
+#define CHAR 265
+#define BOOL 266
+#define VOID 267
+#define STRING 278
+#define FIN_DE_LINEA 279
+#define IF 280
+#define WHILE 281
+#define FOR 282
+#define WHEN 283
+#define ELSE 284
+#define ELIF 285
+#define NOTIS 286
+#define IS 287
+#define IN 288
+#define OR 289
+#define RANGE 290
+#define RETURN 291
+#define VALOR_CHAR 292
+#define VALOR_STRING 293
+#define VALOR_BOOL 294
+#define WHEN_CASE 295
+#define IDENTIFICADOR 296
+#define ACCESO 297
+*/
 #define YY_USER_ACTION                                   \
 {                                                        \
   if (tabulado<numtabs){                                 \
-      printf("CIERRABLOQUE %d %d\n", tabulado, numtabs); \
       numtabs--;                                         \
     yyless(0);                                           \
     return CIERRABLOQUE;                                 \
   } else if (tabulado>numtabs){                          \
-      printf("ABREBLOQUE %d %d\n", tabulado, numtabs);   \
       numtabs++;                                         \
     yyless(0);                                           \
     return ABREBLOQUE;                                   \
@@ -27,7 +56,7 @@ int tabulado = 0;
 int numtabs = 0;
 
 %}
-
+%option noyywrap
 FINLINEA                                                 [ \t]*\n
 DIGIT                                                    [0-9]
 LETTER                                                   [a-zA-Z]
@@ -35,7 +64,7 @@ WORD                                                     {LETTER}|{DIGIT}
 IDENTIFIER                                               {LETTER}{WORD}*
 ENTERO                                                   {DIGIT}+
 FLOTANTE                                                 {ENTERO}("."{DIGIT}+)?
-TABULADOR                                                \t|(" "{4})
+TABULADOR                                                \t|"    "
 ABREPAR                                                  "("
 CIERRAPAR                                                ")"
 OPERADOR                                                 [=/+*-]
@@ -52,22 +81,23 @@ EOF                                                      <<EOF>>
 PRIMITIVE                                                int|long|float|double|char|string|bool
 SPACE_PRIMITIVE                                          {ESPACIO}*PRIMITIVE{ESPACIO}*
 TUPLA                                                    "("({SPACE_PRIMITIVE},)*{SPACE_PRIMITIVE}")"
+VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABREPAR}
 
 
 %%
 
 
-\n{WORD}                                                 {
+\n[^\t\n ]|\n" "[^ \n]|\n"  "[^ \n]|\n"   "[^ \n]         {
                                                              tabulado = 0;
-                                                             yyless(1);
+                                                             yyless(yyleng - 1);printf(" ******************************************************FL1 \n");
+                                                             return FIN_DE_LINEA; 
+                                                         }
+
+\n                                                       {printf(" ********************************************************FL2 \n");
                                                              return FIN_DE_LINEA;
                                                          }
 
-\n                                                       {
-                                                             return FIN_DE_LINEA;
-                                                         }
-
-^{TABULADOR}+/{WORD}                                     {
+^{TABULADOR}+             	                         {
                                                              int i;
                                                              int tabsEncontrados = 0;
                                                              for (i = 0; yytext[i] != '\0'; i++){
@@ -76,6 +106,7 @@ TUPLA                                                    "("({SPACE_PRIMITIVE},)
                                                                  }
                                                                  tabsEncontrados++;
                                                              }
+                                                             printf("Tabulado anterior: %d, ahora: %d", tabulado, tabsEncontrados);
                                                              tabulado = tabsEncontrados;
                                                          }
 
@@ -145,6 +176,10 @@ string                                                   {
                                                              return VALOR_BOOL;
                                                          }
 
+{ACCESO}						 {
+							     return ACCESO;
+							 }
+
 if                                                       {
                                                              return IF;
                                                          }
@@ -185,10 +220,6 @@ in							 {
 							     return IN;
 							 }
 
-"not is" 						 {
-							     return NOTIS;
-							 }
-
 ".."                                                     {
                                                              return RANGE;
                                                          }
@@ -225,3 +256,11 @@ in							 {
                                                          }
 
 %%
+
+/*int main(int argc, char** argv){
+	int s;
+	if(argc>1) yyin=fopen(argv[1],"r");
+	do printf("%i ",s=yylex());
+	while(s != 0);
+  return 0;
+}*/
