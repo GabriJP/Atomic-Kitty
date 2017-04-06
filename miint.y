@@ -9,6 +9,7 @@ int yydebug=1;
 union YYSTYPE;
 int yylex();
 #endif
+extern int fines;
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; }
@@ -33,8 +34,9 @@ int yylex();
 lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
 					| FIN_DE_LINEA lista
               				|
-					| func FIN_DE_LINEA lista
-					| inst_l FIN_DE_LINEA lista //Como corregimos esto?
+					| func lista
+					| inst_l FIN_DE_LINEA lista
+					| inst_l
 					;
 
 exp_l					: exp
@@ -123,6 +125,7 @@ inst_l					: inst FIN_DE_LINEA
 
 bloque					: ABREBLOQUE CIERRABLOQUE
 					| ABREBLOQUE inst_l CIERRABLOQUE
+					| ABREBLOQUE inst CIERRABLOQUE
 					;
 
 func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
@@ -170,7 +173,7 @@ int main(int argc, char** argv) {
 
 void  yyerror(char* str) {
     extern int yylineno;
-    printf("Parse  Error near line %d \n %s\n",yylineno,str );
+    printf("Parse  Error near line %d \n %s\n",fines,str );
     exit(-1);
 
 }

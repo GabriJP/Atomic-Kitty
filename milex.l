@@ -6,7 +6,6 @@
 /* need this for the call to atof() below */
 #include <math.h>
 #include "miint.tab.h"
-
 /*#define VALOR_INT 257
 #define VALOR_FLOAT 258
 #define ABREBLOQUE 259
@@ -54,7 +53,7 @@
 
 int tabulado = 0;
 int numtabs = 0;
-
+int fines = 0;
 %}
 %option noyywrap
 FINLINEA                                                 [ \t]*\n
@@ -89,11 +88,12 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
 
 \n[^\t\n ]|\n" "[^ \n]|\n"  "[^ \n]|\n"   "[^ \n]         {
                                                              tabulado = 0;
-                                                             yyless(yyleng - 1);printf(" ******************************************************FL1 \n");
-                                                             return FIN_DE_LINEA; 
+                                                             yyless(yyleng - 1);
+                                                             fines++;
                                                          }
 
-\n                                                       {printf(" ********************************************************FL2 \n");
+\n                                                       {
+                                                             fines++;
                                                              return FIN_DE_LINEA;
                                                          }
 
@@ -106,7 +106,6 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
                                                                  }
                                                                  tabsEncontrados++;
                                                              }
-                                                             printf("Tabulado anterior: %d, ahora: %d", tabulado, tabsEncontrados);
                                                              tabulado = tabsEncontrados;
                                                          }
 

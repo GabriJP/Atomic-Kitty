@@ -84,7 +84,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 14 "miint.y"
+#line 15 "miint.y"
  float f; double d; int i; long l; char c; char* str; 
 
 
