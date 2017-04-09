@@ -2,14 +2,16 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "Scope.h"
+Scope *scope;
 extern  void  yyerror(char *);
 extern FILE *yyin;
-int yydebug=1;
 #if YYBISON
 union YYSTYPE;
 int yylex();
 #endif
 extern int fines;
+void  yyerror(std::string str);
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; }
@@ -90,17 +92,17 @@ args					: tipo IDENTIFICADOR
 					| tipo IDENTIFICADOR ',' tipo_l
 					;
 
-init					: tipo IDENTIFICADOR '=' exp
+init					: tipo IDENTIFICADOR '=' exp                                             { if (scope->haveSymbol(std::string("dato_") + std::string($2))){yyerror(std::string("Se intenta crear '") + std::string($2) + std::string("', pero ya existe.")) ;} }
 					;
 
-asign					: IDENTIFICADOR '=' exp
+asign					: IDENTIFICADOR '=' exp                                                  { if (!scope->existsSymbol("dato_" + std::string($1))){yyerror("Se intenta usar '" + std::string($1) + "', pero no existe."); } }
 					;
 
-decl					: tipo IDENTIFICADOR
+decl					: tipo IDENTIFICADOR                                                     { if (scope->haveSymbol("dato_" + std::string($2))){yyerror("Se intenta crear '" + std::string($2) + "', pero ya existe."); } }
 					;
 
-in					: IDENTIFICADOR IN rango
-					| IDENTIFICADOR NOTIN rango
+in					: IDENTIFICADOR IN rango                                                 { if (!scope->existsSymbol("dato_" + std::string($1))){yyerror("Se intenta usar '" + std::string($1) + "', pero no existe."); } }
+					| IDENTIFICADOR NOTIN rango                                              { if (!scope->existsSymbol("dato_" + std::string($1))){yyerror("Se intenta usar '" + std::string($1) + "', pero no existe."); } }
 					;
 
 is					: exp IS exp
@@ -128,10 +130,10 @@ bloque					: ABREBLOQUE CIERRABLOQUE
 					| ABREBLOQUE inst CIERRABLOQUE
 					;
 
-func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
-					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque
-					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque
-					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque
+func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque                     { if (scope->existsSymbol("func_" + std::string($2))){yyerror(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); } }
+					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque                { if (scope->existsSymbol("func_" + std::string($2))){yyerror(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); } }
+					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque                     { if (scope->existsSymbol("func_" + std::string($2))){yyerror(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); } }
+					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque                { if (scope->existsSymbol("func_" + std::string($2))){yyerror(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); } }
 					;
 
 cases					: exp WHEN_CASE exp
@@ -167,13 +169,11 @@ rango					: exp RANGE exp
 %%
 
 int main(int argc, char** argv) {
+	scope = new Scope();
 	if (argc>1) yyin=fopen(argv[1],"r");
 	yyparse();
 }
 
-void  yyerror(char* str) {
-    extern int yylineno;
-    printf("Parse  Error near line %d \n %s\n",fines,str );
-    exit(-1);
-
+void  yyerror(std::string str) {
+    yyerror(str.c_str());
 }

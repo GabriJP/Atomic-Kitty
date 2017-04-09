@@ -51,6 +51,7 @@ public:
 	Scope();
 
 	bool haveSymbol(std::string symbol);
+        bool existsSymbol(std::string symbol);
 	Node* getSymbol(std::string symbol);
 	void defineSymbol(std::string symbol, Node *node);
 

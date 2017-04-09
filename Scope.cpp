@@ -7,6 +7,10 @@ bool Scope::haveSymbol(std::string symbol){
 	return symbolTable.find(symbol) != symbolTable.end();
 }
 
+bool Scope::existsSymbol(std::string symbol){
+	return symbolTable.find(symbol) != symbolTable.end() || parent->existsSymbol(symbol);
+}
+
 void Scope::defineSymbol(std::string type, Node *node){
 	symbolTable.insert(std::make_pair(type, node));
 }
