@@ -20,8 +20,8 @@ bool Scope::existsSymbol(std::string symbol){
 	return symbolTable.find(symbol) != symbolTable.end() || (this->parent != NULL && parent->existsSymbol(symbol));
 }
 
-void Scope::defineSymbol(std::string type, Node *node){
-	symbolTable.insert(std::make_pair(type, node));
+void Scope::defineSymbol(std::string name, Node *node){
+	symbolTable.insert(std::make_pair(name, node));
 }
 
 Node* Scope::getSymbol(std::string symbol) {

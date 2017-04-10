@@ -17,6 +17,7 @@ int yylex();
 #endif
 extern int fines;
 void  logError(std::string str);
+void creaFuncion(char* nombre);
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; }
@@ -98,31 +99,39 @@ args					: tipo IDENTIFICADOR
 					;
 
 init					: tipo IDENTIFICADOR '=' exp {
-							if (scope->haveSymbol("dato_" + std::string($2))) {
-								logError(std::string("Se intenta crear '") + std::string($2) + std::string("', pero ya existe.")) ;
-							} 
+                                                            if (scope->haveSymbol("dato_" + std::string($2))) {
+                                                                logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
+                                                            } else {
+                                                                scope->defineSymbol("dato_" + std::string($2), NULL);
+                                                            }
 						}
 					;
 
 asign					: IDENTIFICADOR '=' exp {
-							if (!scope->existsSymbol("dato_" + std::string($1))) {
-								logError("Se intenta usar '" + std::string($1) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                                logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
+                                                            }
 							}
 					;
 
 decl					: tipo IDENTIFICADOR {
-							if (scope->haveSymbol("dato_" + std::string($2))){
-								logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); } 
+                                                            if (scope->haveSymbol("dato_" + std::string($2))) {
+                                                                logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
+                                                            } else {
+                                                                scope->defineSymbol("dato_" + std::string($2), NULL);
+                                                            }
 						}
 					;
 
 in					: IDENTIFICADOR IN rango  {
-							if (!scope->existsSymbol("dato_" + std::string($1))){
-							logError("Se intenta usar '" + std::string($1) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                                logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
+                                                            }
 						}
 					| IDENTIFICADOR NOTIN rango {
-							if (!scope->existsSymbol("dato_" + std::string($1)))
-								{logError("Se intenta usar '" + std::string($1) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                                logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
+                                                            }
 						}
 					;
 
@@ -163,24 +172,17 @@ dentroBloque      			: inst_l
             				;
 
 func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
-							 if (scope->existsSymbol("func_" + std::string($2))){
-								logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); } 
+                                                            creaFuncion($2);
 						}
 					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque {
-							 if (scope->existsSymbol("func_" + std::string($2))){
-								logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
-							}
-					}
-					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque  { printf("8\n");
-							if (scope->existsSymbol("func_" + std::string($2))){
-								logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
-							} 
-					}
-					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque	{ printf("9\n");
-						 if (scope->existsSymbol("func_" + std::string($2))) {
-							logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
-						} 
-					}
+                                                            creaFuncion($2);
+					        }
+					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
+                                                            creaFuncion($2);
+					        }
+					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque {
+                                                            creaFuncion($2);
+					        }
 					;
 
 cases					: exp WHEN_CASE exp
@@ -229,4 +231,12 @@ void  yyerror(char* str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n",fines,str );
     exit(-1);
+}
+
+void creaFuncion(char* nombre){
+    if (scope->existsSymbol("func_" + std::string(nombre))) {
+        logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
+    } else {
+        scope->defineSymbol("func_" + std::string(nombre), NULL);
+    }
 }

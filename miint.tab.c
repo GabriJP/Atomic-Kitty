@@ -77,8 +77,9 @@ int yylex();
 #endif
 extern int fines;
 void  logError(std::string str);
+void creaFuncion(char* nombre);
 
-#line 82 "miint.tab.c" /* yacc.c:339  */
+#line 83 "miint.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -156,10 +157,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 22 "miint.y" /* yacc.c:355  */
+#line 23 "miint.y" /* yacc.c:355  */
  float f; double d; int i; long l; char c; char* str; 
 
-#line 163 "miint.tab.c" /* yacc.c:355  */
+#line 164 "miint.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -176,7 +177,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 180 "miint.tab.c" /* yacc.c:358  */
+#line 181 "miint.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -477,15 +478,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    41,    41,    41,    42,    43,    44,    45,    46,    49,
-      50,    53,    56,    58,    59,    62,    63,    64,    65,    66,
-      67,    68,    69,    70,    71,    72,    73,    74,    75,    76,
-      77,    78,    79,    82,    83,    84,    85,    86,    87,    88,
-      89,    92,    93,    96,    97,   100,   107,   113,   119,   123,
-     129,   130,   133,   134,   135,   136,   137,   138,   139,   140,
-     141,   142,   145,   146,   150,   149,   161,   162,   165,   169,
-     174,   179,   186,   187,   190,   191,   194,   197,   198,   199,
-     200,   203,   204,   207,   210,   213,   214
+       0,    42,    42,    42,    43,    44,    45,    46,    47,    50,
+      51,    54,    57,    59,    60,    63,    64,    65,    66,    67,
+      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
+      78,    79,    80,    83,    84,    85,    86,    87,    88,    89,
+      90,    93,    94,    97,    98,   101,   110,   117,   126,   131,
+     138,   139,   142,   143,   144,   145,   146,   147,   148,   149,
+     150,   151,   154,   155,   159,   158,   170,   171,   174,   177,
+     180,   183,   188,   189,   192,   193,   196,   199,   200,   201,
+     202,   205,   206,   209,   212,   215,   216
 };
 #endif
 
@@ -1411,114 +1412,115 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 41 "miint.y" /* yacc.c:1646  */
+#line 42 "miint.y" /* yacc.c:1646  */
     {printf(" en expresión\n");}
-#line 1417 "miint.tab.c" /* yacc.c:1646  */
+#line 1418 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 100 "miint.y" /* yacc.c:1646  */
+#line 101 "miint.y" /* yacc.c:1646  */
     {
-							if (scope->haveSymbol("dato_" + std::string((yyvsp[-2].str)))) {
-								logError(std::string("Se intenta crear '") + std::string((yyvsp[-2].str)) + std::string("', pero ya existe.")) ;
-							} 
+                                                            if (scope->haveSymbol("dato_" + std::string((yyvsp[-2].str)))) {
+                                                                logError("Se intenta crear '" + std::string((yyvsp[-2].str)) + "', pero ya existe."); 
+                                                            } else {
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[-2].str)), NULL);
+                                                            }
 						}
-#line 1427 "miint.tab.c" /* yacc.c:1646  */
+#line 1430 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 107 "miint.y" /* yacc.c:1646  */
+#line 110 "miint.y" /* yacc.c:1646  */
     {
-							if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
-								logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
+                                                                logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
+                                                            }
 							}
-#line 1436 "miint.tab.c" /* yacc.c:1646  */
+#line 1440 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 113 "miint.y" /* yacc.c:1646  */
+#line 117 "miint.y" /* yacc.c:1646  */
     {
-							if (scope->haveSymbol("dato_" + std::string((yyvsp[0].str)))){
-								logError("Se intenta crear '" + std::string((yyvsp[0].str)) + "', pero ya existe."); } 
+                                                            if (scope->haveSymbol("dato_" + std::string((yyvsp[0].str)))) {
+                                                                logError("Se intenta crear '" + std::string((yyvsp[0].str)) + "', pero ya existe."); 
+                                                            } else {
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[0].str)), NULL);
+                                                            }
 						}
-#line 1445 "miint.tab.c" /* yacc.c:1646  */
+#line 1452 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 119 "miint.y" /* yacc.c:1646  */
+#line 126 "miint.y" /* yacc.c:1646  */
     {
-							if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))){
-							logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
+                                                                logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
+                                                            }
 						}
-#line 1454 "miint.tab.c" /* yacc.c:1646  */
+#line 1462 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 123 "miint.y" /* yacc.c:1646  */
+#line 131 "miint.y" /* yacc.c:1646  */
     {
-							if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str))))
-								{logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); } 
+                                                            if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
+                                                                logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
+                                                            }
 						}
-#line 1463 "miint.tab.c" /* yacc.c:1646  */
+#line 1472 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 150 "miint.y" /* yacc.c:1646  */
+#line 159 "miint.y" /* yacc.c:1646  */
     { scope = new Scope(scope); }
-#line 1469 "miint.tab.c" /* yacc.c:1646  */
+#line 1478 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 153 "miint.y" /* yacc.c:1646  */
+#line 162 "miint.y" /* yacc.c:1646  */
     { 
             					Scope* oldScope = scope;
             					scope = scope->getParent();
             					delete oldScope; 
             				  }
-#line 1479 "miint.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 68:
-#line 165 "miint.y" /* yacc.c:1646  */
-    {
-							 if (scope->existsSymbol("func_" + std::string((yyvsp[-5].str)))){
-								logError(std::string("Se intenta crear funcion '") + std::string((yyvsp[-5].str)) + std::string("', pero ya existe.")); } 
-						}
 #line 1488 "miint.tab.c" /* yacc.c:1646  */
     break;
 
-  case 69:
-#line 169 "miint.y" /* yacc.c:1646  */
+  case 68:
+#line 174 "miint.y" /* yacc.c:1646  */
     {
-							 if (scope->existsSymbol("func_" + std::string((yyvsp[-6].str)))){
-								logError(std::string("Se intenta crear funcion '") + std::string((yyvsp[-6].str)) + std::string("', pero ya existe.")); 
-							}
-					}
-#line 1498 "miint.tab.c" /* yacc.c:1646  */
+                                                            creaFuncion((yyvsp[-5].str));
+						}
+#line 1496 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 69:
+#line 177 "miint.y" /* yacc.c:1646  */
+    {
+                                                            creaFuncion((yyvsp[-6].str));
+					        }
+#line 1504 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 174 "miint.y" /* yacc.c:1646  */
-    { printf("8\n");
-							if (scope->existsSymbol("func_" + std::string((yyvsp[-5].str)))){
-								logError(std::string("Se intenta crear funcion '") + std::string((yyvsp[-5].str)) + std::string("', pero ya existe.")); 
-							} 
-					}
-#line 1508 "miint.tab.c" /* yacc.c:1646  */
+#line 180 "miint.y" /* yacc.c:1646  */
+    {
+                                                            creaFuncion((yyvsp[-5].str));
+					        }
+#line 1512 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 179 "miint.y" /* yacc.c:1646  */
-    { printf("9\n");
-						 if (scope->existsSymbol("func_" + std::string((yyvsp[-6].str)))) {
-							logError(std::string("Se intenta crear funcion '") + std::string((yyvsp[-6].str)) + std::string("', pero ya existe.")); 
-						} 
-					}
-#line 1518 "miint.tab.c" /* yacc.c:1646  */
+#line 183 "miint.y" /* yacc.c:1646  */
+    {
+                                                            creaFuncion((yyvsp[-6].str));
+					        }
+#line 1520 "miint.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1522 "miint.tab.c" /* yacc.c:1646  */
+#line 1524 "miint.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1746,7 +1748,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 216 "miint.y" /* yacc.c:1906  */
+#line 218 "miint.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {
@@ -1763,4 +1765,12 @@ void  yyerror(char* str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n",fines,str );
     exit(-1);
+}
+
+void creaFuncion(char* nombre){
+    if (scope->existsSymbol("func_" + std::string(nombre))) {
+        logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
+    } else {
+        scope->defineSymbol("func_" + std::string(nombre), NULL);
+    }
 }
