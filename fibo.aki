@@ -7,6 +7,7 @@
         (int, int) tupla = fibo(n-1)
         int i = tupla[0]
         int j = tupla[1]
+        int i
         return (i+j, i)
 
 int f = fibo(6)

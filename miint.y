@@ -98,7 +98,7 @@ args					: tipo IDENTIFICADOR
 					;
 
 init					: tipo IDENTIFICADOR '=' exp {
-							if (scope->haveSymbol(std::string("dato_") + std::string($2))) {
+							if (scope->haveSymbol("dato_" + std::string($2))) {
 								logError(std::string("Se intenta crear '") + std::string($2) + std::string("', pero ya existe.")) ;
 							} 
 						}
@@ -110,7 +110,7 @@ asign					: IDENTIFICADOR '=' exp {
 							}
 					;
 
-decl					: tipo IDENTIFICADOR { 
+decl					: tipo IDENTIFICADOR {
 							if (scope->haveSymbol("dato_" + std::string($2))){
 								logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); } 
 						}
@@ -146,26 +146,21 @@ inst_l					: inst FIN_DE_LINEA
 					| inst FIN_DE_LINEA inst_l
 					;
 
-bloque					: ABREBLOQUE CIERRABLOQUE
-					| ABREBLOQUE 
-					  { scope = new Scope(scope); } 
-					  inst_l 
-					  { 
-						Scope* oldScope = scope;
-						scope = scope->getParent();
-						delete oldScope; 
-					  }
-					  CIERRABLOQUE
-					| ABREBLOQUE 
-					  { scope = new Scope(scope); } 
-					  inst
-					  { 
-						Scope* oldScope = scope;
-						scope = scope->getParent();
-						delete oldScope; 
-					  }
-					  CIERRABLOQUE
-					;
+bloque          			: ABREBLOQUE 
+            				  { scope = new Scope(scope); } 
+            				  dentroBloque
+            				  CIERRABLOQUE
+            				  { 
+            					Scope* oldScope = scope;
+            					scope = scope->getParent();
+            					delete oldScope; 
+            				  }
+          				;
+
+
+dentroBloque      			: inst_l 
+            				| inst
+            				;
 
 func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
 							 if (scope->existsSymbol("func_" + std::string($2))){
@@ -174,14 +169,14 @@ func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
 					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque {
 							 if (scope->existsSymbol("func_" + std::string($2))){
 								logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
-							} 
+							}
 					}
-					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque  { 
+					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque  { printf("8\n");
 							if (scope->existsSymbol("func_" + std::string($2))){
 								logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
 							} 
 					}
-					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque	{
+					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque	{ printf("9\n");
 						 if (scope->existsSymbol("func_" + std::string($2))) {
 							logError(std::string("Se intenta crear funcion '") + std::string($2) + std::string("', pero ya existe.")); 
 						} 

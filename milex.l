@@ -113,7 +113,6 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
 
 
 "\"".*"\""                                               {
-                                                             printf("String: %s\n", yytext);
                                                              return VALOR_STRING;
                                                          }
 
@@ -228,6 +227,7 @@ in							 {
                                                          }
 
 {IDENTIFIER}                                             {
+                                                             yylval.str = strdup(yytext);
                                                              return IDENTIFICADOR;
                                                          }
 
