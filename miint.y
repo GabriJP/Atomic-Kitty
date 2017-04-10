@@ -147,8 +147,24 @@ inst_l					: inst FIN_DE_LINEA
 					;
 
 bloque					: ABREBLOQUE CIERRABLOQUE
-					| ABREBLOQUE inst_l CIERRABLOQUE
-					| ABREBLOQUE inst CIERRABLOQUE
+					| ABREBLOQUE 
+					  { scope = new Scope(scope); } 
+					  inst_l 
+					  { 
+						Scope* oldScope = scope;
+						scope = scope->getParent();
+						delete oldScope; 
+					  }
+					  CIERRABLOQUE
+					| ABREBLOQUE 
+					  { scope = new Scope(scope); } 
+					  inst
+					  { 
+						Scope* oldScope = scope;
+						scope = scope->getParent();
+						delete oldScope; 
+					  }
+					  CIERRABLOQUE
 					;
 
 func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {

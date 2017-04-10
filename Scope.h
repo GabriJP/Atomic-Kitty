@@ -47,9 +47,10 @@ class Scope{
 	Scope *parent;
 
 public:
-	Scope(Scope &scope);
+	Scope(Scope *scope);
 	Scope();
 
+	Scope* getParent();
 	bool haveSymbol(std::string symbol);
         bool existsSymbol(std::string symbol);
 	Node* getSymbol(std::string symbol);

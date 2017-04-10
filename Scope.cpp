@@ -1,7 +1,16 @@
 #include "Scope.h"
 
-Scope::Scope() : parent(NULL) {}
-Scope::Scope(Scope & scope) : parent(&scope) {}
+Scope::Scope(){
+
+}
+
+Scope::Scope(Scope *scope) {
+	this->parent = scope;
+}
+
+Scope* Scope::Scope(){
+	return this->parent;
+}
 
 bool Scope::haveSymbol(std::string symbol){
 	return symbolTable.find(symbol) != symbolTable.end();
