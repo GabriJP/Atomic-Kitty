@@ -20,7 +20,7 @@ void  logError(std::string str);
 void creaFuncion(char* nombre);
 %}
 
-%union { float f; double d; int i; long l; char c; char* str; }
+%union { float f; double d; int i; long l; char c; char* str; void* type; }
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
 %token <i> VALOR_INT VALOR_BOOL
@@ -28,6 +28,8 @@ void creaFuncion(char* nombre);
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
 %token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN ACCESO
+
+%type  <type>  tipo tupla_decl tipo_l
 
 %right '='
 %left ','
@@ -54,7 +56,7 @@ exp_l					: exp
 tupla 					: '(' exp_l ')'
 					;
 
-tupla_decl				: '(' tipo_l ')';
+tupla_decl				: '(' tipo_l ')' { $$ = $2; };
 
 func_call				: IDENTIFICADOR tupla
 					| IDENTIFICADOR '(' ')'
@@ -80,18 +82,18 @@ exp					: exp '-' exp
 					| IDENTIFICADOR ACCESO
 					;
 
-tipo					: tupla_decl
-					| INT
-					| FLOAT
-					| LONG
-					| DOUBLE
-					| BOOL
-					| STRING
-					| CHAR
+tipo					: tupla_decl { $$ = $1; }
+					| INT { $$ = new PrimitiveType(INT); }
+					| FLOAT { $$ = new PrimitiveType(FLOAT); }
+					| LONG { $$ = new PrimitiveType(LONG); }
+					| DOUBLE { $$ = new PrimitiveType(DOUBLE); }
+					| BOOL { $$ = new PrimitiveType(BOOL); }
+					| STRING { $$ = new PrimitiveType(STRING); }
+					| CHAR { $$ = new PrimitiveType(CHAR); }
 					;
 
-tipo_l					: tipo
-					| tipo ',' tipo_l
+tipo_l					: tipo { $$ = $1; }
+					| tipo ',' tipo_l { $$ = addTo((Type*)$1, (Type*)$3); }
 					;
 
 args					: tipo IDENTIFICADOR
@@ -102,7 +104,7 @@ init					: tipo IDENTIFICADOR '=' exp {
                                                             if (scope->haveSymbol("dato_" + std::string($2))) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), NULL);
+                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode((Type*)$1));
                                                             }
 						}
 					;
@@ -118,7 +120,7 @@ decl					: tipo IDENTIFICADOR {
                                                             if (scope->haveSymbol("dato_" + std::string($2))) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), NULL);
+                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode((Type*)$1));
                                                             }
 						}
 					;

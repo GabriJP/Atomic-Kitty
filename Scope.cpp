@@ -21,6 +21,7 @@ bool Scope::existsSymbol(std::string symbol){
 }
 
 void Scope::defineSymbol(std::string name, Node *node){
+	std::cout << name << " " << node->toString() << "\n";
 	symbolTable.insert(std::make_pair(name, node));
 }
 

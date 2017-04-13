@@ -158,7 +158,7 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 23 "miint.y" /* yacc.c:355  */
- float f; double d; int i; long l; char c; char* str; 
+ float f; double d; int i; long l; char c; char* str; void* type; 
 
 #line 164 "miint.tab.c" /* yacc.c:355  */
 };
@@ -478,15 +478,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    42,    42,    42,    43,    44,    45,    46,    47,    50,
-      51,    54,    57,    59,    60,    63,    64,    65,    66,    67,
-      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
-      78,    79,    80,    83,    84,    85,    86,    87,    88,    89,
-      90,    93,    94,    97,    98,   101,   110,   117,   126,   131,
-     138,   139,   142,   143,   144,   145,   146,   147,   148,   149,
-     150,   151,   154,   155,   159,   158,   170,   171,   174,   177,
-     180,   183,   188,   189,   192,   193,   196,   199,   200,   201,
-     202,   205,   206,   209,   212,   215,   216
+       0,    44,    44,    44,    45,    46,    47,    48,    49,    52,
+      53,    56,    59,    61,    62,    65,    66,    67,    68,    69,
+      70,    71,    72,    73,    74,    75,    76,    77,    78,    79,
+      80,    81,    82,    85,    86,    87,    88,    89,    90,    91,
+      92,    95,    96,    99,   100,   103,   112,   119,   128,   133,
+     140,   141,   144,   145,   146,   147,   148,   149,   150,   151,
+     152,   153,   156,   157,   161,   160,   172,   173,   176,   179,
+     182,   185,   190,   191,   194,   195,   198,   201,   202,   203,
+     204,   207,   208,   211,   214,   217,   218
 };
 #endif
 
@@ -1412,115 +1412,181 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 42 "miint.y" /* yacc.c:1646  */
+#line 44 "miint.y" /* yacc.c:1646  */
     {printf(" en expresión\n");}
 #line 1418 "miint.tab.c" /* yacc.c:1646  */
     break;
 
+  case 12:
+#line 59 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = (yyvsp[-1].type); }
+#line 1424 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 85 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = (yyvsp[0].type); }
+#line 1430 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 86 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(INT); }
+#line 1436 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 87 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(FLOAT); }
+#line 1442 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 36:
+#line 88 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(LONG); }
+#line 1448 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 89 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(DOUBLE); }
+#line 1454 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 90 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(BOOL); }
+#line 1460 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 39:
+#line 91 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(STRING); }
+#line 1466 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 40:
+#line 92 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = new PrimitiveType(CHAR); }
+#line 1472 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 95 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = (yyvsp[0].type); }
+#line 1478 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 42:
+#line 96 "miint.y" /* yacc.c:1646  */
+    { (yyval.type) = addTo((Type*)(yyvsp[-2].type), (Type*)(yyvsp[0].type)); }
+#line 1484 "miint.tab.c" /* yacc.c:1646  */
+    break;
+
   case 45:
-#line 101 "miint.y" /* yacc.c:1646  */
+#line 103 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveSymbol("dato_" + std::string((yyvsp[-2].str)))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[-2].str)) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string((yyvsp[-2].str)), NULL);
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[-2].str)), new VariableNode((Type*)(yyvsp[-3].type)));
                                                             }
 						}
-#line 1430 "miint.tab.c" /* yacc.c:1646  */
+#line 1496 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 110 "miint.y" /* yacc.c:1646  */
+#line 112 "miint.y" /* yacc.c:1646  */
     {
                                                             if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
                                                                 logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
                                                             }
 							}
-#line 1440 "miint.tab.c" /* yacc.c:1646  */
+#line 1506 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 117 "miint.y" /* yacc.c:1646  */
+#line 119 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveSymbol("dato_" + std::string((yyvsp[0].str)))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[0].str)) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string((yyvsp[0].str)), NULL);
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[0].str)), new VariableNode((Type*)(yyvsp[-1].type)));
                                                             }
 						}
-#line 1452 "miint.tab.c" /* yacc.c:1646  */
+#line 1518 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 126 "miint.y" /* yacc.c:1646  */
+#line 128 "miint.y" /* yacc.c:1646  */
     {
                                                             if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
                                                                 logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
                                                             }
 						}
-#line 1462 "miint.tab.c" /* yacc.c:1646  */
+#line 1528 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 131 "miint.y" /* yacc.c:1646  */
+#line 133 "miint.y" /* yacc.c:1646  */
     {
                                                             if (!scope->existsSymbol("dato_" + std::string((yyvsp[-2].str)))) {
                                                                 logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
                                                             }
 						}
-#line 1472 "miint.tab.c" /* yacc.c:1646  */
+#line 1538 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 159 "miint.y" /* yacc.c:1646  */
+#line 161 "miint.y" /* yacc.c:1646  */
     { scope = new Scope(scope); }
-#line 1478 "miint.tab.c" /* yacc.c:1646  */
+#line 1544 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 162 "miint.y" /* yacc.c:1646  */
+#line 164 "miint.y" /* yacc.c:1646  */
     { 
             					Scope* oldScope = scope;
             					scope = scope->getParent();
             					delete oldScope; 
             				  }
-#line 1488 "miint.tab.c" /* yacc.c:1646  */
+#line 1554 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 174 "miint.y" /* yacc.c:1646  */
+#line 176 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-5].str));
 						}
-#line 1496 "miint.tab.c" /* yacc.c:1646  */
+#line 1562 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 177 "miint.y" /* yacc.c:1646  */
+#line 179 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-6].str));
 					        }
-#line 1504 "miint.tab.c" /* yacc.c:1646  */
+#line 1570 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 180 "miint.y" /* yacc.c:1646  */
+#line 182 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-5].str));
 					        }
-#line 1512 "miint.tab.c" /* yacc.c:1646  */
+#line 1578 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 183 "miint.y" /* yacc.c:1646  */
+#line 185 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-6].str));
 					        }
-#line 1520 "miint.tab.c" /* yacc.c:1646  */
+#line 1586 "miint.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1524 "miint.tab.c" /* yacc.c:1646  */
+#line 1590 "miint.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1748,7 +1814,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 218 "miint.y" /* yacc.c:1906  */
+#line 220 "miint.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {
