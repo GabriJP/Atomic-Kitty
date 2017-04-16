@@ -11,7 +11,7 @@ public:
 
 	Node(){};
 	Category virtual getCategory() = 0;
-	virtual std::string toString() {};
+	virtual std::string toString() { return ""; };
 };
 
 class VariableNode : public Node{

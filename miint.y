@@ -1,8 +1,8 @@
 /* bison -dt miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 //Sin yydebug
-/* bison -dt miint.y && flex milex.l && g++ -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
+/* bison -dt miint.y && flex milex.l && g++ -std=c++11 -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 //Con yydebug
-/* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
+/* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -std=c++11 -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +20,7 @@ void  logError(std::string str);
 void creaFuncion(char* nombre);
 %}
 
-%union { float f; double d; int i; long l; char c; char* str; void* type; }
+%union { float f; double d; int i; long l; char c; char* str; Type* type; }
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
 %token <i> VALOR_INT VALOR_BOOL
@@ -93,7 +93,7 @@ tipo					: tupla_decl { $$ = $1; }
 					;
 
 tipo_l					: tipo { $$ = $1; }
-					| tipo ',' tipo_l { $$ = addTo((Type*)$1, (Type*)$3); }
+					| tipo ',' tipo_l { $$ = $3->add($1); }
 					;
 
 args					: tipo IDENTIFICADOR
@@ -104,7 +104,7 @@ init					: tipo IDENTIFICADOR '=' exp {
                                                             if (scope->haveSymbol("dato_" + std::string($2))) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode((Type*)$1));
+                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode($1));
                                                             }
 						}
 					;
@@ -120,7 +120,7 @@ decl					: tipo IDENTIFICADOR {
                                                             if (scope->haveSymbol("dato_" + std::string($2))) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode((Type*)$1));
+                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode($1));
                                                             }
 						}
 					;
@@ -239,6 +239,6 @@ void creaFuncion(char* nombre){
     if (scope->existsSymbol("func_" + std::string(nombre))) {
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
     } else {
-        scope->defineSymbol("func_" + std::string(nombre), NULL);
+        scope->defineSymbol("func_" + std::string(nombre), new FunctionNode);
     }
 }

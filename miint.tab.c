@@ -158,7 +158,7 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 23 "miint.y" /* yacc.c:355  */
- float f; double d; int i; long l; char c; char* str; void* type; 
+ float f; double d; int i; long l; char c; char* str; Type* type; 
 
 #line 164 "miint.tab.c" /* yacc.c:355  */
 };
@@ -1479,7 +1479,7 @@ yyreduce:
 
   case 42:
 #line 96 "miint.y" /* yacc.c:1646  */
-    { (yyval.type) = addTo((Type*)(yyvsp[-2].type), (Type*)(yyvsp[0].type)); }
+    { (yyval.type) = (yyvsp[0].type)->add((yyvsp[-2].type)); }
 #line 1484 "miint.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1489,7 +1489,7 @@ yyreduce:
                                                             if (scope->haveSymbol("dato_" + std::string((yyvsp[-2].str)))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[-2].str)) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string((yyvsp[-2].str)), new VariableNode((Type*)(yyvsp[-3].type)));
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[-2].str)), new VariableNode((yyvsp[-3].type)));
                                                             }
 						}
 #line 1496 "miint.tab.c" /* yacc.c:1646  */
@@ -1511,7 +1511,7 @@ yyreduce:
                                                             if (scope->haveSymbol("dato_" + std::string((yyvsp[0].str)))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[0].str)) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string((yyvsp[0].str)), new VariableNode((Type*)(yyvsp[-1].type)));
+                                                                scope->defineSymbol("dato_" + std::string((yyvsp[0].str)), new VariableNode((yyvsp[-1].type)));
                                                             }
 						}
 #line 1518 "miint.tab.c" /* yacc.c:1646  */
@@ -1837,6 +1837,6 @@ void creaFuncion(char* nombre){
     if (scope->existsSymbol("func_" + std::string(nombre))) {
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
     } else {
-        scope->defineSymbol("func_" + std::string(nombre), NULL);
+        scope->defineSymbol("func_" + std::string(nombre), new FunctionNode);
     }
 }
