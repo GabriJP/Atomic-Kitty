@@ -3,6 +3,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
+
+template <typename T>
+  std::string numberToString ( T Number )
+  {
+     std::ostringstream ss;
+     ss << Number;
+     return ss.str();
+  }
+
 
 struct TupleType;
 
@@ -10,13 +20,18 @@ struct Type{
 	virtual std::string toString() = 0;
 	virtual bool isTuple() = 0;
 	virtual TupleType* add(Type* other) = 0;
+	virtual bool operator ==(Type* type) {
+		return true;
+	}
 };
 
 struct TupleType : public Type{
 	std::vector<Type*> types;
-	std::string toString() override {
+	std::string toString() {
 		std::string str = "(";
-		for(auto& type : types) str += type->toString() + ",";
+		//for(auto& type : types) 
+		for(std::vector<Type*>::iterator type = types.begin(); type != types.end(); type++)
+			str += (*type)->toString() + ",";
 		return str+')';
 	};
 	TupleType* add(Type* other) {
@@ -27,15 +42,17 @@ struct TupleType : public Type{
 		return true;
 	};
 	~TupleType(){
-		for(auto& type : types) delete type;
+		//for(auto& type : types) 
+		for(std::vector<Type*>::iterator type = types.begin(); type != types.end(); type++)
+			delete *type;
 	}
 };
 
 struct PrimitiveType : public Type{
 	unsigned id;
 	PrimitiveType(unsigned id) : id(id) {}
-	std::string toString() override {
-		return std::to_string(id);
+	std::string toString() {
+		return numberToString(id);
 	};
 	TupleType* add(Type* other) {
 		TupleType* tuple = new TupleType;

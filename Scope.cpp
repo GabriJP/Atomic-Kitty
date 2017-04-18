@@ -4,6 +4,14 @@ Scope::Scope(){
 	this->parent = NULL;
 }
 
+Scope::Scope(Scope *scope, std::string nombre) {
+	this->parent = scope;
+	std::vector<ParameterNode*> *args = ((FunctionNode*) scope->getSymbol(std::string("func_") + nombre))->getParameters();
+	for(std::vector<ParameterNode*>::iterator i = args->begin(); i != args->end(); i++) {
+		defineSymbol("dato_" + (*i)->name, new VariableNode((*i)->getType()));
+	}
+}
+
 Scope::Scope(Scope *scope) {
 	this->parent = scope;
 }
@@ -32,7 +40,11 @@ Node* Scope::getSymbol(std::string symbol) {
 	else return NULL;
 }
 
+bool Scope::isEmpty(){
+	return symbolTable.empty();
+}
+
 Scope::~Scope(){
 	//for(auto& node : symbolTable) delete node.second;
 	for(SymbolTable::iterator i = symbolTable.begin(); i != symbolTable.end(); i++) delete i->second;
-};
+}

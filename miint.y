@@ -1,8 +1,8 @@
 /* bison -dt miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 //Sin yydebug
-/* bison -dt miint.y && flex milex.l && g++ -std=c++11 -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
+/* bison -dt miint.y && flex milex.l && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 //Con yydebug
-/* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -std=c++11 -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
+/* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,17 +10,17 @@
 Scope *scope;
 extern  void  yyerror(char *);
 extern FILE *yyin;
-//int yydebug = 1;
+int yydebug = 1;
 #if YYBISON
 union YYSTYPE;
 int yylex();
 #endif
 extern int fines;
 void  logError(std::string str);
-void creaFuncion(char* nombre);
+void creaFuncion(char* nombre, std::vector<ParameterNode*> *v);
 %}
 
-%union { float f; double d; int i; long l; char c; char* str; Type* type; }
+%union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;}
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
 %token <i> VALOR_INT VALOR_BOOL
@@ -29,7 +29,9 @@ void creaFuncion(char* nombre);
 %token <str> VALOR_STRING IDENTIFICADOR
 %token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN ACCESO
 
-%type  <type>  tipo tupla_decl tipo_l
+%type  <type>  tipo tupla_decl tipo_l exp exp_l tupla
+%type  <str> func_call
+%type  <args_v> args
 
 %right '='
 %left ','
@@ -49,11 +51,11 @@ lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
 					| inst_l
 					;
 
-exp_l					: exp
-					| exp ',' exp_l
+exp_l					: exp { $$ = $1; }
+					| exp ',' exp_l { $$ = $3->add($1); }
 					;
 
-tupla 					: '(' exp_l ')'
+tupla 					: '(' exp_l ')' { $$ = $2; };
 					;
 
 tupla_decl				: '(' tipo_l ')' { $$ = $2; };
@@ -62,24 +64,24 @@ func_call				: IDENTIFICADOR tupla
 					| IDENTIFICADOR '(' ')'
 					;
 
-exp					: exp '-' exp
-					| exp '+' exp
-					| exp '/' exp
-					| exp '*' exp
-					| exp AND exp
-					| exp OR exp
-					| is
-					| func_call
-					| VALOR_INT
-					| VALOR_FLOAT
-					| VALOR_DOUBLE
-					| VALOR_LONG
-					| VALOR_BOOL
-					| VALOR_CHAR
-					| VALOR_STRING
-					| IDENTIFICADOR
-					| tupla
-					| IDENTIFICADOR ACCESO
+exp					: exp '-' exp { if ($1 == $3) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
+					| exp '+' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '/' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '*' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp AND exp { if ($1 == new PrimitiveType(BOOL) && $3 == new PrimitiveType(BOOL)) { $$ = new PrimitiveType(BOOL); } else { yyerror("Expresiones no booleanas"); } }
+					| exp OR exp { if ($1 == new PrimitiveType(BOOL) && $3 == new PrimitiveType(BOOL)) { $$ = new PrimitiveType(BOOL); } else { yyerror("Expresiones no booleanas"); } }
+					| is { $$ = new PrimitiveType(BOOL); }
+					| func_call { $$ = scope->getSymbol(std::string("func_")+$1)->getType(); }
+					| VALOR_INT { $$ = new PrimitiveType(INT); }
+					| VALOR_FLOAT { $$ = new PrimitiveType(FLOAT); }
+					| VALOR_DOUBLE  { $$ = new PrimitiveType(DOUBLE); }
+					| VALOR_LONG { $$ = new PrimitiveType(LONG); }
+					| VALOR_BOOL { $$ = new PrimitiveType(BOOL); }
+					| VALOR_CHAR { $$ = new PrimitiveType(CHAR); }
+					| VALOR_STRING { $$ = new PrimitiveType(STRING); }
+					| IDENTIFICADOR { $$ = scope->getSymbol(std::string("dato_")+$1)->getType(); }
+					| tupla { $$ = $1; }
+					| IDENTIFICADOR ACCESO { $$ = scope->getSymbol(std::string("dato_")+$1)->getType(); } //Mejorar
 					;
 
 tipo					: tupla_decl { $$ = $1; }
@@ -96,8 +98,8 @@ tipo_l					: tipo { $$ = $1; }
 					| tipo ',' tipo_l { $$ = $3->add($1); }
 					;
 
-args					: tipo IDENTIFICADOR
-					| tipo IDENTIFICADOR ',' tipo_l
+args					: tipo IDENTIFICADOR { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>(); vector->push_back(new ParameterNode($1, $2)); $$ = vector; }
+					| tipo IDENTIFICADOR ',' args { $4->push_back(new ParameterNode($1, $2)); $$ = $4; }
 					;
 
 init					: tipo IDENTIFICADOR '=' exp {
@@ -158,7 +160,7 @@ inst_l					: inst FIN_DE_LINEA
 					;
 
 bloque          			: ABREBLOQUE 
-            				  { scope = new Scope(scope); } 
+            				  { if (!scope->isEmpty()) scope = new Scope(scope); } 
             				  dentroBloque
             				  CIERRABLOQUE
             				  { 
@@ -173,18 +175,18 @@ dentroBloque      			: inst_l
             				| inst
             				;
 
-func					: tipo IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
-                                                            creaFuncion($2);
-						}
-					| tipo IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque {
-                                                            creaFuncion($2);
-					        }
-					| VOID IDENTIFICADOR '(' ')' ':' FIN_DE_LINEA bloque {
-                                                            creaFuncion($2);
-					        }
-					| VOID IDENTIFICADOR '(' args ')' ':' FIN_DE_LINEA bloque {
-                                                            creaFuncion($2);
-					        }
+func					: tipo IDENTIFICADOR '(' ')'  {
+                                                            creaFuncion($2, NULL);
+						} ':' FIN_DE_LINEA bloque
+					| tipo IDENTIFICADOR '(' args ')'  {
+                                                            creaFuncion($2, $4);
+					        } ':' FIN_DE_LINEA bloque
+					| VOID IDENTIFICADOR '(' ')' {
+                                                            creaFuncion($2, NULL);
+					        } ':' FIN_DE_LINEA bloque
+					| VOID IDENTIFICADOR '(' args ')' {
+                                                            creaFuncion($2, $4);
+					        } ':' FIN_DE_LINEA bloque
 					;
 
 cases					: exp WHEN_CASE exp
@@ -235,10 +237,12 @@ void  yyerror(char* str) {
     exit(-1);
 }
 
-void creaFuncion(char* nombre){
+void creaFuncion(char* nombre, std::vector<ParameterNode*> *v){
     if (scope->existsSymbol("func_" + std::string(nombre))) {
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
     } else {
-        scope->defineSymbol("func_" + std::string(nombre), new FunctionNode);
+	if (v == NULL) v = new std::vector<ParameterNode*>();
+        scope->defineSymbol("func_" + std::string(nombre), new FunctionNode(v));
+	scope = new Scope(scope, std::string(nombre));
     }
 }

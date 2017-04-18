@@ -89,7 +89,7 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 23 "miint.y" /* yacc.c:1909  */
- float f; double d; int i; long l; char c; char* str; Type* type; 
+ float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;
 
 #line 95 "miint.tab.h" /* yacc.c:1909  */
 };

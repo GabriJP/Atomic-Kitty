@@ -5,7 +5,7 @@
 %{
 /* need this for the call to atof() below */
 #include <math.h>
-#include "Type.h"
+#include "Scope.h"
 #include "miint.tab.h"
 
 /*#define VALOR_INT 257
