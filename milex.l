@@ -5,6 +5,7 @@
 %{
 /* need this for the call to atof() below */
 #include <math.h>
+#include <cstdlib>
 #include "Scope.h"
 #include "miint.tab.h"
 
@@ -177,6 +178,8 @@ string                                                   {
                                                          }
 
 {ACCESO}						 {
+							     yylval.i = std::atoi(yytext+1);
+							     printf("%i<------------------------------------------------------------------ \n", yylval.i);
 							     return ACCESO;
 							 }
 

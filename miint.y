@@ -17,17 +17,17 @@ int yylex();
 #endif
 extern int fines;
 void  logError(std::string str);
-void creaFuncion(char* nombre, std::vector<ParameterNode*> *v);
+void creaFuncion(char* nombre, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;}
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
-%token <i> VALOR_INT VALOR_BOOL
+%token <i> VALOR_INT VALOR_BOOL ACCESO
 %token <l> VALOR_LONG
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
-%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN ACCESO
+%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN
 
 %type  <type>  tipo tupla_decl tipo_l exp exp_l tupla
 %type  <str> func_call
@@ -60,18 +60,18 @@ tupla 					: '(' exp_l ')' { $$ = $2; };
 
 tupla_decl				: '(' tipo_l ')' { $$ = $2; };
 
-func_call				: IDENTIFICADOR tupla
-					| IDENTIFICADOR '(' ')'
+func_call				: IDENTIFICADOR tupla { printf("%s----------------------------------------------------\n", $1); $$ = $1; }
+					| IDENTIFICADOR '(' ')' { $$ = $1; }
 					;
 
-exp					: exp '-' exp { if ($1 == $3) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
-					| exp '+' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '/' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '*' exp { if ($1 == $3) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp AND exp { if ($1 == new PrimitiveType(BOOL) && $3 == new PrimitiveType(BOOL)) { $$ = new PrimitiveType(BOOL); } else { yyerror("Expresiones no booleanas"); } }
-					| exp OR exp { if ($1 == new PrimitiveType(BOOL) && $3 == new PrimitiveType(BOOL)) { $$ = new PrimitiveType(BOOL); } else { yyerror("Expresiones no booleanas"); } }
+exp					: exp '-' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
+					| exp '+' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '/' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '*' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp AND exp { if ($1->equals(&PrimitiveType(BOOL)) && $3->equals(&PrimitiveType(BOOL))) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
+					| exp OR exp { if ($1->equals(&PrimitiveType(BOOL)) && $3->equals(&PrimitiveType(BOOL))) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
 					| is { $$ = new PrimitiveType(BOOL); }
-					| func_call { $$ = scope->getSymbol(std::string("func_")+$1)->getType(); }
+					| func_call { $$ = scope->getFunction($1)->getType(); }
 					| VALOR_INT { $$ = new PrimitiveType(INT); }
 					| VALOR_FLOAT { $$ = new PrimitiveType(FLOAT); }
 					| VALOR_DOUBLE  { $$ = new PrimitiveType(DOUBLE); }
@@ -79,9 +79,16 @@ exp					: exp '-' exp { if ($1 == $3) { $$ = $1; } else { yyerror((char*) ((std:
 					| VALOR_BOOL { $$ = new PrimitiveType(BOOL); }
 					| VALOR_CHAR { $$ = new PrimitiveType(CHAR); }
 					| VALOR_STRING { $$ = new PrimitiveType(STRING); }
-					| IDENTIFICADOR { $$ = scope->getSymbol(std::string("dato_")+$1)->getType(); }
+					| IDENTIFICADOR { $$ = scope->getVariable($1)->getType(); }
 					| tupla { $$ = $1; }
-					| IDENTIFICADOR ACCESO { $$ = scope->getSymbol(std::string("dato_")+$1)->getType(); } //Mejorar
+					| IDENTIFICADOR ACCESO { 
+						Type* type = scope->getVariable($1)->getType();
+						if(type->isTuple())
+							$$ = ((TupleType*)type)->getSubType($2); 
+						else
+							yyerror("Acceso a una tupla");
+					
+					} 
 					;
 
 tipo					: tupla_decl { $$ = $1; }
@@ -103,37 +110,37 @@ args					: tipo IDENTIFICADOR { std::vector<ParameterNode*> *vector = new std::v
 					;
 
 init					: tipo IDENTIFICADOR '=' exp {
-                                                            if (scope->haveSymbol("dato_" + std::string($2))) {
+                                                            if (scope->haveVariable($2)) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode($1));
+                                                                scope->defineVariable($2, new VariableNode($1));
                                                             }
 						}
 					;
 
 asign					: IDENTIFICADOR '=' exp {
-                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                            if (!scope->existsVariable($1)) {
                                                                 logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
                                                             }
 							}
 					;
 
 decl					: tipo IDENTIFICADOR {
-                                                            if (scope->haveSymbol("dato_" + std::string($2))) {
+                                                            if (scope->haveVariable($2)) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
-                                                                scope->defineSymbol("dato_" + std::string($2), new VariableNode($1));
+                                                                scope->defineVariable($2, new VariableNode($1));
                                                             }
 						}
 					;
 
 in					: IDENTIFICADOR IN rango  {
-                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                            if (!scope->existsVariable($1)) {
                                                                 logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
                                                             }
 						}
 					| IDENTIFICADOR NOTIN rango {
-                                                            if (!scope->existsSymbol("dato_" + std::string($1))) {
+                                                            if (!scope->existsVariable($1)) {
                                                                 logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
                                                             }
 						}
@@ -223,6 +230,9 @@ rango					: exp RANGE exp
 
 int main(int argc, char** argv) {
 	scope = new Scope();
+//Funciones del sistema
+	scope->defineFunction("print", new FunctionNode);
+	scope->defineFunction("getchar", new FunctionNode);
 	if (argc>1) yyin=fopen(argv[1],"r");
 	yyparse();
 }
@@ -238,11 +248,10 @@ void  yyerror(char* str) {
 }
 
 void creaFuncion(char* nombre, std::vector<ParameterNode*> *v){
-    if (scope->existsSymbol("func_" + std::string(nombre))) {
+    if (scope->existsFunction(nombre)) {
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
     } else {
-	if (v == NULL) v = new std::vector<ParameterNode*>();
-        scope->defineSymbol("func_" + std::string(nombre), new FunctionNode(v));
+        scope->defineFunction(nombre, new FunctionNode(v));
 	scope = new Scope(scope, std::string(nombre));
     }
 }

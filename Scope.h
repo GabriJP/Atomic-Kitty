@@ -40,6 +40,7 @@ class FunctionNode : public Node{
 	Type* returned;
 
 public:
+	FunctionNode() :  parameters(new std::vector<ParameterNode*>) {}
 	FunctionNode(std::vector<ParameterNode*> *v) :  parameters(v) {}
 
 	Category getCategory() {
@@ -58,6 +59,8 @@ class Scope{
 
 	SymbolTable symbolTable;
 	Scope *parent;
+	const static char* VAR_PREFIX;
+	const static char* FUNC_PREFIX;
 
 public:
 	Scope(Scope *scope, std::string name);
@@ -65,10 +68,21 @@ public:
 	Scope();
 
 	Scope* getParent();
+
 	bool haveSymbol(std::string symbol);
+	bool haveVariable(std::string symbol);
+
+	bool existsFunction(std::string function);
+	bool existsVariable(std::string function);
     	bool existsSymbol(std::string symbol);
+
 	Node* getSymbol(std::string symbol);
+	VariableNode* getVariable(std::string symbol);
+	FunctionNode* getFunction(std::string symbol);
+
 	void defineSymbol(std::string symbol, Node *node);
+	void defineFunction(std::string symbol, FunctionNode *node);
+	void defineVariable(std::string symbol, VariableNode *node);
 	bool isEmpty();
 
 	~Scope();
