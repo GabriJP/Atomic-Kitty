@@ -73,7 +73,11 @@
      ABREBLOQUE = 289,
      CIERRABLOQUE = 290,
      IN = 291,
-     NOTIN = 292
+     NOTIN = 292,
+     MAYORIGUAL = 293,
+     MENORIGUAL = 294,
+     MAYORQUE = 295,
+     MENORQUE = 296
    };
 #endif
 
@@ -84,12 +88,12 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 23 "miint.y"
+#line 24 "miint.y"
  float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;
 
 
 /* Line 1676 of yacc.c  */
-#line 93 "miint.tab.h"
+#line 97 "miint.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -219,8 +219,28 @@ or                                                       {
                                                              return OR;
                                                          }
 
+and                                                       {
+                                                             return AND;
+                                                         }
+
 in							 {
 							     return IN;
+							 }
+
+{MENORQUE}						 {
+							     return MENORQUE;
+							 }
+
+{MAYORQUE}						 {
+							     return MAYORQUE;
+							 }
+
+{MENORIGUAL}						 {
+							     return MENORIGUAL;
+							 }
+
+{MAYORIGUAL}						 {
+							     return MAYORIGUAL;
 							 }
 
 ".."                                                     {

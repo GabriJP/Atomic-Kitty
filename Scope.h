@@ -40,8 +40,8 @@ class FunctionNode : public Node{
 	Type* returned;
 
 public:
-	FunctionNode() :  parameters(new std::vector<ParameterNode*>) {}
-	FunctionNode(std::vector<ParameterNode*> *v) :  parameters(v) {}
+	FunctionNode(Type* returned) :  returned(returned), parameters(new std::vector<ParameterNode*>) {}
+	FunctionNode(Type* returned, std::vector<ParameterNode*> *v) :  returned(returned), parameters(v) {}
 
 	Category getCategory() {
 		return FUNCTION;
@@ -49,6 +49,7 @@ public:
 	std::vector<ParameterNode*>* getParameters() {
 		return parameters;
 	}
+	Type* getType() { return returned; };
 };
 
 
