@@ -39,7 +39,7 @@ int ne();
 %type  <type>  tipo tupla_decl tipo_l exp exp_l tupla comp
 %type  <str> func_call
 %type  <args_v> args
-%type  <i> ne elif_copia_salida elif_copia_siguiente copia0
+%type  <i> ne elif_copia_salida elif_copia_siguiente //copia0
 
 %right '='
 %left ','
@@ -223,15 +223,14 @@ for					: FOR in ':' FIN_DE_LINEA bloque
 
 
 if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d:\n", $salida);}
-					| IF exp ':' FIN_DE_LINEA ne[else] if_evalua_expresion bloque ELSE ':' FIN_DE_LINEA ne[salida] { gc("\tGT(%d);\nL %d:\n", $salida, $else); /*ir a $salida, label $else*/} bloque {gc("L %d:\n", $salida);}
-					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] copia0 elif_l {gc("L %d:\n", $salida);}
-					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] ne[else] elif_l ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $salida, $else); /*ir a $salida, label $else*/} bloque {gc("L %d:\n", $salida);}
+					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] { $<i>$=$<i>elif; } elif_l {gc("L %d:\n", $salida);}
 					;
 
-/*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque / $-4=etiqueta elif -> si la condicion del bloque anterior falla hay que mirar la condicion de este elif asi que salta aqui que es la etiqueta del elif actual*/
+/*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
 
-elif_l					: ELIF exp ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-1, $<i>-4, $<i>0); /*ir a $-1, $-4, si no expresion ir a $0*/} bloque
-					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] { gc("\tGT(%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-1, $<i>-4, $5); /*ir a $-1, $-4, si no expresion ir a $5*/} bloque elif_copia_salida elif_copia_siguiente elif_l
+elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
+					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+					| ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $<i>-1, $<i>0);} bloque
 					;
 
 
@@ -239,20 +238,24 @@ elif_l					: ELIF exp ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n\tIF(!R%d) GT(%d)
 ne					: { $<i>$ = ne(); }
 					;
 
+/* Ir a salida, Si (!cond) ir a siguiente elif/else/salida */
+elif_control			: { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-6, $<i>-5, $<i>-3, $<i>0); }
+					;
+
 /*Evalua expresión en $-3 y si no se cumple salta a $0*/
 if_evalua_expresion			: { gc("\tIF(!R%d) GT(%d);\n", $<i>-3, $<i>0); /*si no $-4 ir a $0*/ }
 					;
 
 /*Copia el valor de $-7, que corresponde con la salida del elif*/
-elif_copia_salida			: { $$ = $<i>-7; /*($-1 del anterior)*/ }
+elif_copia_salida			: { $$ = $<i>-8; /*($-1 del anterior)*/ }
 					;
 
 /*Copia del valor de $-2, util en el elif que lleva otro elif despues*/
-elif_copia_siguiente			: { $$ = $<i>-2; }
+elif_copia_siguiente			: { $$ = $<i>-3; }
 					;
 
 /*Copia el valor de $0*/
-copia0					: { $$=$<i>0; }
+/*copia0					: { $$=$<i>0; }*/
 					;
 
 /*FIN ELIF*/
