@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Scope.h"
+#include <stdarg.h>
 Scope *scope;
 extern  void  yyerror(char *);
 extern FILE *yyin;
@@ -19,6 +20,11 @@ extern int fines;
 void  logError(std::string str);
 void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
 bool isNumberType(Type* tipo);
+FILE* qFile;
+void gc(const char* code, ...)	;
+int ec = 1;
+int eb;
+int ne();
 %}
 
 %union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;}
@@ -33,6 +39,7 @@ bool isNumberType(Type* tipo);
 %type  <type>  tipo tupla_decl tipo_l exp exp_l tupla comp
 %type  <str> func_call
 %type  <args_v> args
+%type  <i> ne elif_copia_salida elif_copia_siguiente copia0
 
 %right '='
 %left ','
@@ -211,20 +218,50 @@ when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 for					: FOR in ':' FIN_DE_LINEA bloque
 					;
 
-if					: IF exp ':' FIN_DE_LINEA bloque
-					| IF exp ':' FIN_DE_LINEA bloque else
-					| IF exp ':' FIN_DE_LINEA bloque elif_l
-					| IF exp ':' FIN_DE_LINEA bloque elif_l else
+
+
+
+
+if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d:\n", $salida);}
+					| IF exp ':' FIN_DE_LINEA ne[else] if_evalua_expresion bloque ELSE ':' FIN_DE_LINEA ne[salida] { gc("\tGT(%d);\nL %d:\n", $salida, $else); /*ir a $salida, label $else*/} bloque {gc("L %d:\n", $salida);}
+					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] copia0 elif_l {gc("L %d:\n", $salida);}
+					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] ne[else] elif_l ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $salida, $else); /*ir a $salida, label $else*/} bloque {gc("L %d:\n", $salida);}
 					;
 
-elif_l					: ELIF exp ':' FIN_DE_LINEA bloque
-					| ELIF exp ':' FIN_DE_LINEA bloque elif_l
+/*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque / $-4=etiqueta elif -> si la condicion del bloque anterior falla hay que mirar la condicion de este elif asi que salta aqui que es la etiqueta del elif actual*/
+
+elif_l					: ELIF exp ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-1, $<i>-4, $<i>0); /*ir a $-1, $-4, si no expresion ir a $0*/} bloque
+					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] { gc("\tGT(%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-1, $<i>-4, $5); /*ir a $-1, $-4, si no expresion ir a $5*/} bloque elif_copia_salida elif_copia_siguiente elif_l
 					;
 
-else					: ELSE ':' FIN_DE_LINEA bloque
+
+/*Genera una etiqueta nueva*/
+ne					: { $<i>$ = ne(); }
 					;
 
-while					: WHILE exp ':' FIN_DE_LINEA bloque
+/*Evalua expresión en $-3 y si no se cumple salta a $0*/
+if_evalua_expresion			: { gc("\tIF(!R%d) GT(%d);\n", $<i>-3, $<i>0); /*si no $-4 ir a $0*/ }
+					;
+
+/*Copia el valor de $-7, que corresponde con la salida del elif*/
+elif_copia_salida			: { $$ = $<i>-7; /*($-1 del anterior)*/ }
+					;
+
+/*Copia del valor de $-2, util en el elif que lleva otro elif despues*/
+elif_copia_siguiente			: { $$ = $<i>-2; }
+					;
+
+/*Copia el valor de $0*/
+copia0					: { $$=$<i>0; }
+					;
+
+/*FIN ELIF*/
+
+
+
+
+
+while					: WHILE { $<i>$=ec; ec=ne(); gc("L %d:\n",ec); } exp ':' { $<i>$=eb; eb=ne(); gc("\tIF(!R %d) GT( %d);\n",$<i>3,eb); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n",ec,eb); ec=$<i>2; eb=$<i>5; }
 					;
 
 rango					: exp RANGE exp
@@ -244,12 +281,24 @@ bool isNumberType(Type* tipo){
 	return false;
 }
 
+void gc(const char* code, ...) {
+	va_list args;
+	va_start (args, code);
+	vfprintf (qFile, code, args);
+	va_end (args);
+}
+
+int ne(){
+	return ec++;
+}
+
 int main(int argc, char** argv) {
 	scope = new Scope();
 //Funciones del sistema
 	scope->defineFunction("print", new FunctionNode(new PrimitiveType(VOID)));
 	scope->defineFunction("getchar", new FunctionNode(new PrimitiveType(CHAR)));
 	if (argc>1) yyin=fopen(argv[1],"r");
+	qFile=fopen("program.q", "w+");
 	yyparse();
 }
 
