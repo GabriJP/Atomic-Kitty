@@ -226,7 +226,7 @@ when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					| WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					;
 
-for					: FOR ne[vuelta] ne[salida] in ':' FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
+for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {/*crear variable identificador si no existe, asignarle el valor de inicio menos paso, label vuelta, identificador+=paso, comprobar que sea menor que fin y hacer bloque o ir a salida*/} bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
 					;
 
 
