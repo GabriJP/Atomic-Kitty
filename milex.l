@@ -7,6 +7,7 @@
 #include <math.h>
 #include <cstdlib>
 #include "Scope.h"
+#include "structs.h"
 #include "miint.tab.h"
 
 /*#define VALOR_INT 257

@@ -8,26 +8,36 @@
 #include <stdlib.h>
 #include "Scope.h"
 #include <stdarg.h>
+#include "structs.h"
+
+
+//Variable globales
 Scope *scope;
-extern  void  yyerror(char *);
+FILE* qFile;
+int ec = 1;
+
 extern FILE *yyin;
 int yydebug = 1;
+extern int fines;
+
 #if YYBISON
 union YYSTYPE;
 int yylex();
 #endif
-extern int fines;
-void  logError(std::string str);
+
+
+
+//Funciones
+void logError(std::string str);
 void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
 bool isNumberType(Type* tipo);
-FILE* qFile;
 void gc(const char* code, ...)	;
-int ec = 1;
-int eb;
 int ne();
+extern  void  yyerror(char *);
+
 %}
 
-%union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v;}
+%union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; }
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
 %token <i> VALOR_INT VALOR_BOOL ACCESO
@@ -39,7 +49,8 @@ int ne();
 %type  <type>  tipo tupla_decl tipo_l exp exp_l tupla comp
 %type  <str> func_call
 %type  <args_v> args
-%type  <i> ne elif_copia_salida elif_copia_siguiente //copia0
+%type  <i> ne elif_copia_salida elif_copia_siguiente
+%type  <valoresRango> rango
 
 %right '='
 %left ','
@@ -215,7 +226,7 @@ when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					| WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					;
 
-for					: FOR in ':' FIN_DE_LINEA bloque
+for					: FOR ne[vuelta] ne[salida] in ':' FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
 					;
 
 
@@ -228,7 +239,7 @@ if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d
 
 /*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
 
-elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
+elif_l					: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
 					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
 					| ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $<i>-1, $<i>0);} bloque
 					;
@@ -246,29 +257,22 @@ elif_control			: { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-6, $<i>-5
 if_evalua_expresion			: { gc("\tIF(!R%d) GT(%d);\n", $<i>-3, $<i>0); /*si no $-4 ir a $0*/ }
 					;
 
-/*Copia el valor de $-7, que corresponde con la salida del elif*/
+/*Copia el valor de $-8, que corresponde con la salida del elif*/
 elif_copia_salida			: { $$ = $<i>-8; /*($-1 del anterior)*/ }
 					;
 
-/*Copia del valor de $-2, util en el elif que lleva otro elif despues*/
+/*Copia del valor de $-3, util en el elif que lleva otro elif despues*/
 elif_copia_siguiente			: { $$ = $<i>-3; }
-					;
-
-/*Copia el valor de $0*/
-/*copia0					: { $$=$<i>0; }*/
 					;
 
 /*FIN ELIF*/
 
 
-
-
-
-while					: WHILE { $<i>$=ec; ec=ne(); gc("L %d:\n",ec); } exp ':' { $<i>$=eb; eb=ne(); gc("\tIF(!R %d) GT( %d);\n",$<i>3,eb); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n",ec,eb); ec=$<i>2; eb=$<i>5; }
+while					: WHILE ne[salida] ne[vuelta] { gc("L %d:\n", $vuelta); } exp ':' { gc("\tIF(!R %d) GT( %d);\n", $exp, $salida); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
 					;
 
-rango					: exp RANGE exp
-					| exp RANGE exp ',' exp
+rango					: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $fin, new PrimitiveType(INT)}; $$=&valoresRango; }
+					| exp[inicio] RANGE exp[fin] ',' exp[paso] { ValoresRango valoresRango = {$inicio, $fin, $paso}; $$=&valoresRango; }
 					;
 %%
 
