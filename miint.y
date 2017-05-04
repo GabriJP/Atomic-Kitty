@@ -1,6 +1,6 @@
 /* bison -dt miint.y && flex milex.l && gcc -o micomp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 //Sin yydebug
-/* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug \= 1\;/d' miint.tab.c  && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fact.aki */
+    /* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug \= 1\;/d' miint.tab.c  && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fact.aki */
 //Con yydebug
 /* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
@@ -9,6 +9,7 @@
 #include "Scope.h"
 #include <stdarg.h>
 #include "structs.h"
+#include "MemManager.h"
 
 
 //Variable globales
@@ -34,6 +35,8 @@ bool isNumberType(Type* tipo);
 void gc(const char* code, ...)	;
 int ne();
 extern  void  yyerror(char *);
+
+MemManager memoria;
 
 %}
 
@@ -145,7 +148,7 @@ asign					: IDENTIFICADOR '=' exp {
 							}
 					;
 
-decl					: tipo IDENTIFICADOR {
+decl				: tipo IDENTIFICADOR {
                                                             if (scope->haveVariable($2)) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
@@ -154,19 +157,8 @@ decl					: tipo IDENTIFICADOR {
 						}
 					;
 
-in					: IDENTIFICADOR IN rango  {
-                                                            if (!scope->existsVariable($1)) {
-                                                                logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
-                                                            }
-						}
-					| IDENTIFICADOR NOTIN rango {
-                                                            if (!scope->existsVariable($1)) {
-                                                                logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
-                                                            }
-						}
-					;
 
-comp					: exp MENORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
+comp				: exp MENORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
 					| exp MAYORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
 					| exp MENORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
 					| exp MAYORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
@@ -324,6 +316,6 @@ void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v)
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
     } else {
         scope->defineFunction(nombre, new FunctionNode(returnType, v));
-	scope = new Scope(scope, std::string(nombre));
+	    scope = new Scope(scope, std::string(nombre));
     }
 }
