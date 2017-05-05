@@ -13,13 +13,15 @@ private:
 
     int floatCounter = 0;
 
+    int stack = 0x12000;
+
     map<int, int> intR;
 
     map<int, int> floatR;
 
     map<int, int> memoria;
 
-    map<int, Type *> values;
+    map<int, int> values;
 
     int getId();
 
@@ -34,9 +36,11 @@ public:
 
     int creaFuncion();
 
-    int creaVariableSimple();
+    int creaVariableSimple(int tipo);
 
     int load(int id);
+
+    void print();
 };
 
 #pragma clang diagnostic pop

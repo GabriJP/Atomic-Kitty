@@ -91,13 +91,12 @@ int yylex();
 void logError(std::string str);
 void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
 bool isNumberType(Type* tipo);
-void gc(const char* code, ...)	;
 int ne();
 PrimitiveType* creaPrimitivo(int tipo);
 extern  void  yyerror(char *);
 
 
-#line 101 "miint.tab.c" /* yacc.c:339  */
+#line 100 "miint.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -121,11 +120,19 @@ extern  void  yyerror(char *);
 # define YY_YY_MIINT_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 40 "miint.y" /* yacc.c:355  */
+
+  #include "MemManager.h"
+  #include "structs.h"
+  void gc(const char* code, ...);
+
+#line 136 "miint.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -180,10 +187,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 41 "miint.y" /* yacc.c:355  */
+#line 46 "miint.y" /* yacc.c:355  */
  float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; 
 
-#line 187 "miint.tab.c" /* yacc.c:355  */
+#line 194 "miint.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -200,7 +207,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 204 "miint.tab.c" /* yacc.c:358  */
+#line 211 "miint.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -501,16 +508,16 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    67,    67,    67,    68,    69,    70,    71,    72,    75,
-      76,    79,    82,    84,    85,    88,    89,    90,    91,    92,
-      93,    94,    95,    96,    97,    98,    99,   100,   101,   102,
-     103,   104,   105,   115,   116,   117,   118,   119,   120,   121,
-     122,   125,   126,   129,   130,   133,   142,   149,   159,   160,
-     161,   162,   163,   164,   167,   168,   169,   170,   171,   172,
-     173,   174,   175,   176,   179,   180,   184,   183,   194,   197,
-     197,   200,   200,   203,   203,   206,   206,   211,   212,   215,
-     216,   219,   219,   226,   227,   227,   232,   233,   234,   234,
-     239,   243,   247,   251,   255,   261,   261,   261,   264,   265
+       0,    72,    72,    72,    73,    74,    75,    76,    77,    80,
+      81,    84,    87,    89,    90,    93,    94,    95,    96,    97,
+      98,    99,   100,   101,   102,   103,   104,   105,   106,   107,
+     108,   109,   110,   120,   121,   122,   123,   124,   125,   126,
+     127,   130,   131,   134,   135,   138,   147,   154,   164,   165,
+     166,   167,   168,   169,   172,   173,   174,   175,   176,   177,
+     178,   179,   180,   181,   184,   185,   189,   188,   199,   202,
+     202,   205,   205,   208,   208,   211,   211,   216,   217,   220,
+     221,   224,   224,   231,   232,   232,   237,   238,   239,   239,
+     244,   248,   252,   256,   260,   266,   266,   266,   269,   270
 };
 #endif
 
@@ -1493,151 +1500,151 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 67 "miint.y" /* yacc.c:1646  */
+#line 72 "miint.y" /* yacc.c:1646  */
     {printf(" en expresión\n");}
-#line 1499 "miint.tab.c" /* yacc.c:1646  */
+#line 1506 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 75 "miint.y" /* yacc.c:1646  */
+#line 80 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
-#line 1505 "miint.tab.c" /* yacc.c:1646  */
+#line 1512 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 76 "miint.y" /* yacc.c:1646  */
+#line 81 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type)->add((yyvsp[-2].type)); }
-#line 1511 "miint.tab.c" /* yacc.c:1646  */
+#line 1518 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 79 "miint.y" /* yacc.c:1646  */
+#line 84 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[-1].type); }
-#line 1517 "miint.tab.c" /* yacc.c:1646  */
+#line 1524 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 82 "miint.y" /* yacc.c:1646  */
+#line 87 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[-1].type); }
-#line 1523 "miint.tab.c" /* yacc.c:1646  */
+#line 1530 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 84 "miint.y" /* yacc.c:1646  */
+#line 89 "miint.y" /* yacc.c:1646  */
     { printf("%s----------------------------------------------------\n", (yyvsp[-1].str)); (yyval.str) = (yyvsp[-1].str); }
-#line 1529 "miint.tab.c" /* yacc.c:1646  */
+#line 1536 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 85 "miint.y" /* yacc.c:1646  */
+#line 90 "miint.y" /* yacc.c:1646  */
     { (yyval.str) = (yyvsp[-2].str); }
-#line 1535 "miint.tab.c" /* yacc.c:1646  */
+#line 1542 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 88 "miint.y" /* yacc.c:1646  */
-    { if ((yyvsp[-2].type)->equals((yyvsp[0].type))) { (yyval.type) = (yyvsp[-2].type); } else { yyerror((char*) ((std::string("Tipos diferentes: '") + (yyvsp[-2].type)->toString() + "' y '" + (yyvsp[0].type)->toString() + "'").c_str())); } }
-#line 1541 "miint.tab.c" /* yacc.c:1646  */
+#line 93 "miint.y" /* yacc.c:1646  */
+    { if ((yyvsp[-2].type)->getType() == (yyvsp[0].type)->getType()) { (yyval.type) = (yyvsp[-2].type); } else { yyerror((char*) ((std::string("Tipos diferentes: '") + (yyvsp[-2].type)->toString() + "' y '" + (yyvsp[0].type)->toString() + "'").c_str())); } }
+#line 1548 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 89 "miint.y" /* yacc.c:1646  */
-    { if ((yyvsp[-2].type)->equals((yyvsp[0].type))) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
-#line 1547 "miint.tab.c" /* yacc.c:1646  */
+#line 94 "miint.y" /* yacc.c:1646  */
+    { if ((yyvsp[-2].type)->getType() == (yyvsp[0].type)->getType()) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
+#line 1554 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 90 "miint.y" /* yacc.c:1646  */
-    { if ((yyvsp[-2].type)->equals((yyvsp[0].type))) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
-#line 1553 "miint.tab.c" /* yacc.c:1646  */
+#line 95 "miint.y" /* yacc.c:1646  */
+    { if ((yyvsp[-2].type)->getType() == (yyvsp[0].type)->getType()) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
+#line 1560 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 91 "miint.y" /* yacc.c:1646  */
-    { if ((yyvsp[-2].type)->equals((yyvsp[0].type))) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
-#line 1559 "miint.tab.c" /* yacc.c:1646  */
+#line 96 "miint.y" /* yacc.c:1646  */
+    { if ((yyvsp[-2].type)->getType() == (yyvsp[0].type)->getType()) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Tipos diferentes"); } }
+#line 1566 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 92 "miint.y" /* yacc.c:1646  */
+#line 97 "miint.y" /* yacc.c:1646  */
     { if ((yyvsp[-2].type)->getType() == BOOL && (yyvsp[0].type)->getType() == BOOL) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Expresiones no booleanas"); } }
-#line 1565 "miint.tab.c" /* yacc.c:1646  */
+#line 1572 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 93 "miint.y" /* yacc.c:1646  */
+#line 98 "miint.y" /* yacc.c:1646  */
     { if ((yyvsp[-2].type)->getType() == BOOL && (yyvsp[0].type)->getType() == BOOL) { (yyval.type) = (yyvsp[-2].type); } else { yyerror("Expresiones no booleanas"); } }
-#line 1571 "miint.tab.c" /* yacc.c:1646  */
+#line 1578 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 94 "miint.y" /* yacc.c:1646  */
+#line 99 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(BOOL); }
-#line 1577 "miint.tab.c" /* yacc.c:1646  */
+#line 1584 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 95 "miint.y" /* yacc.c:1646  */
+#line 100 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = scope->getFunction((yyvsp[0].str))->getType(); }
-#line 1583 "miint.tab.c" /* yacc.c:1646  */
+#line 1590 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 96 "miint.y" /* yacc.c:1646  */
+#line 101 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(INT); }
-#line 1589 "miint.tab.c" /* yacc.c:1646  */
+#line 1596 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 97 "miint.y" /* yacc.c:1646  */
+#line 102 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(FLOAT); }
-#line 1595 "miint.tab.c" /* yacc.c:1646  */
+#line 1602 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 98 "miint.y" /* yacc.c:1646  */
+#line 103 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(DOUBLE); }
-#line 1601 "miint.tab.c" /* yacc.c:1646  */
+#line 1608 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 99 "miint.y" /* yacc.c:1646  */
+#line 104 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(LONG); }
-#line 1607 "miint.tab.c" /* yacc.c:1646  */
+#line 1614 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 100 "miint.y" /* yacc.c:1646  */
+#line 105 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(BOOL); }
-#line 1613 "miint.tab.c" /* yacc.c:1646  */
+#line 1620 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 101 "miint.y" /* yacc.c:1646  */
+#line 106 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(CHAR); }
-#line 1619 "miint.tab.c" /* yacc.c:1646  */
+#line 1626 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 102 "miint.y" /* yacc.c:1646  */
+#line 107 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(STRING); }
-#line 1625 "miint.tab.c" /* yacc.c:1646  */
+#line 1632 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 103 "miint.y" /* yacc.c:1646  */
+#line 108 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = scope->getVariable((yyvsp[0].str))->getType(); }
-#line 1631 "miint.tab.c" /* yacc.c:1646  */
+#line 1638 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 104 "miint.y" /* yacc.c:1646  */
+#line 109 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
-#line 1637 "miint.tab.c" /* yacc.c:1646  */
+#line 1644 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 105 "miint.y" /* yacc.c:1646  */
+#line 110 "miint.y" /* yacc.c:1646  */
     { 
 						Type* type = scope->getVariable((yyvsp[-1].str))->getType();
 						if(type->isTuple())
@@ -1646,83 +1653,83 @@ yyreduce:
 							yyerror("Acceso a una tupla");
 					
 					}
-#line 1650 "miint.tab.c" /* yacc.c:1646  */
+#line 1657 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 115 "miint.y" /* yacc.c:1646  */
+#line 120 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
-#line 1656 "miint.tab.c" /* yacc.c:1646  */
+#line 1663 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 116 "miint.y" /* yacc.c:1646  */
+#line 121 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(INT); }
-#line 1662 "miint.tab.c" /* yacc.c:1646  */
+#line 1669 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 117 "miint.y" /* yacc.c:1646  */
+#line 122 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(FLOAT); }
-#line 1668 "miint.tab.c" /* yacc.c:1646  */
+#line 1675 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 118 "miint.y" /* yacc.c:1646  */
+#line 123 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(LONG); }
-#line 1674 "miint.tab.c" /* yacc.c:1646  */
+#line 1681 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 119 "miint.y" /* yacc.c:1646  */
+#line 124 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(DOUBLE); }
-#line 1680 "miint.tab.c" /* yacc.c:1646  */
+#line 1687 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 120 "miint.y" /* yacc.c:1646  */
+#line 125 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(BOOL); }
-#line 1686 "miint.tab.c" /* yacc.c:1646  */
+#line 1693 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 121 "miint.y" /* yacc.c:1646  */
+#line 126 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(STRING); }
-#line 1692 "miint.tab.c" /* yacc.c:1646  */
+#line 1699 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 122 "miint.y" /* yacc.c:1646  */
+#line 127 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = creaPrimitivo(CHAR); }
-#line 1698 "miint.tab.c" /* yacc.c:1646  */
+#line 1705 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 125 "miint.y" /* yacc.c:1646  */
+#line 130 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
-#line 1704 "miint.tab.c" /* yacc.c:1646  */
+#line 1711 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 126 "miint.y" /* yacc.c:1646  */
+#line 131 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type)->add((yyvsp[-2].type)); }
-#line 1710 "miint.tab.c" /* yacc.c:1646  */
+#line 1717 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 129 "miint.y" /* yacc.c:1646  */
+#line 134 "miint.y" /* yacc.c:1646  */
     { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>(); vector->push_back(new ParameterNode((yyvsp[-1].type), (yyvsp[0].str))); (yyval.args_v) = vector; }
-#line 1716 "miint.tab.c" /* yacc.c:1646  */
+#line 1723 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 130 "miint.y" /* yacc.c:1646  */
+#line 135 "miint.y" /* yacc.c:1646  */
     { (yyvsp[0].args_v)->push_back(new ParameterNode((yyvsp[-3].type), (yyvsp[-2].str))); (yyval.args_v) = (yyvsp[0].args_v); }
-#line 1722 "miint.tab.c" /* yacc.c:1646  */
+#line 1729 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 133 "miint.y" /* yacc.c:1646  */
+#line 138 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveVariable((yyvsp[-2].str))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[-2].str)) + "', pero ya existe."); 
@@ -1730,21 +1737,21 @@ yyreduce:
                                                                 scope->defineVariable((yyvsp[-2].str), new VariableNode((yyvsp[-3].type)));
                                                             }
 						}
-#line 1734 "miint.tab.c" /* yacc.c:1646  */
+#line 1741 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 142 "miint.y" /* yacc.c:1646  */
+#line 147 "miint.y" /* yacc.c:1646  */
     {
                                                             if (!scope->existsVariable((yyvsp[-2].str))) {
                                                                 logError("Se intenta usar '" + std::string((yyvsp[-2].str)) + "', pero no existe."); 
                                                             }
 							}
-#line 1744 "miint.tab.c" /* yacc.c:1646  */
+#line 1751 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 149 "miint.y" /* yacc.c:1646  */
+#line 154 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveVariable((yyvsp[0].str))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[0].str)) + "', pero ya existe."); 
@@ -1752,197 +1759,197 @@ yyreduce:
                                                                 scope->defineVariable((yyvsp[0].str), new VariableNode((yyvsp[-1].type)));
                                                             }
 						}
-#line 1756 "miint.tab.c" /* yacc.c:1646  */
+#line 1763 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 159 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-#line 1762 "miint.tab.c" /* yacc.c:1646  */
+#line 164 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+#line 1769 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 160 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-#line 1768 "miint.tab.c" /* yacc.c:1646  */
+#line 165 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+#line 1775 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 161 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-#line 1774 "miint.tab.c" /* yacc.c:1646  */
+#line 166 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+#line 1781 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 162 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-#line 1780 "miint.tab.c" /* yacc.c:1646  */
+#line 167 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+#line 1787 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 163 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
-#line 1786 "miint.tab.c" /* yacc.c:1646  */
+#line 168 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+#line 1793 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 164 "miint.y" /* yacc.c:1646  */
-    { if (isNumberType((yyvsp[-2].type)) && (yyvsp[-2].type)->equals((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
-#line 1792 "miint.tab.c" /* yacc.c:1646  */
+#line 169 "miint.y" /* yacc.c:1646  */
+    { if (isNumberType((yyvsp[-2].type)) && isNumberType((yyvsp[0].type))) (yyval.type) = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+#line 1799 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 184 "miint.y" /* yacc.c:1646  */
+#line 189 "miint.y" /* yacc.c:1646  */
     { if (!scope->isEmpty()) scope = new Scope(scope); }
-#line 1798 "miint.tab.c" /* yacc.c:1646  */
+#line 1805 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 187 "miint.y" /* yacc.c:1646  */
+#line 192 "miint.y" /* yacc.c:1646  */
     { 
             					Scope* oldScope = scope;
             					scope = scope->getParent();
             					delete oldScope; 
             				  }
-#line 1808 "miint.tab.c" /* yacc.c:1646  */
+#line 1815 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 197 "miint.y" /* yacc.c:1646  */
+#line 202 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-2].str), (yyvsp[-3].type), NULL);
 						}
-#line 1816 "miint.tab.c" /* yacc.c:1646  */
+#line 1823 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 200 "miint.y" /* yacc.c:1646  */
+#line 205 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-3].str), (yyvsp[-4].type), (yyvsp[-1].args_v));
 					        }
-#line 1824 "miint.tab.c" /* yacc.c:1646  */
+#line 1831 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 203 "miint.y" /* yacc.c:1646  */
+#line 208 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-2].str), creaPrimitivo(VOID), NULL);
 					        }
-#line 1832 "miint.tab.c" /* yacc.c:1646  */
+#line 1839 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 206 "miint.y" /* yacc.c:1646  */
+#line 211 "miint.y" /* yacc.c:1646  */
     {
                                                             creaFuncion((yyvsp[-3].str), creaPrimitivo(VOID), (yyvsp[-1].args_v));
 					        }
-#line 1840 "miint.tab.c" /* yacc.c:1646  */
+#line 1847 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 219 "miint.y" /* yacc.c:1646  */
+#line 224 "miint.y" /* yacc.c:1646  */
     {/*crear variable identificador si no existe, asignarle el valor de inicio menos paso, label vuelta, identificador+=paso, comprobar que sea menor que fin y hacer bloque o ir a salida*/}
-#line 1846 "miint.tab.c" /* yacc.c:1646  */
+#line 1853 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 219 "miint.y" /* yacc.c:1646  */
+#line 224 "miint.y" /* yacc.c:1646  */
     { gc("\tGT(%d);\nL %d:\n", (yyvsp[-5].i), (yyvsp[-4].i)); }
-#line 1852 "miint.tab.c" /* yacc.c:1646  */
+#line 1859 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 226 "miint.y" /* yacc.c:1646  */
+#line 231 "miint.y" /* yacc.c:1646  */
     {gc("L %d:\n", (yyvsp[-2].i));}
-#line 1858 "miint.tab.c" /* yacc.c:1646  */
+#line 1865 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 227 "miint.y" /* yacc.c:1646  */
+#line 232 "miint.y" /* yacc.c:1646  */
     { (yyval.i)=(yyvsp[-3].i); }
-#line 1864 "miint.tab.c" /* yacc.c:1646  */
+#line 1871 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 227 "miint.y" /* yacc.c:1646  */
+#line 232 "miint.y" /* yacc.c:1646  */
     {gc("L %d:\n", (yyvsp[-2].i));}
-#line 1870 "miint.tab.c" /* yacc.c:1646  */
+#line 1877 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 232 "miint.y" /* yacc.c:1646  */
+#line 237 "miint.y" /* yacc.c:1646  */
     {gc("L %d:\n", (yyvsp[-2].i));}
-#line 1876 "miint.tab.c" /* yacc.c:1646  */
+#line 1883 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 234 "miint.y" /* yacc.c:1646  */
+#line 239 "miint.y" /* yacc.c:1646  */
     { gc("\tGT(%d);\nL %d:\n", (yyvsp[(-1) - (3)].i), (yyvsp[-3].i));}
-#line 1882 "miint.tab.c" /* yacc.c:1646  */
+#line 1889 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 239 "miint.y" /* yacc.c:1646  */
+#line 244 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = ne(); }
-#line 1888 "miint.tab.c" /* yacc.c:1646  */
+#line 1895 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 243 "miint.y" /* yacc.c:1646  */
+#line 248 "miint.y" /* yacc.c:1646  */
     { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", (yyvsp[(-6) - (0)].i), (yyvsp[(-5) - (0)].i), (yyvsp[(-3) - (0)].i), (yyvsp[0].i)); }
-#line 1894 "miint.tab.c" /* yacc.c:1646  */
+#line 1901 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 92:
-#line 247 "miint.y" /* yacc.c:1646  */
+#line 252 "miint.y" /* yacc.c:1646  */
     { gc("\tIF(!R%d) GT(%d);\n", (yyvsp[(-3) - (0)].i), (yyvsp[0].i)); /*si no $-4 ir a $0*/ }
-#line 1900 "miint.tab.c" /* yacc.c:1646  */
+#line 1907 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 251 "miint.y" /* yacc.c:1646  */
+#line 256 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[(-8) - (0)].i); /*($-1 del anterior)*/ }
-#line 1906 "miint.tab.c" /* yacc.c:1646  */
+#line 1913 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 255 "miint.y" /* yacc.c:1646  */
+#line 260 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[(-3) - (0)].i); }
-#line 1912 "miint.tab.c" /* yacc.c:1646  */
+#line 1919 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 261 "miint.y" /* yacc.c:1646  */
+#line 266 "miint.y" /* yacc.c:1646  */
     { gc("L %d:\n", (yyvsp[0].i)); }
-#line 1918 "miint.tab.c" /* yacc.c:1646  */
+#line 1925 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 261 "miint.y" /* yacc.c:1646  */
+#line 266 "miint.y" /* yacc.c:1646  */
     { gc("\tIF(!R %d) GT( %d);\n", (yyvsp[-1].type), (yyvsp[-4].i)); }
-#line 1924 "miint.tab.c" /* yacc.c:1646  */
+#line 1931 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 261 "miint.y" /* yacc.c:1646  */
+#line 266 "miint.y" /* yacc.c:1646  */
     { gc("\tGT(%d);\nL %d:\n", (yyvsp[-6].i), (yyvsp[-7].i)); }
-#line 1930 "miint.tab.c" /* yacc.c:1646  */
+#line 1937 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 264 "miint.y" /* yacc.c:1646  */
+#line 269 "miint.y" /* yacc.c:1646  */
     { ValoresRango valoresRango = {(yyvsp[-2].type), (yyvsp[0].type), creaPrimitivo(INT)}; (yyval.valoresRango)=&valoresRango; }
-#line 1936 "miint.tab.c" /* yacc.c:1646  */
+#line 1943 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 265 "miint.y" /* yacc.c:1646  */
+#line 270 "miint.y" /* yacc.c:1646  */
     { ValoresRango valoresRango = {(yyvsp[-4].type), (yyvsp[-2].type), (yyvsp[0].type)}; (yyval.valoresRango)=&valoresRango; }
-#line 1942 "miint.tab.c" /* yacc.c:1646  */
+#line 1949 "miint.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1946 "miint.tab.c" /* yacc.c:1646  */
+#line 1953 "miint.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2170,7 +2177,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 267 "miint.y" /* yacc.c:1906  */
+#line 272 "miint.y" /* yacc.c:1906  */
 
 
 bool isNumberType(Type* tipo){
@@ -2216,6 +2223,7 @@ void  logError(std::string str) {
 void  yyerror(char* str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n",fines,str );
+    memoria->print();
     exit(-1);
 }
 
@@ -2229,5 +2237,5 @@ void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v)
 }
 
 PrimitiveType* creaPrimitivo(int tipo){
-    return new PrimitiveType(memoria->creaVariableSimple(), tipo);
+    return new PrimitiveType(memoria->creaVariableSimple(tipo), tipo);
 }

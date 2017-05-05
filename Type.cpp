@@ -1,6 +1,5 @@
 #include "Type.h"
 #include "miint.tab.h"
-#include "Scope.h"
 
 using namespace std;
 

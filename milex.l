@@ -117,6 +117,7 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
 
 
 "\"".*"\""                                               {
+                                                             yylval.i = yyleng;
                                                              return VALOR_STRING;
                                                          }
 

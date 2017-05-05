@@ -31,12 +31,17 @@ int yylex();
 void logError(std::string str);
 void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
 bool isNumberType(Type* tipo);
-void gc(const char* code, ...)	;
 int ne();
 PrimitiveType* creaPrimitivo(int tipo);
 extern  void  yyerror(char *);
 
 %}
+
+%code requires {
+  #include "MemManager.h"
+  #include "structs.h"
+  void gc(const char* code, ...);
+}
 
 %union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; }
 %token <f> VALOR_FLOAT
@@ -85,10 +90,10 @@ func_call				: IDENTIFICADOR tupla { printf("%s---------------------------------
 					| IDENTIFICADOR '(' ')' { $$ = $1; }
 					;
 
-exp					: exp '-' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
-					| exp '+' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '/' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '*' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+exp					: exp '-' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
+					| exp '+' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '/' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
+					| exp '*' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
 					| exp AND exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
 					| exp OR exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
 					| comp { $$ = creaPrimitivo(BOOL); }
@@ -156,12 +161,12 @@ decl				: tipo IDENTIFICADOR {
 					;
 
 
-comp				: exp MENORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MENORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp IS exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
-					| exp NOTIS exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+comp				: exp MENORQUE exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MAYORQUE exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MENORIGUAL exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MAYORIGUAL exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp IS exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+					| exp NOTIS exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
 					;
 
 inst					: exp FIN_DE_LINEA
@@ -309,6 +314,7 @@ void  logError(std::string str) {
 void  yyerror(char* str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n",fines,str );
+    memoria->print();
     exit(-1);
 }
 
@@ -322,5 +328,5 @@ void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v)
 }
 
 PrimitiveType* creaPrimitivo(int tipo){
-    return new PrimitiveType(memoria->creaVariableSimple(), tipo);
+    return new PrimitiveType(memoria->creaVariableSimple(tipo), tipo);
 }
