@@ -12,7 +12,7 @@ Scope::Scope(Scope *scope, std::string nombre) {
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
     for (std::vector<ParameterNode *>::iterator i = args->begin(); i != args->end(); i++) {
-        defineSymbol("dato_" + (*i)->name, new VariableNode((*i)->getType()));
+        defineSymbol("dato_" + (*i)->getName(), new VariableNode((*i)->getType()));
     }
 }
 
@@ -79,4 +79,12 @@ bool Scope::isEmpty() {
 Scope::~Scope() {
     //for(auto& node : symbolTable) delete node.second;
     //for(SymbolTable::iterator i = symbolTable.begin(); i != symbolTable.end(); i++) delete i->second;
+}
+
+string ParameterNode::getName() {
+    return name;
+}
+
+string FunctionNode::toString() {
+    return "funcion";
 }

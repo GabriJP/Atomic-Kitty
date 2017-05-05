@@ -14,19 +14,18 @@ enum Category {
 class Node {
 public:
 
-    Node() = default;
-
     virtual Category getCategory() = 0;
 
-    virtual std::string toString() { return ""; };
+    virtual std::string toString() = 0;
 
-    virtual Type *getType() { return nullptr; };
+    virtual Type *getType() = 0;
 };
 
 class VariableNode : public Node {
+private:
     Type *type;
 public:
-    explicit VariableNode(Type *t) : type(t) {}
+    explicit VariableNode(Type *type) : type(type) {}
 
     Category getCategory() override {
         return VARIABLE;
@@ -38,14 +37,17 @@ public:
 };
 
 class ParameterNode : public VariableNode {
-public:
+private:
     std::string name;
+public:
 
     Category getCategory() override {
         return PARAMETER;
     };
 
     ParameterNode(Type *t, const std::string &name) : VariableNode(t), name(std::move(name)) {}
+
+    string getName();
 };
 
 class FunctionNode : public Node {
@@ -53,9 +55,9 @@ class FunctionNode : public Node {
     Type *returned;
 
 public:
-    explicit FunctionNode(Type *returned) : returned(returned), parameters(new std::vector<ParameterNode *>) {}
-
     FunctionNode(Type *returned, std::vector<ParameterNode *> *v) : returned(returned), parameters(v) {}
+
+    explicit FunctionNode(Type *returned) : returned(returned), parameters(new std::vector<ParameterNode *>) {}
 
     Category getCategory() override {
         return FUNCTION;
@@ -66,6 +68,8 @@ public:
     }
 
     Type *getType() { return returned; };
+
+    string toString() override ;
 };
 
 

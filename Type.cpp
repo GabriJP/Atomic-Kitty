@@ -1,4 +1,6 @@
 #include "Type.h"
+#include "miint.tab.h"
+#include "Scope.h"
 
 using namespace std;
 
@@ -52,6 +54,10 @@ bool TupleType::equals(Type *type) {
     return true;
 }
 
+int TupleType::getType() {
+    return TUPLE;
+}
+
 /*
  *
  * PRIMITIVETYPE
@@ -64,7 +70,7 @@ std::string numberToString(T Number) {
     return ss.str();
 }
 
-PrimitiveType::PrimitiveType(int id) : Type(id) {}
+PrimitiveType::PrimitiveType(int id, int type) : Type(id), type(type) {}
 
 string PrimitiveType::toString() {
     return numberToString(id);
@@ -83,4 +89,8 @@ bool PrimitiveType::equals(Type *type) {
 
 bool PrimitiveType::isTuple() {
     return false;
+}
+
+int PrimitiveType::getType() {
+    return type;
 }

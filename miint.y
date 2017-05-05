@@ -4,21 +4,20 @@
 //Con yydebug
 /* bison -dt miint.y && flex milex.l && sed -i '/^int yydebug;/d' miint.tab.c  && g++ -Wno-write-strings -o micomp Scope.cpp miint.tab.c lex.yy.c && ./micomp < fibo.aki */
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include "Scope.h"
-#include <stdarg.h>
-#include "structs.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 #include "MemManager.h"
+#include "structs.h"
 
 
 //Variable globales
+MemManager* memoria;
 Scope *scope;
 FILE* qFile;
 int ec = 1;
 
 extern FILE *yyin;
-int yydebug = 1;
 extern int fines;
 
 #if YYBISON
@@ -34,9 +33,8 @@ void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v 
 bool isNumberType(Type* tipo);
 void gc(const char* code, ...)	;
 int ne();
+PrimitiveType* creaPrimitivo(int tipo);
 extern  void  yyerror(char *);
-
-MemManager memoria;
 
 %}
 
@@ -47,7 +45,7 @@ MemManager memoria;
 %token <l> VALOR_LONG
 %token <c> VALOR_CHAR
 %token <str> VALOR_STRING IDENTIFICADOR
-%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN MAYORIGUAL MENORIGUAL MAYORQUE MENORQUE
+%token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN MAYORIGUAL MENORIGUAL MAYORQUE MENORQUE TUPLE
 
 %type  <type>  tipo tupla_decl tipo_l exp exp_l tupla comp
 %type  <str> func_call
@@ -91,17 +89,17 @@ exp					: exp '-' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror((char*) 
 					| exp '+' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
 					| exp '/' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
 					| exp '*' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp AND exp { PrimitiveType* booleano = new PrimitiveType(BOOL);  if ($1->equals(booleano) && $3->equals(booleano)) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } delete booleano; }
-					| exp OR exp { PrimitiveType* booleano = new PrimitiveType(BOOL); if ($1->equals(booleano) && $3->equals(booleano)) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } delete booleano; }
-					| comp { $$ = new PrimitiveType(BOOL); }
+					| exp AND exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
+					| exp OR exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
+					| comp { $$ = creaPrimitivo(BOOL); }
 					| func_call { $$ = scope->getFunction($1)->getType(); }
-					| VALOR_INT { $$ = new PrimitiveType(INT); }
-					| VALOR_FLOAT { $$ = new PrimitiveType(FLOAT); }
-					| VALOR_DOUBLE  { $$ = new PrimitiveType(DOUBLE); }
-					| VALOR_LONG { $$ = new PrimitiveType(LONG); }
-					| VALOR_BOOL { $$ = new PrimitiveType(BOOL); }
-					| VALOR_CHAR { $$ = new PrimitiveType(CHAR); }
-					| VALOR_STRING { $$ = new PrimitiveType(STRING); }
+					| VALOR_INT { $$ = creaPrimitivo(INT); }
+					| VALOR_FLOAT { $$ = creaPrimitivo(FLOAT); }
+					| VALOR_DOUBLE  { $$ = creaPrimitivo(DOUBLE); }
+					| VALOR_LONG { $$ = creaPrimitivo(LONG); }
+					| VALOR_BOOL { $$ = creaPrimitivo(BOOL); }
+					| VALOR_CHAR { $$ = creaPrimitivo(CHAR); }
+					| VALOR_STRING { $$ = creaPrimitivo(STRING); }
 					| IDENTIFICADOR { $$ = scope->getVariable($1)->getType(); }
 					| tupla { $$ = $1; }
 					| IDENTIFICADOR ACCESO { 
@@ -115,13 +113,13 @@ exp					: exp '-' exp { if ($1->equals($3)) { $$ = $1; } else { yyerror((char*) 
 					;
 
 tipo					: tupla_decl { $$ = $1; }
-					| INT { $$ = new PrimitiveType(INT); }
-					| FLOAT { $$ = new PrimitiveType(FLOAT); }
-					| LONG { $$ = new PrimitiveType(LONG); }
-					| DOUBLE { $$ = new PrimitiveType(DOUBLE); }
-					| BOOL { $$ = new PrimitiveType(BOOL); }
-					| STRING { $$ = new PrimitiveType(STRING); }
-					| CHAR { $$ = new PrimitiveType(CHAR); }
+					| INT { $$ = creaPrimitivo(INT); }
+					| FLOAT { $$ = creaPrimitivo(FLOAT); }
+					| LONG { $$ = creaPrimitivo(LONG); }
+					| DOUBLE { $$ = creaPrimitivo(DOUBLE); }
+					| BOOL { $$ = creaPrimitivo(BOOL); }
+					| STRING { $$ = creaPrimitivo(STRING); }
+					| CHAR { $$ = creaPrimitivo(CHAR); }
 					;
 
 tipo_l					: tipo { $$ = $1; }
@@ -158,12 +156,12 @@ decl				: tipo IDENTIFICADOR {
 					;
 
 
-comp				: exp MENORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
-					| exp MENORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no numericas"); }
-					| exp IS exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no booleanas"); }
-					| exp NOTIS exp { if (isNumberType($1) && $1->equals($3)) $$ = new PrimitiveType(BOOL); else logError("Expresiones no booleanas"); }
+comp				: exp MENORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MAYORQUE exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MENORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp MAYORIGUAL exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
+					| exp IS exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+					| exp NOTIS exp { if (isNumberType($1) && $1->equals($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
 					;
 
 inst					: exp FIN_DE_LINEA
@@ -203,10 +201,10 @@ func					: tipo IDENTIFICADOR '(' ')'  {
                                                             creaFuncion($2, $1, $4);
 					        } ':' FIN_DE_LINEA bloque
 					| VOID IDENTIFICADOR '(' ')' {
-                                                            creaFuncion($2, new PrimitiveType(VOID), NULL);
+                                                            creaFuncion($2, creaPrimitivo(VOID), NULL);
 					        } ':' FIN_DE_LINEA bloque
 					| VOID IDENTIFICADOR '(' args ')' {
-                                                            creaFuncion($2, new PrimitiveType(VOID), $4);
+                                                            creaFuncion($2, creaPrimitivo(VOID), $4);
 					        } ':' FIN_DE_LINEA bloque
 					;
 
@@ -263,21 +261,23 @@ elif_copia_siguiente			: { $$ = $<i>-3; }
 while					: WHILE ne[salida] ne[vuelta] { gc("L %d:\n", $vuelta); } exp ':' { gc("\tIF(!R %d) GT( %d);\n", $exp, $salida); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
 					;
 
-rango					: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $fin, new PrimitiveType(INT)}; $$=&valoresRango; }
+rango					: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $fin, creaPrimitivo(INT)}; $$=&valoresRango; }
 					| exp[inicio] RANGE exp[fin] ',' exp[paso] { ValoresRango valoresRango = {$inicio, $fin, $paso}; $$=&valoresRango; }
 					;
 %%
 
-PrimitiveType nums[] = {PrimitiveType(INT), PrimitiveType(LONG), PrimitiveType(FLOAT), PrimitiveType(DOUBLE)};
-std::vector<PrimitiveType> numeros (nums, nums + sizeof(PrimitiveType) / sizeof(Type));
-
 bool isNumberType(Type* tipo){
-	for(std::vector<PrimitiveType>::iterator i = numeros.begin(); i != numeros.end(); i++) {
-		if ((*i).equals(tipo)) {
-			return true;
-		}
-	}
-	return false;
+    if(!tipo->isTuple()){
+        switch(((PrimitiveType*) tipo)->getType()){
+            case INT:
+            case LONG:
+            case FLOAT:
+            case DOUBLE:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
 
 void gc(const char* code, ...) {
@@ -292,10 +292,11 @@ int ne(){
 }
 
 int main(int argc, char** argv) {
+    memoria = new MemManager();
 	scope = new Scope();
 //Funciones del sistema
-	scope->defineFunction("print", new FunctionNode(new PrimitiveType(VOID)));
-	scope->defineFunction("getchar", new FunctionNode(new PrimitiveType(CHAR)));
+	scope->defineFunction("print", new FunctionNode(creaPrimitivo(VOID)));
+	scope->defineFunction("getchar", new FunctionNode(creaPrimitivo(CHAR)));
 	if (argc>1) yyin=fopen(argv[1],"r");
 	qFile=fopen("program.q", "w+");
 	yyparse();
@@ -318,4 +319,8 @@ void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v)
         scope->defineFunction(nombre, new FunctionNode(returnType, v));
 	    scope = new Scope(scope, std::string(nombre));
     }
+}
+
+PrimitiveType* creaPrimitivo(int tipo){
+    return new PrimitiveType(memoria->creaVariableSimple(), tipo);
 }

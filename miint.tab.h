@@ -34,7 +34,7 @@
 # define YY_YY_MIINT_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -83,7 +83,8 @@ extern int yydebug;
     MAYORIGUAL = 293,
     MENORIGUAL = 294,
     MAYORQUE = 295,
-    MENORQUE = 296
+    MENORQUE = 296,
+    TUPLE = 297
   };
 #endif
 
@@ -92,10 +93,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 43 "miint.y" /* yacc.c:1909  */
+#line 41 "miint.y" /* yacc.c:1909  */
  float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; 
 
-#line 99 "miint.tab.h" /* yacc.c:1909  */
+#line 100 "miint.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
