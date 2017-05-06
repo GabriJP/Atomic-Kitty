@@ -29,18 +29,20 @@ int yylex();
 
 //Funciones
 void logError(std::string str);
-void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v = new std::vector<ParameterNode*>());
+void creaFuncion(char *nombre, Type *returnType, vector<ParameterNode *> *v);
 bool isNumberType(Type* tipo);
 int ne();
-PrimitiveType* creaPrimitivo(int tipo);
-extern  void  yyerror(char *);
+PrimitiveType* creaPrimitivo(yytokentype tipo);
+extern  void  yyerror(char *str);
 
 %}
 
 %code requires {
-  #include "MemManager.h"
   #include "structs.h"
+  #include "Scope.h"
+  #include "MemManager.h"
   void gc(const char* code, ...);
+  class ParameterNode;
 }
 
 %union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; }
@@ -86,7 +88,7 @@ tupla 					: '(' exp_l ')' { $$ = $2; };
 
 tupla_decl				: '(' tipo_l ')' { $$ = $2; };
 
-func_call				: IDENTIFICADOR tupla { printf("%s----------------------------------------------------\n", $1); $$ = $1; }
+func_call			: IDENTIFICADOR tupla { $$ = $1; }
 					| IDENTIFICADOR '(' ')' { $$ = $1; }
 					;
 
@@ -117,7 +119,7 @@ exp					: exp '-' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { 
 					} 
 					;
 
-tipo					: tupla_decl { $$ = $1; }
+tipo				: tupla_decl { $$ = $1; }
 					| INT { $$ = creaPrimitivo(INT); }
 					| FLOAT { $$ = creaPrimitivo(FLOAT); }
 					| LONG { $$ = creaPrimitivo(LONG); }
@@ -186,7 +188,7 @@ inst_l					: inst
 					;
 
 bloque          			: ABREBLOQUE 
-            				  { if (!scope->isEmpty()) scope = new Scope(scope); } 
+            				  { if (!scope->isEmpty()) scope = new Scope(memoria, scope); }
             				  dentroBloque
             				  CIERRABLOQUE
             				  { 
@@ -199,7 +201,7 @@ bloque          			: ABREBLOQUE
 dentroBloque      			: inst_l 
             				;
 
-func					: tipo IDENTIFICADOR '(' ')'  {
+func				: tipo IDENTIFICADOR '(' ')'  {
                                                             creaFuncion($2, $1, NULL);
 						} ':' FIN_DE_LINEA bloque
 					| tipo IDENTIFICADOR '(' args ')'  {
@@ -271,62 +273,62 @@ rango					: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $
 					;
 %%
 
-bool isNumberType(Type* tipo){
-    if(!tipo->isTuple()){
-        switch(((PrimitiveType*) tipo)->getType()){
-            case INT:
-            case LONG:
-            case FLOAT:
-            case DOUBLE:
-                return true;
-            default:
-                return false;
-        }
+bool isNumberType(Type *tipo) {
+    switch (tipo->getType()) {
+        case INT:
+        case LONG:
+        case FLOAT:
+        case DOUBLE:
+            return true;
+        default:
+            return false;
     }
 }
 
-void gc(const char* code, ...) {
-	va_list args;
-	va_start (args, code);
-	vfprintf (qFile, code, args);
-	va_end (args);
+void gc(const char *code, ...) {
+    va_list args;
+    va_start (args, code);
+    vfprintf(qFile, code, args);
+    va_end (args);
 }
 
-int ne(){
-	return ec++;
+int ne() {
+    return ec++;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     memoria = new MemManager();
-	scope = new Scope();
+    scope = new Scope(memoria);
 //Funciones del sistema
-	scope->defineFunction("print", new FunctionNode(creaPrimitivo(VOID)));
-	scope->defineFunction("getchar", new FunctionNode(creaPrimitivo(CHAR)));
-	if (argc>1) yyin=fopen(argv[1],"r");
-	qFile=fopen("program.q", "w+");
-	yyparse();
+    scope->defineFunction("print", new FunctionNode(creaPrimitivo(VOID)));
+    scope->defineFunction("getchar", new FunctionNode(creaPrimitivo(CHAR)));
+    if (argc > 1) yyin = fopen(argv[1], "r");
+    qFile = fopen("../program.q", "w+");
+    yyparse();
 }
 
-void  logError(std::string str) {
-    yyerror((char*)str.c_str());
+void logError(std::string str) {
+    yyerror((char *) str.c_str());
 }
 
-void  yyerror(char* str) {
+void yyerror(char *str) {
     extern int yylineno;
-    printf("Parse  Error near line %d \n %s\n",fines,str );
+    printf("Parse  Error near line %d \n %s\n", fines, str);
     memoria->print();
     exit(-1);
 }
 
-void creaFuncion(char* nombre, Type* returnType, std::vector<ParameterNode*> *v){
+void creaFuncion(char *nombre, Type *returnType, vector<ParameterNode *> *v) {
     if (scope->existsFunction(nombre)) {
-        logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe."); 
+        logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe.");
     } else {
-        scope->defineFunction(nombre, new FunctionNode(returnType, v));
-	    scope = new Scope(scope, std::string(nombre));
+        int label = ne();
+        gc("L %d:\n", label);
+        scope->defineFunction(nombre, new FunctionNode(label, returnType, v));
+        scope = new Scope(memoria, scope, std::string(nombre));
     }
 }
 
-PrimitiveType* creaPrimitivo(int tipo){
+PrimitiveType *creaPrimitivo(yytokentype tipo) {
     return new PrimitiveType(memoria->creaVariableSimple(tipo), tipo);
 }

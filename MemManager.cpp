@@ -1,7 +1,6 @@
 #include "MemManager.h"
-#include "miint.tab.h"
 
-map<int, char> letra = {
+map<yytokentype, char> letra = {
         {INT,    'I'},
         {LONG,   'J'},
         {FLOAT,  'F'},
@@ -11,7 +10,7 @@ map<int, char> letra = {
         {BOOL,   'U'},
 };
 
-map<int, int> sizes = {
+map<yytokentype, int> sizes = {
         {INT,    4},
         {LONG,   8},
         {FLOAT,  4},
@@ -29,11 +28,12 @@ MemManager::~MemManager() {
 
 }
 
-int getMapValue(map<int, int> mapa, int key) {
+template<typename K, typename V>
+V getMapValue(map<K, V> mapa, K key) {
     try {
         return mapa.at(key);
     } catch (out_of_range) {
-        return -1;
+        return INVALID;
     }
 }
 
@@ -41,75 +41,69 @@ int MemManager::getId() {
     return idCounter++;
 }
 
-int MemManager::creaVariableSimple(int tipo) {
+int MemManager::creaVariableSimple(yytokentype tipo) {
     if (tipo == VOID) return getId();
-    if (getMapValue(sizes, tipo) == -1 && tipo != STRING) {
+    if (getMapValue(sizes, tipo) == INVALID && tipo != STRING) {
         fprintf(stderr, "Tipo no reconocido: %d\n", tipo);
         exit(-1);
     }
 
-    int size = tipo == STRING? yylval.i : sizes.at(tipo);
+    int size = tipo == STRING ? yylval.i : sizes.at(tipo);
     int id = getId();
     stack -= size;
     memoria.insert(pair<int, int>(id, stack));
-    values.insert(pair<int, int>(id, tipo));
+    values.insert(pair<int, yytokentype>(id, tipo));
     return id;
+}
+
+int MemManager::creaVariableSimpleCarga(yytokentype tipo) {
+    int id = creaVariableSimple(tipo);
+    return load(id);
 }
 
 int MemManager::creaFuncion() {
     return getId();
 }
 
-int MemManager::load(int id) {
+RegCode MemManager::myLoad(int id, map<int, RegCode> mapa, int direccion, yytokentype tipo) {
+    RegCode reg = getMapValue(mapa, id);
+    if (reg == INVALID) {
+        reg = tipo == FLOAT || tipo == DOUBLE ? getFloatRegister() : getIntRegister();
+        gc("\t%s=%c(%d);\n", regNames.at(reg), letra.at(tipo), direccion);
+    }
+    return reg;
+}
+
+RegCode MemManager::load(int id) {
     int direccion = memoria.at(id);
-    int tipo = values.at(id);
-    if (tipo == TUPLE) {
-        TupleType *tupla = (TupleType *) tipo;
-        int reg = getMapValue(intR, tupla->getId());
-        if (reg == -1) {
-            reg = getIntRegister();
-            gc("\tR%d=%c(%d);\n", reg, letra.at(TUPLE), direccion);
-        }
-        return reg;
+    yytokentype tipo = values.at(id);
+    if (tipo == FLOAT || tipo == DOUBLE) {
+        return myLoad(id, floatR, direccion, tipo);
     } else {
-        if (tipo == FLOAT || tipo == DOUBLE) {
-            int reg = getMapValue(floatR, id);
-            if (reg == -1) {
-                reg = getFloatRegister();
-                gc("\tRR%d=%c(%d);\n", reg, letra.at(tipo), direccion);
-            }
-            return reg;
-        } else {
-            int reg = getMapValue(intR, id);
-            if (reg == -1) {
-                reg = getIntRegister();
-                gc("\tR%d=%c(%d);\n", reg, letra.at(tipo), direccion);
-            }
-            return reg;
-        }
+        return myLoad(id, intR, direccion, tipo);
     }
 }
 
-int MemManager::getIntRegister() {
+RegCode MemManager::getIntRegister() {
     int registro = intCounter;
     intCounter = (intCounter + 1) % 7;
     int valorId = intR.at(registro);
     int direccion = memoria.at(valorId);
-    int tipo = values.at(valorId);
+    yytokentype tipo = values.at(valorId);
     gc("\t%c(%d)=R%d;\n", letra.at(tipo), direccion, registro);
     intR.erase(intR.find(registro));
-    return registro;
+    return static_cast<RegCode>(registro);
 }
 
-int MemManager::getFloatRegister() {
+RegCode MemManager::getFloatRegister() {
     int registro = floatCounter;
     floatCounter = (floatCounter + 1) % 4;
     int valorId = floatR.at(registro);
     int direccion = memoria.at(valorId);
-    int tipo = values.at(valorId);
+    yytokentype tipo = values.at(valorId);
     gc("\t%c(%d)=RR%d;", letra.at(tipo), direccion, registro);
     floatR.erase(floatR.find(registro));
-    return registro;
+    return static_cast<RegCode>(registro + 8);
 }
 
 void MemManager::print() {
@@ -117,4 +111,14 @@ void MemManager::print() {
     for (auto pair : values) {
         fprintf(stderr, "(%d, %d)\n", pair.first, pair.second);
     }
+}
+
+void MemManager::libera(int id) {
+
+}
+
+void MemManager::actualizaValor(int id, RegCode registro) {
+    int direccion = memoria.at(id);
+    yytokentype tipo = values.at(id);
+    gc("\t%c(%d)=%s;\n", letra.at(tipo), direccion, regNames.at(registro));
 }

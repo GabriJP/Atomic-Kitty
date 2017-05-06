@@ -6,6 +6,9 @@
 #include <string>
 #include <iostream>
 #include "Type.h"
+#include "MemManager.h"
+
+class MemManager;
 
 enum Category {
     VARIABLE, FUNCTION, PARAMETER
@@ -25,15 +28,13 @@ class VariableNode : public Node {
 private:
     Type *type;
 public:
-    explicit VariableNode(Type *type) : type(type) {}
+    explicit VariableNode(Type *type);
 
-    Category getCategory() override {
-        return VARIABLE;
-    };
+    Category getCategory() override;
 
-    std::string toString() override { return type->toString(); };
+    std::string toString() override;
 
-    Type *getType() { return type; };
+    Type *getType() override;
 };
 
 class ParameterNode : public VariableNode {
@@ -41,11 +42,9 @@ private:
     std::string name;
 public:
 
-    Category getCategory() override {
-        return PARAMETER;
-    };
+    Category getCategory() override;
 
-    ParameterNode(Type *t, const std::string &name) : VariableNode(t), name(std::move(name)) {}
+    ParameterNode(Type *t, const std::string &name);
 
     string getName();
 };
@@ -53,23 +52,20 @@ public:
 class FunctionNode : public Node {
     std::vector<ParameterNode *> *parameters;
     Type *returned;
+    int label;
 
 public:
-    FunctionNode(Type *returned, std::vector<ParameterNode *> *v) : returned(returned), parameters(v) {}
+    FunctionNode(int label, Type *returned, std::vector<ParameterNode *> *v);
 
-    explicit FunctionNode(Type *returned) : returned(returned), parameters(new std::vector<ParameterNode *>) {}
+    explicit FunctionNode(Type *returned);
 
-    Category getCategory() override {
-        return FUNCTION;
-    };
+    Category getCategory() override;
 
-    std::vector<ParameterNode *> *getParameters() {
-        return parameters;
-    }
+    std::vector<ParameterNode *> *getParameters();
 
-    Type *getType() { return returned; };
+    Type *getType();
 
-    string toString() override ;
+    string toString() override;
 };
 
 
@@ -79,15 +75,16 @@ class Scope {
 
     SymbolTable symbolTable;
     Scope *parent;
+    MemManager *memManager;
     const static char *VAR_PREFIX;
     const static char *FUNC_PREFIX;
 
 public:
-    Scope(Scope *scope, std::string name);
+    Scope(MemManager *memManager, Scope *scope, std::string name);
 
-    explicit Scope(Scope *scope);
+    Scope(MemManager *memManager, Scope *scope);
 
-    Scope();
+    explicit Scope(MemManager *memManager);
 
     Scope *getParent();
 

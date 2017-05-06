@@ -3,22 +3,17 @@
 const char *Scope::VAR_PREFIX = "dato_";
 const char *Scope::FUNC_PREFIX = "func_";
 
-Scope::Scope() {
-    this->parent = NULL;
-}
+Scope::Scope(MemManager *memManager) : parent(NULL), memManager(memManager) {}
 
-Scope::Scope(Scope *scope, std::string nombre) {
-    this->parent = scope;
+Scope::Scope(MemManager *memManager, Scope *scope, std::string nombre) : parent(scope), memManager(memManager) {
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
-    for (std::vector<ParameterNode *>::iterator i = args->begin(); i != args->end(); i++) {
-        defineSymbol("dato_" + (*i)->getName(), new VariableNode((*i)->getType()));
+    for (auto parameter : *args) {
+        defineSymbol("dato_" + parameter->getName(), new VariableNode(parameter->getType()));
     }
 }
 
-Scope::Scope(Scope *scope) {
-    this->parent = scope;
-}
+Scope::Scope(MemManager *memManager, Scope *scope) : parent(scope), memManager(memManager) {}
 
 Scope *Scope::getParent() {
     return this->parent;
@@ -77,8 +72,9 @@ bool Scope::isEmpty() {
 }
 
 Scope::~Scope() {
-    //for(auto& node : symbolTable) delete node.second;
-    //for(SymbolTable::iterator i = symbolTable.begin(); i != symbolTable.end(); i++) delete i->second;
+    for (auto symbolPair : symbolTable) {
+        memManager->libera(symbolPair.second->getType()->getId());
+    }
 }
 
 string ParameterNode::getName() {
@@ -87,4 +83,42 @@ string ParameterNode::getName() {
 
 string FunctionNode::toString() {
     return "funcion";
+}
+
+VariableNode::VariableNode(Type *type) : type(type) {}
+
+Category VariableNode::getCategory() {
+    return VARIABLE;
+}
+
+string VariableNode::toString() {
+    return type->toString();
+}
+
+Type *VariableNode::getType() {
+    return type;
+}
+
+Category ParameterNode::getCategory() {
+    return PARAMETER;
+}
+
+ParameterNode::ParameterNode(Type *t, const std::string &name) : VariableNode(t), name(std::move(name)) {}
+
+FunctionNode::FunctionNode(int label, Type *returned, std::vector<ParameterNode *> *v) : label(label),
+                                                                                         returned(returned),
+                                                                                         parameters(v) {}
+
+FunctionNode::FunctionNode(Type *returned) : returned(returned), parameters(new std::vector<ParameterNode *>) {}
+
+Category FunctionNode::getCategory() {
+    return FUNCTION;
+}
+
+vector<ParameterNode *> *FunctionNode::getParameters() {
+    return parameters;
+}
+
+Type *FunctionNode::getType() {
+    return returned;
 }
