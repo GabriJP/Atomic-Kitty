@@ -69,20 +69,7 @@ enum RegCode {
     INVALID = 12,
 };
 
-map<int, char *> regNames = {
-        {R0,  "R0"},
-        {R1,  "R1"},
-        {R2,  "R2"},
-        {R3,  "R3"},
-        {R4,  "R4"},
-        {R5,  "R5"},
-        {R6,  "R6"},
-        {R7,  "R7"},
-        {RR0, "RR0"},
-        {RR1, "RR1"},
-        {RR2, "RR2"},
-        {RR3, "RR3"},
-};
+extern map<int, char *> regNames;
 
 class MemManager {
 private:
