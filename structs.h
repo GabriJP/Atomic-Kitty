@@ -2,6 +2,8 @@
 
 #include "Scope.h"
 
+class Type;
+
 typedef struct _ValoresRango {
 	Type* inicio;
 	Type* fin;

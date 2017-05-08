@@ -9,6 +9,7 @@
 #include "MemManager.h"
 
 class MemManager;
+class Type;
 
 enum Category {
     VARIABLE, FUNCTION, PARAMETER
@@ -65,6 +66,8 @@ public:
 
     Type *getType();
 
+    int getLabel();
+
     string toString() override;
 };
 
@@ -82,9 +85,7 @@ class Scope {
 public:
     Scope(MemManager *memManager, Scope *scope, std::string name);
 
-    Scope(MemManager *memManager, Scope *scope);
-
-    explicit Scope(MemManager *memManager);
+    explicit Scope(MemManager *memManager, Scope *scope = nullptr);
 
     Scope *getParent();
 

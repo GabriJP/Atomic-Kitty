@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 project(Atomic-Kitty)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(SOURCE_FILES Scope.cpp miint.tab.c lex.yy.c Type.cpp MemManager.cpp)

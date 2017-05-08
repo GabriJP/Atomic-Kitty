@@ -20,13 +20,26 @@ map<yytokentype, int> sizes = {
         {BOOL,   1},
 };
 
-MemManager::MemManager() {
+map<int, char *> regNames = {
+        {R0,  "R0"},
+        {R1,  "R1"},
+        {R2,  "R2"},
+        {R3,  "R3"},
+        {R4,  "R4"},
+        {R5,  "R5"},
+        {R6,  "R6"},
+        {R7,  "R7"},
+        {RR0, "RR0"},
+        {RR1, "RR1"},
+        {RR2, "RR2"},
+        {RR3, "RR3"},
+};
 
-}
+int contenidoRegistros[12] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
-MemManager::~MemManager() {
+MemManager::MemManager() = default;
 
-}
+MemManager::~MemManager() = default;
 
 template<typename K, typename V>
 V getMapValue(map<K, V> mapa, K key) {
@@ -56,12 +69,13 @@ int MemManager::creaVariableSimple(yytokentype tipo) {
     return id;
 }
 
-int MemManager::creaVariableSimpleCarga(yytokentype tipo) {
+RegCode MemManager::creaVariableSimpleCarga(yytokentype tipo) {
     int id = creaVariableSimple(tipo);
     return load(id);
 }
 
 int MemManager::creaFuncion() {
+    fprintf(stderr, "Por implementar creaFuncion\n");
     return getId();
 }
 
@@ -84,26 +98,37 @@ RegCode MemManager::load(int id) {
     }
 }
 
+RegCode MemManager::getRegister(RegCode (*nextReg)(MemManager *), map<int, RegCode> *registros, map<int, int> *memoria,
+                                map<int, yytokentype> *values) {
+    RegCode registro = nextReg(this);
+    if (contenidoRegistros[registro] != -1) {
+        int valorId = registros->at(registro);
+        int direccion = memoria->at(valorId);
+        yytokentype tipo = values->at(valorId);
+        gc("\t%c(%d)=R%d;\n", letra.at(tipo), direccion, registro);
+        registros->erase(registros->find(registro));
+    }
+    return registro;
+}
+
 RegCode MemManager::getIntRegister() {
-    int registro = intCounter;
-    intCounter = (intCounter + 1) % 7;
-    int valorId = intR.at(registro);
-    int direccion = memoria.at(valorId);
-    yytokentype tipo = values.at(valorId);
-    gc("\t%c(%d)=R%d;\n", letra.at(tipo), direccion, registro);
-    intR.erase(intR.find(registro));
-    return static_cast<RegCode>(registro);
+    return getRegister(nextIntRegister, &intR, &memoria, &values);
 }
 
 RegCode MemManager::getFloatRegister() {
-    int registro = floatCounter;
-    floatCounter = (floatCounter + 1) % 4;
-    int valorId = floatR.at(registro);
-    int direccion = memoria.at(valorId);
-    yytokentype tipo = values.at(valorId);
-    gc("\t%c(%d)=RR%d;", letra.at(tipo), direccion, registro);
-    floatR.erase(floatR.find(registro));
-    return static_cast<RegCode>(registro + 8);
+    return getRegister(nextFloatRegister, &floatR, &memoria, &values);
+}
+
+RegCode MemManager::nextIntRegister(MemManager *memoria) {
+    int registro = memoria->intCounter;
+    memoria->intCounter = (memoria->intCounter + 1) % 7;
+    return (RegCode) registro;
+}
+
+RegCode MemManager::nextFloatRegister(MemManager *memoria) {
+    int registro = memoria->floatCounter;
+    memoria->floatCounter = (memoria->floatCounter + 1) % 4;
+    return (RegCode) (registro + 8);
 }
 
 void MemManager::print() {
@@ -114,11 +139,27 @@ void MemManager::print() {
 }
 
 void MemManager::libera(int id) {
-
+    yytokentype tipo = values.at(id);
+    map<int, RegCode> mapa = tipo == FLOAT || tipo == DOUBLE ? floatR : intR;
+    if (mapa.find(id) != mapa.end()) {
+        contenidoRegistros[mapa.at(id)] = -1;
+        mapa.erase(id);
+    }
+    memoria.erase(id);
+    values.erase(id);
 }
 
 void MemManager::actualizaValor(int id, RegCode registro) {
     int direccion = memoria.at(id);
     yytokentype tipo = values.at(id);
     gc("\t%c(%d)=%s;\n", letra.at(tipo), direccion, regNames.at(registro));
+}
+
+void MemManager::entraBloque() {
+    functionPointers.push(stack);
+}
+
+void MemManager::saleBloque() {
+    stack = functionPointers.top();
+    functionPointers.pop();
 }

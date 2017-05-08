@@ -3,9 +3,8 @@
 const char *Scope::VAR_PREFIX = "dato_";
 const char *Scope::FUNC_PREFIX = "func_";
 
-Scope::Scope(MemManager *memManager) : parent(NULL), memManager(memManager) {}
-
 Scope::Scope(MemManager *memManager, Scope *scope, std::string nombre) : parent(scope), memManager(memManager) {
+    Scope(memManager, scope);
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
     for (auto parameter : *args) {
@@ -13,7 +12,9 @@ Scope::Scope(MemManager *memManager, Scope *scope, std::string nombre) : parent(
     }
 }
 
-Scope::Scope(MemManager *memManager, Scope *scope) : parent(scope), memManager(memManager) {}
+Scope::Scope(MemManager *memManager, Scope *scope) : parent(scope), memManager(memManager) {
+    memManager->entraBloque();
+}
 
 Scope *Scope::getParent() {
     return this->parent;
@@ -72,9 +73,12 @@ bool Scope::isEmpty() {
 }
 
 Scope::~Scope() {
-    for (auto symbolPair : symbolTable) {
-        memManager->libera(symbolPair.second->getType()->getId());
+    for (auto dato : symbolTable){
+        memManager->libera(dato.second->getType()->getId());
+        delete dato.second->getType();
+        delete dato.second;
     }
+    memManager->saleBloque();
 }
 
 string ParameterNode::getName() {
@@ -121,4 +125,8 @@ vector<ParameterNode *> *FunctionNode::getParameters() {
 
 Type *FunctionNode::getType() {
     return returned;
+}
+
+int FunctionNode::getLabel() {
+    return label;
 }

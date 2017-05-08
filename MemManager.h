@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stack>
 #include "miint.tab.h"
 #include "Scope.h"
 
@@ -50,6 +51,8 @@ enum yytokentype
 };
 #endif
 
+using namespace std;
+
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "ClangTidyInspection"
 
@@ -69,20 +72,7 @@ enum RegCode {
     INVALID = 12,
 };
 
-map<int, char *> regNames = {
-        {R0,  "R0"},
-        {R1,  "R1"},
-        {R2,  "R2"},
-        {R3,  "R3"},
-        {R4,  "R4"},
-        {R5,  "R5"},
-        {R6,  "R6"},
-        {R7,  "R7"},
-        {RR0, "RR0"},
-        {RR1, "RR1"},
-        {RR2, "RR2"},
-        {RR3, "RR3"},
-};
+extern map<int, char *> regNames;
 
 class MemManager {
 private:
@@ -93,6 +83,8 @@ private:
     int floatCounter = 0;
 
     int stack = 0x12000;
+
+    std::stack<int> functionPointers;
 
     map<int, RegCode> intR;
 
@@ -110,6 +102,12 @@ private:
 
     RegCode myLoad(int id, map<int, RegCode> mapa, int direccion, yytokentype tipo);
 
+    static RegCode nextIntRegister(MemManager* memoria);
+
+    static RegCode nextFloatRegister(MemManager* memoria);
+
+    RegCode getRegister(RegCode (*nextReg)(MemManager*), map<int, RegCode> *registros, map<int, int> *memoria, map<int, yytokentype> *values);
+
 public:
     MemManager();
 
@@ -119,7 +117,7 @@ public:
 
     int creaVariableSimple(yytokentype tipo);
 
-    int creaVariableSimpleCarga(yytokentype tipo);
+    RegCode creaVariableSimpleCarga(yytokentype tipo);
 
     RegCode load(int id);
 
@@ -128,6 +126,10 @@ public:
     void libera(int id);
 
     void actualizaValor(int id, RegCode registro);
+
+    void entraBloque();
+
+    void saleBloque();
 };
 
 #pragma clang diagnostic pop

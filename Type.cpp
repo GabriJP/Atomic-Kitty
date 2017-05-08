@@ -53,7 +53,7 @@ bool TupleType::equals(Type *type) {
     return true;
 }
 
-int TupleType::getType() {
+yytokentype TupleType::getType() {
     return TUPLE;
 }
 
@@ -69,7 +69,7 @@ std::string numberToString(T Number) {
     return ss.str();
 }
 
-PrimitiveType::PrimitiveType(int id, int type) : Type(id), type(type) {}
+PrimitiveType::PrimitiveType(int id, yytokentype type) : Type(id), type(type) {}
 
 string PrimitiveType::toString() {
     return numberToString(id);
@@ -90,6 +90,6 @@ bool PrimitiveType::isTuple() {
     return false;
 }
 
-int PrimitiveType::getType() {
+yytokentype PrimitiveType::getType() {
     return type;
 }

@@ -16,6 +16,7 @@ MemManager* memoria;
 Scope *scope;
 FILE* qFile;
 int ec = 1;
+std::stack<int> returnLabels;
 
 extern FILE *yyin;
 extern int fines;
@@ -30,10 +31,11 @@ int yylex();
 //Funciones
 void logError(std::string str);
 void creaFuncion(char *nombre, Type *returnType, vector<ParameterNode *> *v);
-bool isNumberType(Type* tipo);
+bool isNumberType(Type *tipo);
 int ne();
 PrimitiveType* creaPrimitivo(yytokentype tipo);
 extern  void  yyerror(char *str);
+void opera(Type* izq, Type* der, const char *op);
 
 %}
 
@@ -71,35 +73,58 @@ extern  void  yyerror(char *str);
 
 %%
 
-lista					: error FIN_DE_LINEA {printf(" en expresión\n");} lista
+lista				: error FIN_DE_LINEA {printf(" en expresión\n");} lista
 					| FIN_DE_LINEA lista
-              				|
+              		|
 					| func lista
 					| inst_l FIN_DE_LINEA lista
 					| inst_l
 					;
 
-exp_l					: exp { $$ = $1; }
+exp_l				: exp { $$ = $1; }
 					| exp ',' exp_l { $$ = $3->add($1); }
 					;
 
-tupla 					: '(' exp_l ')' { $$ = $2; };
+tupla 				: '(' exp_l ')' { $$ = $2; };
 					;
 
-tupla_decl				: '(' tipo_l ')' { $$ = $2; };
+tupla_decl			: '(' tipo_l ')' { $$ = $2; }
+                    ;
 
-func_call			: IDENTIFICADOR tupla { $$ = $1; }
+func_call			: IDENTIFICADOR tupla { $$ = $1; returnLabels.push(ne()); gc("\tGT(%d);\nL %d:\n", scope->getFunction($1)->getLabel(), returnLabels.top()); }
 					| IDENTIFICADOR '(' ')' { $$ = $1; }
 					;
 
-exp					: exp '-' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror((char*) ((std::string("Tipos diferentes: '") + $1->toString() + "' y '" + $3->toString() + "'").c_str())); } }
-					| exp '+' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '/' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp '*' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { yyerror("Tipos diferentes"); } }
-					| exp AND exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
-					| exp OR exp { if ($1->getType() == BOOL && $3->getType() == BOOL) { $$ = $1; } else { yyerror("Expresiones no booleanas"); } }
-					| comp { $$ = creaPrimitivo(BOOL); }
-					| func_call { $$ = scope->getFunction($1)->getType(); }
+exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
+					| exp '+' exp { opera($1, $3, "+"); $$ = $1; }
+					| exp '/' exp { opera($1, $3, "/"); $$ = $1; }
+					| exp '*' exp { opera($1, $3, "*"); $$ = $1; }
+					| exp AND exp {
+					                    if ($1->getType() == BOOL && $3->getType() == BOOL) {
+					                        $$ = $1;
+					                        int r1 = memoria->load($1->getId());
+					                        int r2 = memoria->load($1->getId());
+					                        char* r1Name = regNames[r1];
+                                            char* r2Name = regNames[r2];
+                                            gc("\t%s=%s %s %s;\n", r1Name, r1Name, "&&", r2Name);
+					                    } else {
+					                        yyerror("Expresiones no booleanas");
+					                    }
+					              }
+					| exp OR exp {
+					                    if ($1->getType() == BOOL && $3->getType() == BOOL) {
+                                            $$ = $1;
+                                            int r1 = memoria->load($1->getId());
+                                            int r2 = memoria->load($1->getId());
+                                            char* r1Name = regNames[r1];
+                                            char* r2Name = regNames[r2];
+                                            gc("\t%s=%s %s %s;\n", r1Name, r1Name, "||", r2Name);
+                                        } else {
+                                            yyerror("Expresiones no booleanas");
+                                        }
+					             }
+					| comp { $$ = $1; }
+					| func_call { $$ = scope->getFunction($1)->getType(); returnLabels.push(ne()); gc("\tGT(%d);\nL %d:\n", scope->getFunction($1)->getLabel(), returnLabels.top()); }
 					| VALOR_INT { $$ = creaPrimitivo(INT); }
 					| VALOR_FLOAT { $$ = creaPrimitivo(FLOAT); }
 					| VALOR_DOUBLE  { $$ = creaPrimitivo(DOUBLE); }
@@ -115,7 +140,6 @@ exp					: exp '-' exp { if ($1->getType() == $3->getType()) { $$ = $1; } else { 
 							$$ = ((TupleType*)type)->getSubType($2); 
 						else
 							yyerror("Acceso a una tupla");
-					
 					} 
 					;
 
@@ -129,26 +153,30 @@ tipo				: tupla_decl { $$ = $1; }
 					| CHAR { $$ = creaPrimitivo(CHAR); }
 					;
 
-tipo_l					: tipo { $$ = $1; }
+tipo_l				: tipo { $$ = $1; }
 					| tipo ',' tipo_l { $$ = $3->add($1); }
 					;
 
-args					: tipo IDENTIFICADOR { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>(); vector->push_back(new ParameterNode($1, $2)); $$ = vector; }
+args				: tipo IDENTIFICADOR { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>(); vector->push_back(new ParameterNode($1, $2)); $$ = vector; }
 					| tipo IDENTIFICADOR ',' args { $4->push_back(new ParameterNode($1, $2)); $$ = $4; }
 					;
 
-init					: tipo IDENTIFICADOR '=' exp {
+init				: tipo IDENTIFICADOR '=' exp {
                                                             if (scope->haveVariable($2)) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
                                                                 scope->defineVariable($2, new VariableNode($1));
+                                                                int id = memoria->creaVariableSimple($1->getType());
+                                                                memoria->actualizaValor(id, memoria->load($4->getId()));
                                                             }
 						}
 					;
 
-asign					: IDENTIFICADOR '=' exp {
+asign				: IDENTIFICADOR '=' exp {
                                                             if (!scope->existsVariable($1)) {
                                                                 logError("Se intenta usar '" + std::string($1) + "', pero no existe."); 
+                                                            } else {
+                                                                memoria->actualizaValor(scope->getVariable($1)->getType()->getId(), memoria->load($3->getId()));
                                                             }
 							}
 					;
@@ -158,20 +186,21 @@ decl				: tipo IDENTIFICADOR {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe."); 
                                                             } else {
                                                                 scope->defineVariable($2, new VariableNode($1));
+                                                                memoria->creaVariableSimple($1->getType());
                                                             }
 						}
 					;
 
 
-comp				: exp MENORQUE exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORQUE exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MENORIGUAL exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp MAYORIGUAL exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no numericas"); }
-					| exp IS exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
-					| exp NOTIS exp { if (isNumberType($1) && isNumberType($3)) $$ = creaPrimitivo(BOOL); else logError("Expresiones no booleanas"); }
+comp				: exp MENORQUE exp { opera($1, $3, "<"); $$ = creaPrimitivo(BOOL); }
+					| exp MAYORQUE exp { opera($1, $3, ">"); $$ = creaPrimitivo(BOOL); }
+					| exp MENORIGUAL exp { opera($1, $3, "<="); $$ = creaPrimitivo(BOOL); }
+					| exp MAYORIGUAL exp { opera($1, $3, ">="); $$ = creaPrimitivo(BOOL); }
+					| exp IS exp { opera($1, $3, "=="); $$ = creaPrimitivo(BOOL); }
+					| exp NOTIS exp { opera($1, $3, "!="); $$ = creaPrimitivo(BOOL); }
 					;
 
-inst					: exp FIN_DE_LINEA
+inst				: exp FIN_DE_LINEA
 					| init FIN_DE_LINEA
 					| asign FIN_DE_LINEA
 					| decl FIN_DE_LINEA
@@ -183,23 +212,24 @@ inst					: exp FIN_DE_LINEA
 					| RETURN exp FIN_DE_LINEA
 					;
 
-inst_l					: inst
+inst_l				: inst
 					| inst inst_l
 					;
 
-bloque          			: ABREBLOQUE 
-            				  { if (!scope->isEmpty()) scope = new Scope(memoria, scope); }
+bloque          	: ABREBLOQUE
+            				  { if (!scope->isEmpty()) scope = new Scope(memoria, scope); memoria->entraBloque(); }
             				  dentroBloque
             				  CIERRABLOQUE
-            				  { 
+            				  {
+            				    memoria->saleBloque();
             					Scope* oldScope = scope;
             					scope = scope->getParent();
             					delete oldScope; 
             				  }
           				;
 
-dentroBloque      			: inst_l 
-            				;
+dentroBloque      	: inst_l
+            		;
 
 func				: tipo IDENTIFICADOR '(' ')'  {
                                                             creaFuncion($2, $1, NULL);
@@ -215,11 +245,11 @@ func				: tipo IDENTIFICADOR '(' ')'  {
 					        } ':' FIN_DE_LINEA bloque
 					;
 
-cases					: exp WHEN_CASE exp
+cases				: exp WHEN_CASE exp
 					| exp WHEN_CASE exp FIN_DE_LINEA cases
 					;	
 
-when					: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+when				: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					| WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					;
 
@@ -236,7 +266,7 @@ if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d
 
 /*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
 
-elif_l					: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
+elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
 					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
 					| ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $<i>-1, $<i>0);} bloque
 					;
@@ -247,28 +277,28 @@ ne					: { $<i>$ = ne(); }
 					;
 
 /* Ir a salida, Si (!cond) ir a siguiente elif/else/salida */
-elif_control			: { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-6, $<i>-5, $<i>-3, $<i>0); }
+elif_control		: { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-6, $<i>-5, $<i>-3, $<i>0); }
 					;
 
 /*Evalua expresión en $-3 y si no se cumple salta a $0*/
-if_evalua_expresion			: { gc("\tIF(!R%d) GT(%d);\n", $<i>-3, $<i>0); /*si no $-4 ir a $0*/ }
+if_evalua_expresion	: { gc("\tIF(!%s) GT(%d);\n", regNames.at(memoria->load(($<type>-3)->getId())), $<i>0); }
 					;
 
 /*Copia el valor de $-8, que corresponde con la salida del elif*/
-elif_copia_salida			: { $$ = $<i>-8; /*($-1 del anterior)*/ }
+elif_copia_salida	: { $$ = $<i>-8; /*($-1 del anterior)*/ }
 					;
 
 /*Copia del valor de $-3, util en el elif que lleva otro elif despues*/
-elif_copia_siguiente			: { $$ = $<i>-3; }
+elif_copia_siguiente: { $$ = $<i>-3; }
 					;
 
 /*FIN ELIF*/
 
 
-while					: WHILE ne[salida] ne[vuelta] { gc("L %d:\n", $vuelta); } exp ':' { gc("\tIF(!R %d) GT( %d);\n", $exp, $salida); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
+while				: WHILE ne[salida] ne[vuelta] { gc("L %d:\n", $vuelta); } exp ':' { gc("\tIF(!R %d) GT( %d);\n", $exp, $salida); } FIN_DE_LINEA bloque { gc("\tGT(%d);\nL %d:\n", $vuelta, $salida); }
 					;
 
-rango					: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $fin, creaPrimitivo(INT)}; $$=&valoresRango; }
+rango				: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {$inicio, $fin, creaPrimitivo(INT)}; $$=&valoresRango; }
 					| exp[inicio] RANGE exp[fin] ',' exp[paso] { ValoresRango valoresRango = {$inicio, $fin, $paso}; $$=&valoresRango; }
 					;
 %%
@@ -305,6 +335,7 @@ int main(int argc, char **argv) {
     if (argc > 1) yyin = fopen(argv[1], "r");
     qFile = fopen("../program.q", "w+");
     yyparse();
+    gc("\tR0=0;\t//Código de salida\n\tGT(-2);\t//Fin de programa");
 }
 
 void logError(std::string str) {
@@ -331,4 +362,30 @@ void creaFuncion(char *nombre, Type *returnType, vector<ParameterNode *> *v) {
 
 PrimitiveType *creaPrimitivo(yytokentype tipo) {
     return new PrimitiveType(memoria->creaVariableSimple(tipo), tipo);
+}
+
+void opera(Type* izq, Type* der, const char* op){
+    if (isNumberType(izq) && izq->getType() == der->getType()) {
+        RegCode r1 = memoria->load(izq->getId());
+        RegCode r2 = memoria->load(der->getId());
+        char* r1Name = regNames[r1];
+        char* r2Name = regNames[r2];
+        gc("\t%s=%s%s%s;\n", r1Name, r1Name, op, r2Name);
+    } else {
+        yyerror((char*) ((std::string("Tipos diferentes: '") + izq->toString() + "' y '" + der->toString() + "'").c_str()));
+    }
+}
+
+bool ofType(yytokentype expected, Type *type) {
+    return type->getType() == expected;
+}
+
+template<typename Car1, typename Car2>
+bool ofType(Car1 car1, Car2 car2) {
+    return car1 == car2;
+}
+
+template<typename Car1, typename Car2, typename... Cdr>
+bool ofType(Car1 car1, Car2 car2, Cdr ... cdr) {
+    return car1 == car2 && equal(car1, cdr...);
 }
