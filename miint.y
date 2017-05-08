@@ -36,6 +36,7 @@ int ne();
 PrimitiveType* creaPrimitivo(yytokentype tipo);
 extern  void  yyerror(char *str);
 void opera(Type* izq, Type* der, const char *op);
+void llamaFuncion(char* nombreFun);
 
 %}
 
@@ -91,8 +92,8 @@ tupla 				: '(' exp_l ')' { $$ = $2; };
 tupla_decl			: '(' tipo_l ')' { $$ = $2; }
                     ;
 
-func_call			: IDENTIFICADOR tupla { $$ = $1; returnLabels.push(ne()); gc("\tGT(%d);\nL %d:\n", scope->getFunction($1)->getLabel(), returnLabels.top()); }
-					| IDENTIFICADOR '(' ')' { $$ = $1; }
+func_call			: IDENTIFICADOR tupla { $$ = $1; llamaFuncion($1); }
+					| IDENTIFICADOR '(' ')' { $$ = $1; returnLabels.push(ne()); gc("\tGT(%d);\t\t\t\t\t//Ir a función: %s\nL %d:\n", scope->getFunction($1)->getLabel(), returnLabels.top(), $1); }
 					;
 
 exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
@@ -124,7 +125,7 @@ exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
                                         }
 					             }
 					| comp { $$ = $1; }
-					| func_call { $$ = scope->getFunction($1)->getType(); returnLabels.push(ne()); gc("\tGT(%d);\nL %d:\n", scope->getFunction($1)->getLabel(), returnLabels.top()); }
+					| func_call { $$ = scope->getFunction($1)->getType(); returnLabels.push(ne()); gc("\tGT(%d);\t\t\t\t//Ir a función: %s\nL %d:\t\t\t\t\t//Label para vuelta de funcion\n", scope->getFunction($1)->getLabel(), $1, returnLabels.top()); }
 					| VALOR_INT { $$ = creaPrimitivo(INT); }
 					| VALOR_FLOAT { $$ = creaPrimitivo(FLOAT); }
 					| VALOR_DOUBLE  { $$ = creaPrimitivo(DOUBLE); }
@@ -209,7 +210,7 @@ inst				: exp FIN_DE_LINEA
 					| while
 					| if
 					| bloque
-					| RETURN exp FIN_DE_LINEA
+					| RETURN exp FIN_DE_LINEA {gc("//Aquí hay un RETURN\n");}
 					;
 
 inst_l				: inst
@@ -260,15 +261,15 @@ for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {/*c
 
 
 
-if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d:\n", $salida);}
-					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] { $<i>$=$<i>elif; } elif_l {gc("L %d:\n", $salida);}
+if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque {gc("L %d:\t\t\t//Label salida if\n", $salida);}
+					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida] { $<i>$=$<i>elif; } elif_l {gc("L %d:\t\t\t\t\t\t//Label salida if\n", $salida);}
 					;
 
 /*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
 
-elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\n", $fin);}
+elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque {gc("L %d:\t\t//Se termina el bloque del if y se sale\n", $fin);}
 					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
-					| ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\nL %d:\n", $<i>-1, $<i>0);} bloque
+					| ELSE ':' FIN_DE_LINEA { gc("\tGT(%d);\t\t\t\t\t//Ir a salida\nL %d:\t\t\t\t\t\t//Label del else\n", $<i>-1, $<i>0);} bloque
 					;
 
 
@@ -277,11 +278,11 @@ ne					: { $<i>$ = ne(); }
 					;
 
 /* Ir a salida, Si (!cond) ir a siguiente elif/else/salida */
-elif_control		: { gc("\tGT  (%d);\nL %d:\n\tIF(!R%d) GT(%d);\n", $<i>-6, $<i>-5, $<i>-3, $<i>0); }
+elif_control		: { gc("\tGT  (%d);\t\t//Fin bloque y salida a fin del if\nL %d:\t\t\t//Label de este elif\n\tIF(!R%d) GT(%d);\t//Si no se cumple la condición se va al siguiente elif\n", $<i>-6, $<i>-5, $<i>-3, $<i>0); }
 					;
 
 /*Evalua expresión en $-3 y si no se cumple salta a $0*/
-if_evalua_expresion	: { gc("\tIF(!%s) GT(%d);\n", regNames.at(memoria->load(($<type>-3)->getId())), $<i>0); }
+if_evalua_expresion	: { gc("\tIF(!%s) GT(%d);\t\t\t//Comprobación condición if\n", regNames.at(memoria->load(($<type>-3)->getId())), $<i>0); }
 					;
 
 /*Copia el valor de $-8, que corresponde con la salida del elif*/
@@ -335,7 +336,7 @@ int main(int argc, char **argv) {
     if (argc > 1) yyin = fopen(argv[1], "r");
     qFile = fopen("../program.q", "w+");
     yyparse();
-    gc("\tR0=0;\t//Código de salida\n\tGT(-2);\t//Fin de programa");
+    gc("\tR0=0;\t\t\t\t\t//Código de salida\n\tGT(-2);\t\t\t\t\t//Fin de programa");
 }
 
 void logError(std::string str) {
@@ -354,7 +355,7 @@ void creaFuncion(char *nombre, Type *returnType, vector<ParameterNode *> *v) {
         logError("Se intenta crear función '" + std::string(nombre) + "', pero ya existe.");
     } else {
         int label = ne();
-        gc("L %d:\n", label);
+        gc("L %d:\t\t\t\t\t\t//Label de función: %s\n", label, nombre);
         scope->defineFunction(nombre, new FunctionNode(label, returnType, v));
         scope = new Scope(memoria, scope, std::string(nombre));
     }
@@ -370,7 +371,7 @@ void opera(Type* izq, Type* der, const char* op){
         RegCode r2 = memoria->load(der->getId());
         char* r1Name = regNames[r1];
         char* r2Name = regNames[r2];
-        gc("\t%s=%s%s%s;\n", r1Name, r1Name, op, r2Name);
+        gc("\t%s=%s%s%s;\t\t\t\t//Operación: %s\n", r1Name, r1Name, op, r2Name, op);
     } else {
         yyerror((char*) ((std::string("Tipos diferentes: '") + izq->toString() + "' y '" + der->toString() + "'").c_str()));
     }
@@ -388,4 +389,11 @@ bool ofType(Car1 car1, Car2 car2) {
 template<typename Car1, typename Car2, typename... Cdr>
 bool ofType(Car1 car1, Car2 car2, Cdr ... cdr) {
     return car1 == car2 && equal(car1, cdr...);
+}
+
+void llamaFuncion(char* nombreFun){
+    FunctionNode *nodo = scope->getFunction(nombreFun);
+    int labelFin = ne();
+    memoria->llamaFuncionMemoria(nodo, labelFin);
+    gc("GT(%d);\n", labelFin);
 }

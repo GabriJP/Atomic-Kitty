@@ -83,7 +83,7 @@ RegCode MemManager::myLoad(int id, map<int, RegCode> mapa, int direccion, yytoke
     RegCode reg = getMapValue(mapa, id);
     if (reg == INVALID) {
         reg = tipo == FLOAT || tipo == DOUBLE ? getFloatRegister() : getIntRegister();
-        gc("\t%s=%c(%d);\n", regNames.at(reg), letra.at(tipo), direccion);
+        gc("\t%s=%c(%d);\t\t\t//Se carga %d\n", regNames.at(reg), letra.at(tipo), direccion, id);
     }
     return reg;
 }
@@ -162,4 +162,38 @@ void MemManager::entraBloque() {
 void MemManager::saleBloque() {
     stack = functionPointers.top();
     functionPointers.pop();
+}
+
+void MemManager::llamaFuncionMemoria(FunctionNode *nodo, int labelFin){
+    vector<ParameterNode *> *parametros = nodo->getParameters();
+    int i = 0;
+    bool fl =  false;
+    bool in = false;
+    for(auto parametro : *parametros){
+        Type* tipoParametro = parametro->getType();
+        i += sizes.at(tipoParametro->getType());
+        if(tipoParametro->getType() == FLOAT || tipoParametro->getType()==DOUBLE){
+            fl = true;
+        } else {
+            in = true;
+        }
+    }
+    gc("\tR6=R7;\n\tR7=R7+%d\n", i + sizes.at(INT));
+    gc("\tR6=%d;\n", labelFin);
+    if(!parametros->empty()){
+        RegCode registroI;
+        RegCode registroF;
+        if (fl) registroF = getFloatRegister();
+        if (in) registroI = getIntRegister();
+        for(auto parametro : *parametros){
+            Type* tipoParametro = parametro->getType();
+            int id = tipoParametro->getId();
+            int direccion = memoria.at(id);
+            if (tipoParametro->getType() == FLOAT || tipoParametro->getType()==DOUBLE) {
+                gc("\t%s=%c(%d);\n", regNames.at(registroF), letra.at(tipoParametro->getType()), direccion);
+            } else {
+                gc("\t%s=%c(%d);\n", regNames.at(registroI), letra.at(tipoParametro->getType()), direccion);
+            }
+        }
+    }
 }

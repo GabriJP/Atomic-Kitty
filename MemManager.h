@@ -50,6 +50,7 @@ enum yytokentype
   TUPLE = 297
 };
 #endif
+class FunctionNode;
 
 using namespace std;
 
@@ -130,6 +131,8 @@ public:
     void entraBloque();
 
     void saleBloque();
+
+    void llamaFuncionMemoria(FunctionNode *nodo, int labelFin);
 };
 
 #pragma clang diagnostic pop
