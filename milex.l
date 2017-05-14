@@ -160,10 +160,12 @@ string                                                   {
                                                          }
 
 {ENTERO}                                                 {
+                                                             yylval.i = std::atoi(yytext);
                                                              return VALOR_INT;
                                                          }
 
 {FLOTANTE}                                               {
+                                                             yylval.f = std::atof(yytext);
                                                              return VALOR_FLOAT;
                                                          }
 

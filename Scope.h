@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 #include "Type.h"
-#include "MemManager.h"
 
 class MemManager;
 class Type;
@@ -14,6 +13,8 @@ class Type;
 enum Category {
     VARIABLE, FUNCTION, PARAMETER
 };
+
+using namespace std;
 
 class Node {
 public:
@@ -26,16 +27,19 @@ public:
 };
 
 class VariableNode : public Node {
-private:
+protected:
     Type *type;
+    int id;
 public:
-    explicit VariableNode(Type *type);
+    explicit VariableNode(Type* type, int id);
 
-    Category getCategory() override;
+    Category getCategory();
 
     std::string toString() override;
 
     Type *getType() override;
+
+    int getId();
 };
 
 class ParameterNode : public VariableNode {
@@ -45,15 +49,18 @@ public:
 
     Category getCategory() override;
 
-    ParameterNode(Type *t, const std::string &name);
+    ParameterNode(Type *t, const std::string &name, int id = 0);
 
-    string getName();
+    std::string getName();
+
+    void setId(int id);
 };
 
 class FunctionNode : public Node {
     std::vector<ParameterNode *> *parameters;
     Type *returned;
     int label;
+    int returnId;
 
 public:
     FunctionNode(int label, Type *returned, std::vector<ParameterNode *> *v);
@@ -78,14 +85,13 @@ class Scope {
 
     SymbolTable symbolTable;
     Scope *parent;
-    MemManager *memManager;
     const static char *VAR_PREFIX;
     const static char *FUNC_PREFIX;
 
 public:
-    Scope(MemManager *memManager, Scope *scope, std::string name);
+    explicit Scope(Scope *scope, std::string name);
 
-    explicit Scope(MemManager *memManager, Scope *scope = nullptr);
+    explicit Scope(Scope *scope = nullptr);
 
     Scope *getParent();
 

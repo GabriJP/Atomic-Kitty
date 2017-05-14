@@ -1,8 +1,14 @@
 #pragma once
 
-#include <stack>
-#include "miint.tab.h"
-#include "Scope.h"
+#include <deque>
+#include <array>
+#include <map>
+#include <limits>
+#include <fstream>
+#include <exception>
+//#include "miint.tab.h"
+#include "Type.h"
+//#include "Scope.h"
 
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
@@ -50,12 +56,8 @@ enum yytokentype
   TUPLE = 297
 };
 #endif
-class FunctionNode;
 
-using namespace std;
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ClangTidyInspection"
+extern std::ofstream gc;
 
 enum RegCode {
     R0 = 0,
@@ -73,67 +75,94 @@ enum RegCode {
     INVALID = 12,
 };
 
-extern map<int, char *> regNames;
-
 class MemManager {
-private:
-    int idCounter = 0;
-
-    int intCounter = 0;
-
-    int floatCounter = 0;
-
-    int stack = 0x12000;
-
-    std::stack<int> functionPointers;
-
-    map<int, RegCode> intR;
-
-    map<int, RegCode> floatR;
-
-    map<int, int> memoria;
-
-    map<int, yytokentype> values;
-
-    int getId();
-
-    RegCode getIntRegister();
-
-    RegCode getFloatRegister();
-
-    RegCode myLoad(int id, map<int, RegCode> mapa, int direccion, yytokentype tipo);
-
-    static RegCode nextIntRegister(MemManager* memoria);
-
-    static RegCode nextFloatRegister(MemManager* memoria);
-
-    RegCode getRegister(RegCode (*nextReg)(MemManager*), map<int, RegCode> *registros, map<int, int> *memoria, map<int, yytokentype> *values);
-
 public:
+
+
     MemManager();
 
-    ~MemManager();
+    int addToStack(Type* type, int id, std::string name="");
+    int addToRegister(Type* type, int id);
+    int addToStack(Type* type, std::string name="") {
+        return addToStack(type, getId(), name);
+    };
 
-    int creaFuncion();
+    int addToStackWithoutChangingR7(Type* type, int id, std::string name = "");
+    int addToStackWithoutChangingR7(Type* type, std::string name = "") {
+        return addToStackWithoutChangingR7(type, getId(), name);
+    };
 
-    int creaVariableSimple(yytokentype tipo);
+    int addToRegister(Type* type) {
+        return addToRegister(type, getId());
+    };
+    void remove(int id);
 
-    RegCode creaVariableSimpleCarga(yytokentype tipo);
+    void saveRegisters();
+    void loadRegisters();
 
-    RegCode load(int id);
+    void createFunction();
 
     void print();
 
-    void libera(int id);
+    RegCode load(int id, int &newId);
+    RegCode load(int id) {
+        int n;
+        return load(id, n);
+    };
 
-    void actualizaValor(int id, RegCode registro);
+    struct StackElement{
+        int id;
+        Type *type;
+        std::string name;
 
-    void entraBloque();
+        StackElement() : id(-1), type(nullptr), name(""){}
+        StackElement(int id, Type* type) : id(id), type(type), name(""){}
+        StackElement(int id, Type* type, std::string name) : id(id), type(type), name(name){}
 
-    void saleBloque();
+    };
 
-    void llamaFuncionMemoria(FunctionNode *nodo, int labelFin);
+    StackElement& get(int id);
+    yytokentype typeOf(int id);
+    Type* getType(int id);
+
+    void asign(int varId, int expId);
+    void asign(int varId, RegCode expRegister);
+    void asign(int varId, std::string value);
+
+    std::string getInstruction(StackElement &element);
+
+    size_t currentStackSize();
+
+private:
+
+    std::size_t stackSize = 0;
+    const int stackStart = 0x12000;
+
+    std::deque<StackElement> localStack;
+    std::deque<StackElement> globalStack;
+    bool inFunction = false;
+
+    const int NOT_USED = -1;
+    std::array<StackElement, 6> registers32Bits;
+    std::array<StackElement, 4> registers64Bits;
+
+    std::deque<StackElement>& stack();
+
+    template<typename T>
+    bool haveFreeRegister(T &registers, int &id);
+    template<typename T>
+    int lastRegister(T &registers);
+    template<typename T>
+    RegCode addToRegister(T &registers, Type* type, int id);
+
+    int id = 0;
+    int getId();
+
+    std::size_t offsetOf(int id, bool &offsetFromGlobal);
+
+    static char letter(Type* type);
+    const static std::map<yytokentype, char> letterMap;
+
 };
 
-#pragma clang diagnostic pop
-
+std::ostream& operator<<(std::ostream& os, RegCode const& reg);

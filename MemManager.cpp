@@ -1,6 +1,6 @@
 #include "MemManager.h"
 
-map<yytokentype, char> letra = {
+const std::map<yytokentype, char> MemManager::letterMap = {
         {INT,    'I'},
         {LONG,   'J'},
         {FLOAT,  'F'},
@@ -10,190 +10,318 @@ map<yytokentype, char> letra = {
         {BOOL,   'U'},
 };
 
-map<yytokentype, int> sizes = {
-        {INT,    4},
-        {LONG,   8},
-        {FLOAT,  4},
-        {DOUBLE, 8},
-        {CHAR,   1},
-        {TUPLE,  4},
-        {BOOL,   1},
-};
-
-map<int, char *> regNames = {
-        {R0,  "R0"},
-        {R1,  "R1"},
-        {R2,  "R2"},
-        {R3,  "R3"},
-        {R4,  "R4"},
-        {R5,  "R5"},
-        {R6,  "R6"},
-        {R7,  "R7"},
-        {RR0, "RR0"},
-        {RR1, "RR1"},
-        {RR2, "RR2"},
-        {RR3, "RR3"},
-};
-
-int contenidoRegistros[12] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-
-MemManager::MemManager() = default;
-
-MemManager::~MemManager() = default;
-
-template<typename K, typename V>
-V getMapValue(map<K, V> mapa, K key) {
-    try {
-        return mapa.at(key);
-    } catch (out_of_range) {
-        return INVALID;
-    }
-}
-
 int MemManager::getId() {
-    return idCounter++;
+    return id++;
 }
 
-int MemManager::creaVariableSimple(yytokentype tipo) {
-    if (tipo == VOID) return getId();
-    if (getMapValue(sizes, tipo) == INVALID && tipo != STRING) {
-        fprintf(stderr, "Tipo no reconocido: %d\n", tipo);
-        exit(-1);
-    }
+int MemManager::addToStack(Type *type, int id, std::string name) {
 
-    int size = tipo == STRING ? yylval.i : sizes.at(tipo);
-    int id = getId();
-    stack -= size;
-    memoria.insert(pair<int, int>(id, stack));
-    values.insert(pair<int, yytokentype>(id, tipo));
+    gc << "\tR7 = R7 - " << type->size() << "; #Add to stack\n";
+
+    return addToStackWithoutChangingR7(type, id, name);
+}
+
+int MemManager::addToStackWithoutChangingR7(Type *type, int id, std::string name) {
+    stack().push_back({id, type->clone(), name});
+    stackSize += type->size();
+
     return id;
 }
 
-RegCode MemManager::creaVariableSimpleCarga(yytokentype tipo) {
-    int id = creaVariableSimple(tipo);
-    return load(id);
+
+int MemManager::addToRegister(Type *type, int id) {
+
+    if(type->size() <= 4)
+        addToRegister(registers32Bits, type, id);
+    else if(type->size() == 8)
+        addToRegister(registers64Bits, type, id);
+    else
+        addToStack(type, id);
+
+    return id;
 }
 
-int MemManager::creaFuncion() {
-    fprintf(stderr, "Por implementar creaFuncion\n");
-    return getId();
-}
-
-RegCode MemManager::myLoad(int id, map<int, RegCode> mapa, int direccion, yytokentype tipo) {
-    RegCode reg = getMapValue(mapa, id);
-    if (reg == INVALID) {
-        reg = tipo == FLOAT || tipo == DOUBLE ? getFloatRegister() : getIntRegister();
-        gc("\t%s=%c(%d);\t\t\t//Se carga %d\n", regNames.at(reg), letra.at(tipo), direccion, id);
+void MemManager::remove(int id) {
+    for(auto& reg : registers32Bits) {
+        if(reg.id == id) {
+            reg.id = NOT_USED;
+            reg.type = nullptr;
+            return;
+        }
     }
+    for(auto& reg : registers64Bits) {
+        if(reg.id == id) {
+            reg.id = NOT_USED;
+            reg.type = nullptr;
+            return;
+        }
+    }
+}
+
+//TODO Improve
+void MemManager::saveRegisters() {
+    PrimitiveType p(INT);
+    auto f = [this, &p](auto& reg) {
+        if(reg.id !=  NOT_USED) {
+            int id = addToStack(reg.type, reg.id);
+            asign(id, load(reg.id));
+        }else
+            addToStack(&p, reg.id);
+    };
+    for(auto& reg : registers32Bits) f(reg);
+    for(auto& reg : registers64Bits) f(reg);
+
+}
+
+void MemManager::loadRegisters() {
+
+    auto f = [this](StackElement& reg, RegCode regCode) {
+        StackElement& loadedReg = stack().back();
+        gc << "\t" << regCode << " = " <<  getInstruction(loadedReg) << "; #Loading register" << regCode << "\n";
+        gc << "\tR7 = R7 + " << loadedReg.type->size() << ";\n";
+        stack().pop_back();
+    };
+
+    for(int i = 0; i < registers32Bits.size(); i++) f(registers32Bits[i], RegCode(i));
+    for(int i = 0; i < registers64Bits.size(); i++) f(registers64Bits[i], RegCode(i + (int)RegCode::RR0));
+
+
+}
+
+//Join two loops
+//TODO
+RegCode MemManager::load(int id, int &newId) {
+    newId = id;
+    for(int i = 0; i < registers32Bits.size(); i++)
+        if(registers32Bits[i].id == id)
+            return (RegCode) i;
+
+    for(int i = 0; i < registers64Bits.size(); i++)
+        if(registers32Bits[i].id == id)
+            return (RegCode) (i + (int)RegCode::RR0);
+
+    auto& element = get(id);
+
+    newId = getId();
+
+    RegCode reg;
+
+    if(element.type->isTuple()) return RegCode::INVALID;
+    else if(element.type->size() <= 4) reg = addToRegister(registers32Bits, element.type, newId);
+    else if(element.type->size() == 8) reg = addToRegister(registers64Bits, element.type, newId);
+    else return RegCode::INVALID;
+
+    gc << '\t' << reg << " = " << getInstruction(element) << "; #Load " << id << " " << element.name << " from stack\n";
+
     return reg;
-}
 
-RegCode MemManager::load(int id) {
-    int direccion = memoria.at(id);
-    yytokentype tipo = values.at(id);
-    if (tipo == FLOAT || tipo == DOUBLE) {
-        return myLoad(id, floatR, direccion, tipo);
-    } else {
-        return myLoad(id, intR, direccion, tipo);
-    }
-}
-
-RegCode MemManager::getRegister(RegCode (*nextReg)(MemManager *), map<int, RegCode> *registros, map<int, int> *memoria,
-                                map<int, yytokentype> *values) {
-    RegCode registro = nextReg(this);
-    if (contenidoRegistros[registro] != -1) {
-        int valorId = registros->at(registro);
-        int direccion = memoria->at(valorId);
-        yytokentype tipo = values->at(valorId);
-        gc("\t%c(%d)=R%d;\n", letra.at(tipo), direccion, registro);
-        registros->erase(registros->find(registro));
-    }
-    return registro;
-}
-
-RegCode MemManager::getIntRegister() {
-    return getRegister(nextIntRegister, &intR, &memoria, &values);
-}
-
-RegCode MemManager::getFloatRegister() {
-    return getRegister(nextFloatRegister, &floatR, &memoria, &values);
-}
-
-RegCode MemManager::nextIntRegister(MemManager *memoria) {
-    int registro = memoria->intCounter;
-    memoria->intCounter = (memoria->intCounter + 1) % 7;
-    return (RegCode) registro;
-}
-
-RegCode MemManager::nextFloatRegister(MemManager *memoria) {
-    int registro = memoria->floatCounter;
-    memoria->floatCounter = (memoria->floatCounter + 1) % 4;
-    return (RegCode) (registro + 8);
 }
 
 void MemManager::print() {
-    fprintf(stderr, "Valores:\n");
-    for (auto pair : values) {
-        fprintf(stderr, "(%d, %d)\n", pair.first, pair.second);
+    std::cout << "STACK INFO-------------------\n";
+
+    if(inFunction)std::cout << "Parsing function code\n";
+    else std::cout << "Parsing global code\n";
+
+    std::cout << "REG INFO:\n";
+    for(int i = 0; i < registers32Bits.size(); i++)
+        if(registers32Bits[i].id != NOT_USED)
+            std::cout << "\t" << (RegCode)i << ":" << registers32Bits[i].id << " -> " << registers32Bits[i].type->toString() << "\n";
+        else
+            std::cout << "\t" << (RegCode)i << ": Not used\n";
+
+    for(int i = 0; i < registers64Bits.size(); i++)
+        if(registers64Bits[i].id != NOT_USED)
+            std::cout << "\t" << (RegCode) (i + (int)RegCode::RR0) << ":" << registers32Bits[i].id << " -> " << registers32Bits[i].type->toString() << "\n";
+        else
+            std::cout << "\t" << (RegCode) (i + (int)RegCode::RR0) << ": Not used\n";
+
+    std::cout << "LOCAL STACK:\n";
+    for(auto&item : localStack) std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
+
+    std::cout << "GLOBAL STACK:\n";
+    for(auto&item : globalStack) std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
+
+    std::cout << "STACK INFO END---------------\n";
+}
+
+
+template<typename T>
+RegCode MemManager::addToRegister(T &registers, Type* type, int id) {
+    int reg;
+
+    if(haveFreeRegister(registers, reg)){
+        registers[reg] = StackElement{id, type->clone()};
+    }else{
+        reg = lastRegister(registers);
+        addToStack(registers[reg].type, registers[reg].id);
+        registers[reg] = {id, type->clone()};
     }
+
+    return (RegCode)reg;
+
 }
 
-void MemManager::libera(int id) {
-    yytokentype tipo = values.at(id);
-    map<int, RegCode> mapa = tipo == FLOAT || tipo == DOUBLE ? floatR : intR;
-    if (mapa.find(id) != mapa.end()) {
-        contenidoRegistros[mapa.at(id)] = -1;
-        mapa.erase(id);
-    }
-    memoria.erase(id);
-    values.erase(id);
-}
 
-void MemManager::actualizaValor(int id, RegCode registro) {
-    int direccion = memoria.at(id);
-    yytokentype tipo = values.at(id);
-    gc("\t%c(%d)=%s;\n", letra.at(tipo), direccion, regNames.at(registro));
-}
-
-void MemManager::entraBloque() {
-    functionPointers.push(stack);
-}
-
-void MemManager::saleBloque() {
-    stack = functionPointers.top();
-    functionPointers.pop();
-}
-
-void MemManager::llamaFuncionMemoria(FunctionNode *nodo, int labelFin){
-    vector<ParameterNode *> *parametros = nodo->getParameters();
-    int i = 0;
-    bool fl =  false;
-    bool in = false;
-    for(auto parametro : *parametros){
-        Type* tipoParametro = parametro->getType();
-        i += sizes.at(tipoParametro->getType());
-        if(tipoParametro->getType() == FLOAT || tipoParametro->getType()==DOUBLE){
-            fl = true;
-        } else {
-            in = true;
+template<typename T>
+bool MemManager::haveFreeRegister(T &registers, int &id) {
+    for(int i = 0; i < registers.size(); i++) {
+        if(registers[i].id == NOT_USED) {
+            id = i;
+            return true;
         }
     }
-    gc("\tR6=R7;\n\tR7=R7+%d\n", i + sizes.at(INT));
-    gc("\tR6=%d;\n", labelFin);
-    if(!parametros->empty()){
-        RegCode registroI;
-        RegCode registroF;
-        if (fl) registroF = getFloatRegister();
-        if (in) registroI = getIntRegister();
-        for(auto parametro : *parametros){
-            Type* tipoParametro = parametro->getType();
-            int id = tipoParametro->getId();
-            int direccion = memoria.at(id);
-            if (tipoParametro->getType() == FLOAT || tipoParametro->getType()==DOUBLE) {
-                gc("\t%s=%c(%d);\n", regNames.at(registroF), letra.at(tipoParametro->getType()), direccion);
-            } else {
-                gc("\t%s=%c(%d);\n", regNames.at(registroI), letra.at(tipoParametro->getType()), direccion);
+    return false;
+}
+
+template<typename T>
+int MemManager::lastRegister(T &registers) {
+    int minId = std::numeric_limits<int>::max();
+    int regNumber = 0;
+    for(int i = 0; i < registers.size(); i++)
+        if(minId > registers[i].id) {
+            minId = registers[i].id;
+            regNumber = i;
+        }
+
+    return regNumber; //TODO, how to get the lastRegister???
+}
+
+std::deque<MemManager::StackElement> &MemManager::stack() {
+    if(inFunction) return localStack;
+    else return globalStack;
+}
+
+std::ostream &operator<<(std::ostream &os, RegCode const &reg) {
+    std::map<RegCode, char *> regNames = {
+            {RegCode::R0,  "R0"},
+            {RegCode::R1,  "R1"},
+            {RegCode::R2,  "R2"},
+            {RegCode::R3,  "R3"},
+            {RegCode::R4,  "R4"},
+            {RegCode::R5,  "R5"},
+            {RegCode::R6,  "R6"},
+            {RegCode::R7,  "R7"},
+            {RegCode::RR0, "RR0"},
+            {RegCode::RR1, "RR1"},
+            {RegCode::RR2, "RR2"},
+            {RegCode::RR3, "RR3"},
+    };
+    os << regNames[reg];
+    return os;
+}
+
+MemManager::StackElement &MemManager::get(int id) {
+
+    for(auto& elem : registers32Bits) if(id==elem.id) return elem;
+    for(auto& elem : registers64Bits) if(id==elem.id) return elem;
+
+    for(auto& elem : localStack) if(id==elem.id) return elem;
+    for(auto& elem : globalStack) if(id==elem.id) return elem;
+
+    throw new std::bad_alloc();
+
+}
+
+yytokentype MemManager::typeOf(int id) {
+    return getType(id)->getType();
+}
+
+Type *MemManager::getType(int id) {
+    return get(id).type;
+}
+
+std::size_t MemManager::offsetOf(int id, bool &offsetFromGlobal) {
+    if(inFunction) {
+        std::size_t offset = 0;
+        for(auto& item : localStack) {
+            if(item.id == id) {
+                offsetFromGlobal = false;
+                return offset;
             }
+            offset += item.type->size();
         }
     }
+
+    offsetFromGlobal = true;
+    std::size_t offset = 0;
+    for(auto& item : globalStack) {
+        if(item.id == id) return offset;
+        offset += item.type->size();
+    }
+
+    throw new bad_alloc();
+
+    return 0;
+
 }
+
+char MemManager::letter(Type *type) {
+    return letterMap.find(type->getType())->second;
+}
+
+void MemManager::asign(int varId, int expId) {
+    int expLoadedId;
+    StackElement& var = get(varId);
+    RegCode expRegister = load(expId, expLoadedId);
+    StackElement exp = get(expLoadedId);
+
+    if(!exp.type->equals(var.type)) {
+        std::cout << "Types don't match in assign";
+        exit(-1);
+    }
+
+    gc << '\t' << getInstruction(var) << " = " << expRegister << " # Asign value" <<'\n';
+
+    remove(expLoadedId);
+    if(expId != expLoadedId) remove(expId);
+
+}
+
+void MemManager::asign(int varId, RegCode expRegister) {
+
+    StackElement& var = get(varId);
+    gc << '\t' << getInstruction(var) << " = " << expRegister << " # Asign value" <<'\n';
+
+}
+
+
+void MemManager::asign(int varId, std::string value) {
+    StackElement& var = get(varId);
+    gc << '\t' << getInstruction(var) << " = " << value << " # Asign" <<'\n';
+}
+
+
+std::string MemManager::getInstruction(MemManager::StackElement &var) {
+    std::string out(1,letter(var.type));
+    bool inGlobal;
+    std::size_t offset = offsetOf(var.id, inGlobal);
+
+    if(inGlobal) {
+
+        stringstream ss;
+        ss << std::hex << stackStart - offset;
+        string str = ss.str();
+
+        return out + "( 0x" + str + " )";
+    }else
+        return out + "( R6 - "+ std::to_string(offset) + " )";
+
+}
+
+MemManager::MemManager() {
+    registers32Bits.fill(StackElement{NOT_USED, nullptr});
+    registers64Bits.fill(StackElement{NOT_USED, nullptr});
+}
+
+size_t MemManager::currentStackSize() {
+    size_t size = 0;
+    for(auto& elem : stack()) size += elem.type->size();
+
+    return size;
+}
+
+void MemManager::createFunction() {
+    inFunction = true;
+}
+

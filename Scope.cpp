@@ -3,17 +3,17 @@
 const char *Scope::VAR_PREFIX = "dato_";
 const char *Scope::FUNC_PREFIX = "func_";
 
-Scope::Scope(MemManager *memManager, Scope *scope, std::string nombre) : parent(scope), memManager(memManager) {
-    Scope(memManager, scope);
+Scope::Scope(Scope *scope, std::string nombre) : parent(scope) {
+
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
-    for (auto parameter : *args) {
-        defineSymbol("dato_" + parameter->getName(), new VariableNode(parameter->getType()));
-    }
+    for (auto parameter : *args)
+        defineVariable(parameter->getName(), new ParameterNode(parameter->getType(), parameter->getName()));
+
 }
 
-Scope::Scope(MemManager *memManager, Scope *scope) : parent(scope), memManager(memManager) {
-    memManager->entraBloque();
+Scope::Scope(Scope *scope) : parent(scope) {
+
 }
 
 Scope *Scope::getParent() {
@@ -74,14 +74,14 @@ bool Scope::isEmpty() {
 
 Scope::~Scope() {
     for (auto dato : symbolTable){
-        memManager->libera(dato.second->getType()->getId());
+        //memManager->libera(dato.second->getType()->getId());
         delete dato.second->getType();
         delete dato.second;
     }
-    memManager->saleBloque();
+    //memManager->saleBloque();
 }
 
-string ParameterNode::getName() {
+std::string ParameterNode::getName() {
     return name;
 }
 
@@ -89,7 +89,7 @@ string FunctionNode::toString() {
     return "funcion";
 }
 
-VariableNode::VariableNode(Type *type) : type(type) {}
+VariableNode::VariableNode(Type *type, int id) : type(type), id(id) {}
 
 Category VariableNode::getCategory() {
     return VARIABLE;
@@ -107,7 +107,11 @@ Category ParameterNode::getCategory() {
     return PARAMETER;
 }
 
-ParameterNode::ParameterNode(Type *t, const std::string &name) : VariableNode(t), name(std::move(name)) {}
+ParameterNode::ParameterNode(Type *t, const std::string &name, int id) : VariableNode(t, id), name(std::move(name)) {}
+
+void ParameterNode::setId(int newId) {
+    id = newId;
+}
 
 FunctionNode::FunctionNode(int label, Type *returned, std::vector<ParameterNode *> *v) : label(label),
                                                                                          returned(returned),
@@ -129,4 +133,9 @@ Type *FunctionNode::getType() {
 
 int FunctionNode::getLabel() {
     return label;
+}
+
+int VariableNode::getId() {
+    gc.flush();
+    return id;
 }

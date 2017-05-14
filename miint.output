@@ -1,15 +1,21 @@
+Terminales no usados en la gramática
+
+   NOTIN
+   TUPLE
+
+
 Gramática
 
     0 $accept: lista $end
 
-    1 $@1: /* vacío */
+    1 $@1: %empty
 
     2 lista: error FIN_DE_LINEA $@1 lista
     3      | FIN_DE_LINEA lista
-    4      | /* vacío */
-    5      | func lista
-    6      | inst_l FIN_DE_LINEA lista
-    7      | inst_l
+    4      | func lista
+    5      | inst_l FIN_DE_LINEA lista
+    6      | inst_l
+    7      | %empty
 
     8 exp_l: exp
     9      | exp ',' exp_l
@@ -18,253 +24,293 @@ Gramática
 
    11 tupla_decl: '(' tipo_l ')'
 
-   12 func_call: IDENTIFICADOR tupla
-   13          | IDENTIFICADOR '(' ')'
+   12 func_call: IDENTIFICADOR saveReg tupla
+   13          | IDENTIFICADOR saveReg '(' ')'
 
-   14 exp: exp '-' exp
-   15    | exp '+' exp
-   16    | exp '/' exp
-   17    | exp '*' exp
-   18    | exp AND exp
-   19    | exp OR exp
-   20    | comp
-   21    | func_call
-   22    | VALOR_INT
-   23    | VALOR_FLOAT
-   24    | VALOR_DOUBLE
-   25    | VALOR_LONG
-   26    | VALOR_BOOL
-   27    | VALOR_CHAR
-   28    | VALOR_STRING
-   29    | IDENTIFICADOR
-   30    | tupla
-   31    | IDENTIFICADOR ACCESO
+   14 saveReg: %empty
 
-   32 tipo: tupla_decl
-   33     | INT
-   34     | FLOAT
-   35     | LONG
-   36     | DOUBLE
-   37     | BOOL
-   38     | STRING
-   39     | CHAR
+   15 exp: exp '-' exp
+   16    | exp '+' exp
+   17    | exp '/' exp
+   18    | exp '*' exp
+   19    | exp AND exp
+   20    | exp OR exp
+   21    | comp
+   22    | func_call
+   23    | VALOR_INT
+   24    | VALOR_FLOAT
+   25    | VALOR_DOUBLE
+   26    | VALOR_LONG
+   27    | VALOR_BOOL
+   28    | VALOR_CHAR
+   29    | VALOR_STRING
+   30    | IDENTIFICADOR
+   31    | tupla
+   32    | IDENTIFICADOR ACCESO
 
-   40 tipo_l: tipo
-   41       | tipo ',' tipo_l
+   33 tipo: tupla_decl
+   34     | INT
+   35     | FLOAT
+   36     | LONG
+   37     | DOUBLE
+   38     | BOOL
+   39     | STRING
+   40     | CHAR
 
-   42 args: tipo IDENTIFICADOR
-   43     | tipo IDENTIFICADOR ',' args
+   41 tipo_l: tipo
+   42       | tipo ',' tipo_l
 
-   44 init: tipo IDENTIFICADOR '=' exp
+   43 args: tipo IDENTIFICADOR
+   44     | tipo IDENTIFICADOR ',' args
 
-   45 asign: IDENTIFICADOR '=' exp
+   45 init: tipo IDENTIFICADOR '=' exp
 
-   46 decl: tipo IDENTIFICADOR
+   46 asign: IDENTIFICADOR '=' exp
 
-   47 in: IDENTIFICADOR IN rango
-   48   | IDENTIFICADOR NOTIN rango
+   47 decl: tipo IDENTIFICADOR FIN_DE_LINEA
 
-   49 comp: exp MENORQUE exp
-   50     | exp MAYORQUE exp
-   51     | exp MENORIGUAL exp
-   52     | exp MAYORIGUAL exp
-   53     | exp IS exp
-   54     | exp NOTIS exp
+   48 comp: exp MENORQUE exp
+   49     | exp MAYORQUE exp
+   50     | exp MENORIGUAL exp
+   51     | exp MAYORIGUAL exp
+   52     | exp IS exp
+   53     | exp NOTIS exp
 
-   55 inst: exp
-   56     | init
-   57     | asign
-   58     | decl
-   59     | when
-   60     | for
-   61     | while
-   62     | if
-   63     | bloque
-   64     | RETURN exp
+   54 inst: exp FIN_DE_LINEA
+   55     | init FIN_DE_LINEA
+   56     | asign FIN_DE_LINEA
+   57     | decl
+   58     | when
+   59     | for
+   60     | while
+   61     | if
+   62     | bloque
+   63     | RETURN exp FIN_DE_LINEA
 
-   65 inst_l: inst FIN_DE_LINEA
-   66       | inst FIN_DE_LINEA inst_l
+   64 inst_l: inst
+   65       | inst inst_l
 
-   67 $@2: /* vacío */
+   66 $@2: %empty
 
-   68 bloque: ABREBLOQUE $@2 dentroBloque CIERRABLOQUE
+   67 bloque: ABREBLOQUE $@2 dentroBloque CIERRABLOQUE
 
-   69 dentroBloque: inst_l
-   70             | inst
+   68 dentroBloque: inst_l
 
-   71 $@3: /* vacío */
+   69 @3: %empty
 
-   72 func: tipo IDENTIFICADOR '(' ')' $@3 ':' FIN_DE_LINEA bloque
+   70 func: tipo IDENTIFICADOR '(' ')' @3 ':' FIN_DE_LINEA bloque funcFinal
 
-   73 $@4: /* vacío */
+   71 @4: %empty
 
-   74 func: tipo IDENTIFICADOR '(' args ')' $@4 ':' FIN_DE_LINEA bloque
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 ':' FIN_DE_LINEA bloque funcFinal
 
-   75 $@5: /* vacío */
+   73 @5: %empty
 
-   76 func: VOID IDENTIFICADOR '(' ')' $@5 ':' FIN_DE_LINEA bloque
+   74 func: VOID IDENTIFICADOR '(' ')' @5 ':' FIN_DE_LINEA bloque funcFinal
 
-   77 $@6: /* vacío */
+   75 @6: %empty
 
-   78 func: VOID IDENTIFICADOR '(' args ')' $@6 ':' FIN_DE_LINEA bloque
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 ':' FIN_DE_LINEA bloque funcFinal
 
-   79 cases: exp WHEN_CASE exp
-   80      | exp WHEN_CASE exp FIN_DE_LINEA cases
+   77 funcFinal: %empty
 
-   81 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-   82     | WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+   78 cases: exp WHEN_CASE exp
+   79      | exp WHEN_CASE exp FIN_DE_LINEA cases
 
-   83 for: FOR in ':' FIN_DE_LINEA bloque
+   80 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+   81     | WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
-   84 if: IF exp ':' FIN_DE_LINEA bloque
-   85   | IF exp ':' FIN_DE_LINEA bloque else
-   86   | IF exp ':' FIN_DE_LINEA bloque elif_l
-   87   | IF exp ':' FIN_DE_LINEA bloque elif_l else
+   82 $@7: %empty
 
-   88 elif_l: ELIF exp ':' FIN_DE_LINEA bloque
-   89       | ELIF exp ':' FIN_DE_LINEA bloque elif_l
+   83 for: FOR IDENTIFICADOR IN rango ne ne ':' FIN_DE_LINEA $@7 bloque
 
-   90 else: ELSE ':' FIN_DE_LINEA bloque
+   84 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque
 
-   91 while: WHILE exp ':' FIN_DE_LINEA bloque
+   85 @8: %empty
 
-   92 rango: exp RANGE exp
-   93      | exp RANGE exp ',' exp
+   86 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 elif_l
+
+   87 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control bloque
+   88       | ELIF exp ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+   89 $@9: %empty
+
+   90 elif_l: ELSE ':' FIN_DE_LINEA $@9 bloque
+
+   91 ne: %empty
+
+   92 elif_control: %empty
+
+   93 if_evalua_expresion: %empty
+
+   94 elif_copia_salida: %empty
+
+   95 elif_copia_siguiente: %empty
+
+   96 $@10: %empty
+
+   97 $@11: %empty
+
+   98 while: WHILE ne ne $@10 exp ':' $@11 FIN_DE_LINEA bloque
+
+   99 rango: exp RANGE exp
+  100      | exp RANGE exp ',' exp
 
 
 Terminales con las reglas donde aparecen
 
 $end (0) 0
-'(' (40) 10 11 13 72 74 76 78
-')' (41) 10 11 13 72 74 76 78
-'*' (42) 17
-'+' (43) 15
-',' (44) 9 41 43 93
-'-' (45) 14
-'/' (47) 16
-':' (58) 72 74 76 78 81 82 83 84 85 86 87 88 89 90 91
-'=' (61) 44 45
+'(' (40) 10 11 13 70 72 74 76
+')' (41) 10 11 13 70 72 74 76
+'*' (42) 18
+'+' (43) 16
+',' (44) 9 42 44 100
+'-' (45) 15
+'/' (47) 17
+':' (58) 70 72 74 76 80 81 83 84 86 87 88 90 98
+'=' (61) 45 46
 error (256) 2
-VALOR_FLOAT (258) 23
-VALOR_DOUBLE (259) 24
-VALOR_INT (260) 22
-VALOR_BOOL (261) 26
-ACCESO (262) 31
-VALOR_LONG (263) 25
-VALOR_CHAR (264) 27
-VALOR_STRING (265) 28
-IDENTIFICADOR (266) 12 13 29 31 42 43 44 45 46 47 48 72 74 76 78
-FIN_DE_LINEA (267) 2 3 6 65 66 72 74 76 78 80 81 82 83 84 85 86 87
-    88 89 90 91
-INT (268) 33
-LONG (269) 35
-FLOAT (270) 34
-DOUBLE (271) 36
-BOOL (272) 37
-STRING (273) 38
-VOID (274) 76 78
-CHAR (275) 39
-WHEN (276) 81 82
-WHEN_CASE (277) 79 80
-IF (278) 84 85 86 87
-ELIF (279) 88 89
+VALOR_FLOAT (258) 24
+VALOR_DOUBLE (259) 25
+VALOR_INT (260) 23
+VALOR_BOOL (261) 27
+ACCESO (262) 32
+VALOR_LONG (263) 26
+VALOR_CHAR (264) 28
+VALOR_STRING (265) 29
+IDENTIFICADOR (266) 12 13 30 32 43 44 45 46 47 70 72 74 76 83
+FIN_DE_LINEA (267) 2 3 5 47 54 55 56 63 70 72 74 76 79 80 81 83 84
+    86 87 88 90 98
+INT (268) 34
+LONG (269) 36
+FLOAT (270) 35
+DOUBLE (271) 37
+BOOL (272) 38
+STRING (273) 39
+VOID (274) 74 76
+CHAR (275) 40
+WHEN (276) 80 81
+WHEN_CASE (277) 78 79
+IF (278) 84 86
+ELIF (279) 87 88
 ELSE (280) 90
-WHILE (281) 91
+WHILE (281) 98
 FOR (282) 83
-NOTIS (283) 54
-IS (284) 53
-OR (285) 19
-AND (286) 18
-RANGE (287) 92 93
-RETURN (288) 64
-ABREBLOQUE (289) 68 81 82
-CIERRABLOQUE (290) 68 81 82
-IN (291) 47
-NOTIN (292) 48
-MAYORIGUAL (293) 52
-MENORIGUAL (294) 51
-MAYORQUE (295) 50
-MENORQUE (296) 49
+NOTIS (283) 53
+IS (284) 52
+OR (285) 20
+AND (286) 19
+RANGE (287) 99 100
+RETURN (288) 63
+ABREBLOQUE (289) 67 80 81
+CIERRABLOQUE (290) 67 80 81
+IN (291) 83
+NOTIN (292)
+MAYORIGUAL (293) 51
+MENORIGUAL (294) 50
+MAYORQUE (295) 49
+MENORQUE (296) 48
+TUPLE (297)
 
 
 No terminales con las reglas donde aparecen
 
-$accept (51)
+$accept (52)
     en la izquierda: 0
-lista (52)
-    en la izquierda: 2 3 4 5 6 7, en la derecha: 0 2 3 5 6
-$@1 (53)
+lista (53)
+    en la izquierda: 2 3 4 5 6 7, en la derecha: 0 2 3 4 5
+$@1 (54)
     en la izquierda: 1, en la derecha: 2
-exp_l (54)
+exp_l (55)
     en la izquierda: 8 9, en la derecha: 9 10
-tupla (55)
-    en la izquierda: 10, en la derecha: 12 30
-tupla_decl (56)
-    en la izquierda: 11, en la derecha: 32
-func_call (57)
-    en la izquierda: 12 13, en la derecha: 21
-exp (58)
-    en la izquierda: 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
-    30 31, en la derecha: 8 9 14 15 16 17 18 19 44 45 49 50 51 52 53
-    54 55 64 79 80 81 84 85 86 87 88 89 91 92 93
-tipo (59)
-    en la izquierda: 32 33 34 35 36 37 38 39, en la derecha: 40 41
-    42 43 44 46 72 74
-tipo_l (60)
-    en la izquierda: 40 41, en la derecha: 11 41
-args (61)
-    en la izquierda: 42 43, en la derecha: 43 74 78
-init (62)
-    en la izquierda: 44, en la derecha: 56
-asign (63)
-    en la izquierda: 45, en la derecha: 57
-decl (64)
-    en la izquierda: 46, en la derecha: 58
-in (65)
-    en la izquierda: 47 48, en la derecha: 83
-comp (66)
-    en la izquierda: 49 50 51 52 53 54, en la derecha: 20
-inst (67)
-    en la izquierda: 55 56 57 58 59 60 61 62 63 64, en la derecha:
-    65 66 70
-inst_l (68)
-    en la izquierda: 65 66, en la derecha: 6 7 66 69
-bloque (69)
-    en la izquierda: 68, en la derecha: 63 72 74 76 78 83 84 85 86
-    87 88 89 90 91
-$@2 (70)
-    en la izquierda: 67, en la derecha: 68
-dentroBloque (71)
-    en la izquierda: 69 70, en la derecha: 68
-func (72)
-    en la izquierda: 72 74 76 78, en la derecha: 5
-$@3 (73)
+tupla (56)
+    en la izquierda: 10, en la derecha: 12 31
+tupla_decl (57)
+    en la izquierda: 11, en la derecha: 33
+func_call (58)
+    en la izquierda: 12 13, en la derecha: 22
+saveReg (59)
+    en la izquierda: 14, en la derecha: 12 13
+exp (60)
+    en la izquierda: 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+    31 32, en la derecha: 8 9 15 16 17 18 19 20 45 46 48 49 50 51 52
+    53 54 63 78 79 80 84 86 87 88 98 99 100
+tipo (61)
+    en la izquierda: 33 34 35 36 37 38 39 40, en la derecha: 41 42
+    43 44 45 47 70 72
+tipo_l (62)
+    en la izquierda: 41 42, en la derecha: 11 42
+args (63)
+    en la izquierda: 43 44, en la derecha: 44 72 76
+init (64)
+    en la izquierda: 45, en la derecha: 55
+asign (65)
+    en la izquierda: 46, en la derecha: 56
+decl (66)
+    en la izquierda: 47, en la derecha: 57
+comp (67)
+    en la izquierda: 48 49 50 51 52 53, en la derecha: 21
+inst (68)
+    en la izquierda: 54 55 56 57 58 59 60 61 62 63, en la derecha:
+    64 65
+inst_l (69)
+    en la izquierda: 64 65, en la derecha: 5 6 65 68
+bloque (70)
+    en la izquierda: 67, en la derecha: 62 70 72 74 76 83 84 86 87
+    88 90 98
+$@2 (71)
+    en la izquierda: 66, en la derecha: 67
+dentroBloque (72)
+    en la izquierda: 68, en la derecha: 67
+func (73)
+    en la izquierda: 70 72 74 76, en la derecha: 4
+@3 (74)
+    en la izquierda: 69, en la derecha: 70
+@4 (75)
     en la izquierda: 71, en la derecha: 72
-$@4 (74)
+@5 (76)
     en la izquierda: 73, en la derecha: 74
-$@5 (75)
+@6 (77)
     en la izquierda: 75, en la derecha: 76
-$@6 (76)
-    en la izquierda: 77, en la derecha: 78
-cases (77)
-    en la izquierda: 79 80, en la derecha: 80 81 82
-when (78)
-    en la izquierda: 81 82, en la derecha: 59
-for (79)
-    en la izquierda: 83, en la derecha: 60
-if (80)
-    en la izquierda: 84 85 86 87, en la derecha: 62
-elif_l (81)
-    en la izquierda: 88 89, en la derecha: 86 87 89
-else (82)
-    en la izquierda: 90, en la derecha: 85 87
-while (83)
-    en la izquierda: 91, en la derecha: 61
-rango (84)
-    en la izquierda: 92 93, en la derecha: 47 48 82
+funcFinal (78)
+    en la izquierda: 77, en la derecha: 70 72 74 76
+cases (79)
+    en la izquierda: 78 79, en la derecha: 79 80 81
+when (80)
+    en la izquierda: 80 81, en la derecha: 58
+for (81)
+    en la izquierda: 83, en la derecha: 59
+$@7 (82)
+    en la izquierda: 82, en la derecha: 83
+if (83)
+    en la izquierda: 84 86, en la derecha: 61
+@8 (84)
+    en la izquierda: 85, en la derecha: 86
+elif_l (85)
+    en la izquierda: 87 88 90, en la derecha: 86 88
+$@9 (86)
+    en la izquierda: 89, en la derecha: 90
+ne (87)
+    en la izquierda: 91, en la derecha: 83 84 86 87 88 98
+elif_control (88)
+    en la izquierda: 92, en la derecha: 87 88
+if_evalua_expresion (89)
+    en la izquierda: 93, en la derecha: 84 86
+elif_copia_salida (90)
+    en la izquierda: 94, en la derecha: 88
+elif_copia_siguiente (91)
+    en la izquierda: 95, en la derecha: 88
+while (92)
+    en la izquierda: 98, en la derecha: 60
+$@10 (93)
+    en la izquierda: 96, en la derecha: 98
+$@11 (94)
+    en la izquierda: 97, en la derecha: 98
+rango (95)
+    en la izquierda: 99 100, en la derecha: 81 83
 
 
-estado 0
+Estado 0
 
     0 $accept: . lista $end
 
@@ -294,7 +340,7 @@ estado 0
     ABREBLOQUE     desplazar e ir al estado 24
     '('            desplazar e ir al estado 25
 
-    $end  reduce usando la regla 4 (lista)
+    $end  reduce usando la regla 7 (lista)
 
     lista       ir al estado 26
     tupla       ir al estado 27
@@ -316,80 +362,80 @@ estado 0
     while       ir al estado 43
 
 
-estado 1
+Estado 1
 
     2 lista: error . FIN_DE_LINEA $@1 lista
 
     FIN_DE_LINEA  desplazar e ir al estado 44
 
 
-estado 2
+Estado 2
 
-   23 exp: VALOR_FLOAT .
-
-    $default  reduce usando la regla 23 (exp)
-
-
-estado 3
-
-   24 exp: VALOR_DOUBLE .
+   24 exp: VALOR_FLOAT .
 
     $default  reduce usando la regla 24 (exp)
 
 
-estado 4
+Estado 3
 
-   22 exp: VALOR_INT .
-
-    $default  reduce usando la regla 22 (exp)
-
-
-estado 5
-
-   26 exp: VALOR_BOOL .
-
-    $default  reduce usando la regla 26 (exp)
-
-
-estado 6
-
-   25 exp: VALOR_LONG .
+   25 exp: VALOR_DOUBLE .
 
     $default  reduce usando la regla 25 (exp)
 
 
-estado 7
+Estado 4
 
-   27 exp: VALOR_CHAR .
+   23 exp: VALOR_INT .
+
+    $default  reduce usando la regla 23 (exp)
+
+
+Estado 5
+
+   27 exp: VALOR_BOOL .
 
     $default  reduce usando la regla 27 (exp)
 
 
-estado 8
+Estado 6
 
-   28 exp: VALOR_STRING .
+   26 exp: VALOR_LONG .
+
+    $default  reduce usando la regla 26 (exp)
+
+
+Estado 7
+
+   28 exp: VALOR_CHAR .
 
     $default  reduce usando la regla 28 (exp)
 
 
-estado 9
+Estado 8
 
-   12 func_call: IDENTIFICADOR . tupla
-   13          | IDENTIFICADOR . '(' ')'
-   29 exp: IDENTIFICADOR .
-   31    | IDENTIFICADOR . ACCESO
-   45 asign: IDENTIFICADOR . '=' exp
-
-    ACCESO  desplazar e ir al estado 45
-    '='     desplazar e ir al estado 46
-    '('     desplazar e ir al estado 47
+   29 exp: VALOR_STRING .
 
     $default  reduce usando la regla 29 (exp)
 
-    tupla  ir al estado 48
+
+Estado 9
+
+   12 func_call: IDENTIFICADOR . saveReg tupla
+   13          | IDENTIFICADOR . saveReg '(' ')'
+   30 exp: IDENTIFICADOR .
+   32    | IDENTIFICADOR . ACCESO
+   46 asign: IDENTIFICADOR . '=' exp
+
+    ACCESO  desplazar e ir al estado 45
+    '='     desplazar e ir al estado 46
+
+    '('       reduce usando la regla 14 (saveReg)
+    $default  reduce usando la regla 30 (exp)
+
+    saveReg  ir al estado 47
 
 
-estado 10
+Estado 10
 
     3 lista: FIN_DE_LINEA . lista
 
@@ -419,9 +465,9 @@ estado 10
     ABREBLOQUE     desplazar e ir al estado 24
     '('            desplazar e ir al estado 25
 
-    $end  reduce usando la regla 4 (lista)
+    $end  reduce usando la regla 7 (lista)
 
-    lista       ir al estado 49
+    lista       ir al estado 48
     tupla       ir al estado 27
     tupla_decl  ir al estado 28
     func_call   ir al estado 29
@@ -441,91 +487,67 @@ estado 10
     while       ir al estado 43
 
 
-estado 11
+Estado 11
 
-   33 tipo: INT .
-
-    $default  reduce usando la regla 33 (tipo)
-
-
-estado 12
-
-   35 tipo: LONG .
-
-    $default  reduce usando la regla 35 (tipo)
-
-
-estado 13
-
-   34 tipo: FLOAT .
+   34 tipo: INT .
 
     $default  reduce usando la regla 34 (tipo)
 
 
-estado 14
+Estado 12
 
-   36 tipo: DOUBLE .
+   36 tipo: LONG .
 
     $default  reduce usando la regla 36 (tipo)
 
 
-estado 15
+Estado 13
 
-   37 tipo: BOOL .
+   35 tipo: FLOAT .
+
+    $default  reduce usando la regla 35 (tipo)
+
+
+Estado 14
+
+   37 tipo: DOUBLE .
 
     $default  reduce usando la regla 37 (tipo)
 
 
-estado 16
+Estado 15
 
-   38 tipo: STRING .
+   38 tipo: BOOL .
 
     $default  reduce usando la regla 38 (tipo)
 
 
-estado 17
+Estado 16
 
-   76 func: VOID . IDENTIFICADOR '(' ')' $@5 ':' FIN_DE_LINEA bloque
-   78     | VOID . IDENTIFICADOR '(' args ')' $@6 ':' FIN_DE_LINEA bloque
-
-    IDENTIFICADOR  desplazar e ir al estado 50
-
-
-estado 18
-
-   39 tipo: CHAR .
+   39 tipo: STRING .
 
     $default  reduce usando la regla 39 (tipo)
 
 
-estado 19
+Estado 17
 
-   81 when: WHEN . exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-   82     | WHEN . rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+   74 func: VOID . IDENTIFICADOR '(' ')' @5 ':' FIN_DE_LINEA bloque funcFinal
+   76     | VOID . IDENTIFICADOR '(' args ')' @6 ':' FIN_DE_LINEA bloque funcFinal
 
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
-
-    tupla      ir al estado 27
-    func_call  ir al estado 29
-    exp        ir al estado 53
-    comp       ir al estado 35
-    rango      ir al estado 54
+    IDENTIFICADOR  desplazar e ir al estado 49
 
 
-estado 20
+Estado 18
 
-   84 if: IF . exp ':' FIN_DE_LINEA bloque
-   85   | IF . exp ':' FIN_DE_LINEA bloque else
-   86   | IF . exp ':' FIN_DE_LINEA bloque elif_l
-   87   | IF . exp ':' FIN_DE_LINEA bloque elif_l else
+   40 tipo: CHAR .
+
+    $default  reduce usando la regla 40 (tipo)
+
+
+Estado 19
+
+   80 when: WHEN . exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+   81     | WHEN . rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -534,18 +556,20 @@ estado 20
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 55
+    exp        ir al estado 52
     comp       ir al estado 35
+    rango      ir al estado 53
 
 
-estado 21
+Estado 20
 
-   91 while: WHILE . exp ':' FIN_DE_LINEA bloque
+   84 if: IF . exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque
+   86   | IF . exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 elif_l
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -554,27 +578,34 @@ estado 21
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 56
+    exp        ir al estado 54
     comp       ir al estado 35
 
 
-estado 22
+Estado 21
 
-   83 for: FOR . in ':' FIN_DE_LINEA bloque
+   98 while: WHILE . ne ne $@10 exp ':' $@11 FIN_DE_LINEA bloque
 
-    IDENTIFICADOR  desplazar e ir al estado 57
+    $default  reduce usando la regla 91 (ne)
 
-    in  ir al estado 58
+    ne  ir al estado 55
 
 
-estado 23
+Estado 22
 
-   64 inst: RETURN . exp
+   83 for: FOR . IDENTIFICADOR IN rango ne ne ':' FIN_DE_LINEA $@7 bloque
+
+    IDENTIFICADOR  desplazar e ir al estado 56
+
+
+Estado 23
+
+   63 inst: RETURN . exp FIN_DE_LINEA
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -583,25 +614,25 @@ estado 23
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 59
+    exp        ir al estado 57
     comp       ir al estado 35
 
 
-estado 24
+Estado 24
 
-   68 bloque: ABREBLOQUE . $@2 dentroBloque CIERRABLOQUE
+   67 bloque: ABREBLOQUE . $@2 dentroBloque CIERRABLOQUE
 
-    $default  reduce usando la regla 67 ($@2)
+    $default  reduce usando la regla 66 ($@2)
 
-    $@2  ir al estado 60
+    $@2  ir al estado 58
 
 
-estado 25
+Estado 25
 
    10 tupla: '(' . exp_l ')'
    11 tupla_decl: '(' . tipo_l ')'
@@ -613,7 +644,7 @@ estado 25
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
+    IDENTIFICADOR  desplazar e ir al estado 50
     INT            desplazar e ir al estado 11
     LONG           desplazar e ir al estado 12
     FLOAT          desplazar e ir al estado 13
@@ -623,142 +654,181 @@ estado 25
     CHAR           desplazar e ir al estado 18
     '('            desplazar e ir al estado 25
 
-    exp_l       ir al estado 61
+    exp_l       ir al estado 59
     tupla       ir al estado 27
     tupla_decl  ir al estado 28
     func_call   ir al estado 29
-    exp         ir al estado 62
-    tipo        ir al estado 63
-    tipo_l      ir al estado 64
+    exp         ir al estado 60
+    tipo        ir al estado 61
+    tipo_l      ir al estado 62
     comp        ir al estado 35
 
 
-estado 26
+Estado 26
 
     0 $accept: lista . $end
 
-    $end  desplazar e ir al estado 65
+    $end  desplazar e ir al estado 63
 
 
-estado 27
+Estado 27
 
-   30 exp: tupla .
+   31 exp: tupla .
 
-    $default  reduce usando la regla 30 (exp)
-
-
-estado 28
-
-   32 tipo: tupla_decl .
-
-    $default  reduce usando la regla 32 (tipo)
+    $default  reduce usando la regla 31 (exp)
 
 
-estado 29
+Estado 28
 
-   21 exp: func_call .
+   33 tipo: tupla_decl .
 
-    $default  reduce usando la regla 21 (exp)
-
-
-estado 30
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   55 inst: exp .
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 55 (inst)
+    $default  reduce usando la regla 33 (tipo)
 
 
-estado 31
+Estado 29
 
-   44 init: tipo . IDENTIFICADOR '=' exp
-   46 decl: tipo . IDENTIFICADOR
-   72 func: tipo . IDENTIFICADOR '(' ')' $@3 ':' FIN_DE_LINEA bloque
-   74     | tipo . IDENTIFICADOR '(' args ')' $@4 ':' FIN_DE_LINEA bloque
+   22 exp: func_call .
 
-    IDENTIFICADOR  desplazar e ir al estado 78
+    $default  reduce usando la regla 22 (exp)
 
 
-estado 32
+Estado 30
 
-   56 inst: init .
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   54 inst: exp . FIN_DE_LINEA
 
-    $default  reduce usando la regla 56 (inst)
+    FIN_DE_LINEA  desplazar e ir al estado 64
+    NOTIS         desplazar e ir al estado 65
+    IS            desplazar e ir al estado 66
+    OR            desplazar e ir al estado 67
+    AND           desplazar e ir al estado 68
+    MAYORIGUAL    desplazar e ir al estado 69
+    MENORIGUAL    desplazar e ir al estado 70
+    MAYORQUE      desplazar e ir al estado 71
+    MENORQUE      desplazar e ir al estado 72
+    '-'           desplazar e ir al estado 73
+    '+'           desplazar e ir al estado 74
+    '*'           desplazar e ir al estado 75
+    '/'           desplazar e ir al estado 76
 
 
-estado 33
+Estado 31
 
-   57 inst: asign .
+   45 init: tipo . IDENTIFICADOR '=' exp
+   47 decl: tipo . IDENTIFICADOR FIN_DE_LINEA
+   70 func: tipo . IDENTIFICADOR '(' ')' @3 ':' FIN_DE_LINEA bloque funcFinal
+   72     | tipo . IDENTIFICADOR '(' args ')' @4 ':' FIN_DE_LINEA bloque funcFinal
 
-    $default  reduce usando la regla 57 (inst)
-
-
-estado 34
-
-   58 inst: decl .
-
-    $default  reduce usando la regla 58 (inst)
+    IDENTIFICADOR  desplazar e ir al estado 77
 
 
-estado 35
+Estado 32
 
-   20 exp: comp .
+   55 inst: init . FIN_DE_LINEA
 
-    $default  reduce usando la regla 20 (exp)
+    FIN_DE_LINEA  desplazar e ir al estado 78
 
 
-estado 36
+Estado 33
 
-   65 inst_l: inst . FIN_DE_LINEA
-   66       | inst . FIN_DE_LINEA inst_l
+   56 inst: asign . FIN_DE_LINEA
 
     FIN_DE_LINEA  desplazar e ir al estado 79
 
 
-estado 37
+Estado 34
 
-    6 lista: inst_l . FIN_DE_LINEA lista
-    7      | inst_l .
+   57 inst: decl .
 
-    FIN_DE_LINEA  desplazar e ir al estado 80
-
-    $default  reduce usando la regla 7 (lista)
+    $default  reduce usando la regla 57 (inst)
 
 
-estado 38
+Estado 35
 
-   63 inst: bloque .
+   21 exp: comp .
 
-    $default  reduce usando la regla 63 (inst)
+    $default  reduce usando la regla 21 (exp)
 
 
-estado 39
+Estado 36
 
-    5 lista: func . lista
+   64 inst_l: inst .
+   65       | inst . inst_l
+
+    VALOR_FLOAT    desplazar e ir al estado 2
+    VALOR_DOUBLE   desplazar e ir al estado 3
+    VALOR_INT      desplazar e ir al estado 4
+    VALOR_BOOL     desplazar e ir al estado 5
+    VALOR_LONG     desplazar e ir al estado 6
+    VALOR_CHAR     desplazar e ir al estado 7
+    VALOR_STRING   desplazar e ir al estado 8
+    IDENTIFICADOR  desplazar e ir al estado 9
+    INT            desplazar e ir al estado 11
+    LONG           desplazar e ir al estado 12
+    FLOAT          desplazar e ir al estado 13
+    DOUBLE         desplazar e ir al estado 14
+    BOOL           desplazar e ir al estado 15
+    STRING         desplazar e ir al estado 16
+    CHAR           desplazar e ir al estado 18
+    WHEN           desplazar e ir al estado 19
+    IF             desplazar e ir al estado 20
+    WHILE          desplazar e ir al estado 21
+    FOR            desplazar e ir al estado 22
+    RETURN         desplazar e ir al estado 23
+    ABREBLOQUE     desplazar e ir al estado 24
+    '('            desplazar e ir al estado 25
+
+    $default  reduce usando la regla 64 (inst_l)
+
+    tupla       ir al estado 27
+    tupla_decl  ir al estado 28
+    func_call   ir al estado 29
+    exp         ir al estado 30
+    tipo        ir al estado 80
+    init        ir al estado 32
+    asign       ir al estado 33
+    decl        ir al estado 34
+    comp        ir al estado 35
+    inst        ir al estado 36
+    inst_l      ir al estado 81
+    bloque      ir al estado 38
+    when        ir al estado 40
+    for         ir al estado 41
+    if          ir al estado 42
+    while       ir al estado 43
+
+
+Estado 37
+
+    5 lista: inst_l . FIN_DE_LINEA lista
+    6      | inst_l .
+
+    FIN_DE_LINEA  desplazar e ir al estado 82
+
+    $default  reduce usando la regla 6 (lista)
+
+
+Estado 38
+
+   62 inst: bloque .
+
+    $default  reduce usando la regla 62 (inst)
+
+
+Estado 39
+
+    4 lista: func . lista
 
     error          desplazar e ir al estado 1
     VALOR_FLOAT    desplazar e ir al estado 2
@@ -786,9 +856,9 @@ estado 39
     ABREBLOQUE     desplazar e ir al estado 24
     '('            desplazar e ir al estado 25
 
-    $end  reduce usando la regla 4 (lista)
+    $end  reduce usando la regla 7 (lista)
 
-    lista       ir al estado 81
+    lista       ir al estado 83
     tupla       ir al estado 27
     tupla_decl  ir al estado 28
     func_call   ir al estado 29
@@ -808,74 +878,53 @@ estado 39
     while       ir al estado 43
 
 
-estado 40
+Estado 40
 
-   59 inst: when .
+   58 inst: when .
+
+    $default  reduce usando la regla 58 (inst)
+
+
+Estado 41
+
+   59 inst: for .
 
     $default  reduce usando la regla 59 (inst)
 
 
-estado 41
+Estado 42
 
-   60 inst: for .
-
-    $default  reduce usando la regla 60 (inst)
-
-
-estado 42
-
-   62 inst: if .
-
-    $default  reduce usando la regla 62 (inst)
-
-
-estado 43
-
-   61 inst: while .
+   61 inst: if .
 
     $default  reduce usando la regla 61 (inst)
 
 
-estado 44
+Estado 43
+
+   60 inst: while .
+
+    $default  reduce usando la regla 60 (inst)
+
+
+Estado 44
 
     2 lista: error FIN_DE_LINEA . $@1 lista
 
     $default  reduce usando la regla 1 ($@1)
 
-    $@1  ir al estado 82
+    $@1  ir al estado 84
 
 
-estado 45
+Estado 45
 
-   31 exp: IDENTIFICADOR ACCESO .
+   32 exp: IDENTIFICADOR ACCESO .
 
-    $default  reduce usando la regla 31 (exp)
-
-
-estado 46
-
-   45 asign: IDENTIFICADOR '=' . exp
-
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
-
-    tupla      ir al estado 27
-    func_call  ir al estado 29
-    exp        ir al estado 83
-    comp       ir al estado 35
+    $default  reduce usando la regla 32 (exp)
 
 
-estado 47
+Estado 46
 
-   10 tupla: '(' . exp_l ')'
-   13 func_call: IDENTIFICADOR '(' . ')'
+   46 asign: IDENTIFICADOR '=' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -884,55 +933,56 @@ estado 47
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
-    ')'            desplazar e ir al estado 84
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
-    exp_l      ir al estado 61
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 62
+    exp        ir al estado 85
     comp       ir al estado 35
 
 
-estado 48
+Estado 47
 
-   12 func_call: IDENTIFICADOR tupla .
+   12 func_call: IDENTIFICADOR saveReg . tupla
+   13          | IDENTIFICADOR saveReg . '(' ')'
 
-    $default  reduce usando la regla 12 (func_call)
+    '('  desplazar e ir al estado 86
+
+    tupla  ir al estado 87
 
 
-estado 49
+Estado 48
 
     3 lista: FIN_DE_LINEA lista .
 
     $default  reduce usando la regla 3 (lista)
 
 
-estado 50
+Estado 49
 
-   76 func: VOID IDENTIFICADOR . '(' ')' $@5 ':' FIN_DE_LINEA bloque
-   78     | VOID IDENTIFICADOR . '(' args ')' $@6 ':' FIN_DE_LINEA bloque
+   74 func: VOID IDENTIFICADOR . '(' ')' @5 ':' FIN_DE_LINEA bloque funcFinal
+   76     | VOID IDENTIFICADOR . '(' args ')' @6 ':' FIN_DE_LINEA bloque funcFinal
 
-    '('  desplazar e ir al estado 85
+    '('  desplazar e ir al estado 88
 
 
-estado 51
+Estado 50
 
-   12 func_call: IDENTIFICADOR . tupla
-   13          | IDENTIFICADOR . '(' ')'
-   29 exp: IDENTIFICADOR .
-   31    | IDENTIFICADOR . ACCESO
+   12 func_call: IDENTIFICADOR . saveReg tupla
+   13          | IDENTIFICADOR . saveReg '(' ')'
+   30 exp: IDENTIFICADOR .
+   32    | IDENTIFICADOR . ACCESO
 
     ACCESO  desplazar e ir al estado 45
-    '('     desplazar e ir al estado 47
 
-    $default  reduce usando la regla 29 (exp)
+    '('       reduce usando la regla 14 (saveReg)
+    $default  reduce usando la regla 30 (exp)
 
-    tupla  ir al estado 48
+    saveReg  ir al estado 47
 
 
-estado 52
+Estado 51
 
    10 tupla: '(' . exp_l ')'
 
@@ -943,173 +993,139 @@ estado 52
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
-    exp_l      ir al estado 61
+    exp_l      ir al estado 59
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 62
+    exp        ir al estado 60
     comp       ir al estado 35
 
 
-estado 53
+Estado 52
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   81 when: WHEN exp . ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-   92 rango: exp . RANGE exp
-   93      | exp . RANGE exp ',' exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   80 when: WHEN exp . ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+   99 rango: exp . RANGE exp
+  100      | exp . RANGE exp ',' exp
 
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    RANGE       desplazar e ir al estado 86
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-    ':'         desplazar e ir al estado 87
-
-
-estado 54
-
-   82 when: WHEN rango . ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-
-    ':'  desplazar e ir al estado 88
-
-
-estado 55
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   84 if: IF exp . ':' FIN_DE_LINEA bloque
-   85   | IF exp . ':' FIN_DE_LINEA bloque else
-   86   | IF exp . ':' FIN_DE_LINEA bloque elif_l
-   87   | IF exp . ':' FIN_DE_LINEA bloque elif_l else
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-    ':'         desplazar e ir al estado 89
-
-
-estado 56
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   91 while: WHILE exp . ':' FIN_DE_LINEA bloque
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    RANGE       desplazar e ir al estado 89
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
     ':'         desplazar e ir al estado 90
 
 
-estado 57
+Estado 53
 
-   47 in: IDENTIFICADOR . IN rango
-   48   | IDENTIFICADOR . NOTIN rango
+   81 when: WHEN rango . ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
-    IN     desplazar e ir al estado 91
-    NOTIN  desplazar e ir al estado 92
+    ':'  desplazar e ir al estado 91
 
 
-estado 58
+Estado 54
 
-   83 for: FOR in . ':' FIN_DE_LINEA bloque
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   84 if: IF exp . ':' FIN_DE_LINEA ne if_evalua_expresion bloque
+   86   | IF exp . ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 elif_l
 
-    ':'  desplazar e ir al estado 93
-
-
-estado 59
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   64 inst: RETURN exp .
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 64 (inst)
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+    ':'         desplazar e ir al estado 92
 
 
-estado 60
+Estado 55
 
-   68 bloque: ABREBLOQUE $@2 . dentroBloque CIERRABLOQUE
+   98 while: WHILE ne . ne $@10 exp ':' $@11 FIN_DE_LINEA bloque
+
+    $default  reduce usando la regla 91 (ne)
+
+    ne  ir al estado 93
+
+
+Estado 56
+
+   83 for: FOR IDENTIFICADOR . IN rango ne ne ':' FIN_DE_LINEA $@7 bloque
+
+    IN  desplazar e ir al estado 94
+
+
+Estado 57
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   63 inst: RETURN exp . FIN_DE_LINEA
+
+    FIN_DE_LINEA  desplazar e ir al estado 95
+    NOTIS         desplazar e ir al estado 65
+    IS            desplazar e ir al estado 66
+    OR            desplazar e ir al estado 67
+    AND           desplazar e ir al estado 68
+    MAYORIGUAL    desplazar e ir al estado 69
+    MENORIGUAL    desplazar e ir al estado 70
+    MAYORQUE      desplazar e ir al estado 71
+    MENORQUE      desplazar e ir al estado 72
+    '-'           desplazar e ir al estado 73
+    '+'           desplazar e ir al estado 74
+    '*'           desplazar e ir al estado 75
+    '/'           desplazar e ir al estado 76
+
+
+Estado 58
+
+   67 bloque: ABREBLOQUE $@2 . dentroBloque CIERRABLOQUE
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1138,12 +1154,12 @@ estado 60
     tupla_decl    ir al estado 28
     func_call     ir al estado 29
     exp           ir al estado 30
-    tipo          ir al estado 94
+    tipo          ir al estado 80
     init          ir al estado 32
     asign         ir al estado 33
     decl          ir al estado 34
     comp          ir al estado 35
-    inst          ir al estado 95
+    inst          ir al estado 36
     inst_l        ir al estado 96
     bloque        ir al estado 38
     dentroBloque  ir al estado 97
@@ -1153,74 +1169,81 @@ estado 60
     while         ir al estado 43
 
 
-estado 61
+Estado 59
 
    10 tupla: '(' exp_l . ')'
 
     ')'  desplazar e ir al estado 98
 
 
-estado 62
+Estado 60
 
     8 exp_l: exp .
     9      | exp . ',' exp_l
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
     ','         desplazar e ir al estado 99
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
     $default  reduce usando la regla 8 (exp_l)
 
 
-estado 63
+Estado 61
 
-   40 tipo_l: tipo .
-   41       | tipo . ',' tipo_l
+   41 tipo_l: tipo .
+   42       | tipo . ',' tipo_l
 
     ','  desplazar e ir al estado 100
 
-    $default  reduce usando la regla 40 (tipo_l)
+    $default  reduce usando la regla 41 (tipo_l)
 
 
-estado 64
+Estado 62
 
    11 tupla_decl: '(' tipo_l . ')'
 
     ')'  desplazar e ir al estado 101
 
 
-estado 65
+Estado 63
 
     0 $accept: lista $end .
 
     $default  aceptar
 
 
-estado 66
+Estado 64
 
-   54 comp: exp NOTIS . exp
+   54 inst: exp FIN_DE_LINEA .
+
+    $default  reduce usando la regla 54 (inst)
+
+
+Estado 65
+
+   53 comp: exp NOTIS . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1229,8 +1252,8 @@ estado 66
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1238,9 +1261,9 @@ estado 66
     comp       ir al estado 35
 
 
-estado 67
+Estado 66
 
-   53 comp: exp IS . exp
+   52 comp: exp IS . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1249,8 +1272,8 @@ estado 67
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1258,9 +1281,9 @@ estado 67
     comp       ir al estado 35
 
 
-estado 68
+Estado 67
 
-   19 exp: exp OR . exp
+   20 exp: exp OR . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1269,8 +1292,8 @@ estado 68
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1278,9 +1301,9 @@ estado 68
     comp       ir al estado 35
 
 
-estado 69
+Estado 68
 
-   18 exp: exp AND . exp
+   19 exp: exp AND . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1289,8 +1312,8 @@ estado 69
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1298,9 +1321,9 @@ estado 69
     comp       ir al estado 35
 
 
-estado 70
+Estado 69
 
-   52 comp: exp MAYORIGUAL . exp
+   51 comp: exp MAYORIGUAL . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1309,8 +1332,8 @@ estado 70
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1318,9 +1341,9 @@ estado 70
     comp       ir al estado 35
 
 
-estado 71
+Estado 70
 
-   51 comp: exp MENORIGUAL . exp
+   50 comp: exp MENORIGUAL . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1329,8 +1352,8 @@ estado 71
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1338,9 +1361,9 @@ estado 71
     comp       ir al estado 35
 
 
-estado 72
+Estado 71
 
-   50 comp: exp MAYORQUE . exp
+   49 comp: exp MAYORQUE . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1349,8 +1372,8 @@ estado 72
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1358,9 +1381,9 @@ estado 72
     comp       ir al estado 35
 
 
-estado 73
+Estado 72
 
-   49 comp: exp MENORQUE . exp
+   48 comp: exp MENORQUE . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1369,8 +1392,8 @@ estado 73
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1378,9 +1401,9 @@ estado 73
     comp       ir al estado 35
 
 
-estado 74
+Estado 73
 
-   14 exp: exp '-' . exp
+   15 exp: exp '-' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1389,8 +1412,8 @@ estado 74
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1398,9 +1421,9 @@ estado 74
     comp       ir al estado 35
 
 
-estado 75
+Estado 74
 
-   15 exp: exp '+' . exp
+   16 exp: exp '+' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1409,8 +1432,8 @@ estado 75
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1418,9 +1441,9 @@ estado 75
     comp       ir al estado 35
 
 
-estado 76
+Estado 75
 
-   17 exp: exp '*' . exp
+   18 exp: exp '*' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1429,8 +1452,8 @@ estado 76
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1438,9 +1461,9 @@ estado 76
     comp       ir al estado 35
 
 
-estado 77
+Estado 76
 
-   16 exp: exp '/' . exp
+   17 exp: exp '/' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1449,8 +1472,8 @@ estado 77
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
@@ -1458,70 +1481,50 @@ estado 77
     comp       ir al estado 35
 
 
-estado 78
+Estado 77
 
-   44 init: tipo IDENTIFICADOR . '=' exp
-   46 decl: tipo IDENTIFICADOR .
-   72 func: tipo IDENTIFICADOR . '(' ')' $@3 ':' FIN_DE_LINEA bloque
-   74     | tipo IDENTIFICADOR . '(' args ')' $@4 ':' FIN_DE_LINEA bloque
+   45 init: tipo IDENTIFICADOR . '=' exp
+   47 decl: tipo IDENTIFICADOR . FIN_DE_LINEA
+   70 func: tipo IDENTIFICADOR . '(' ')' @3 ':' FIN_DE_LINEA bloque funcFinal
+   72     | tipo IDENTIFICADOR . '(' args ')' @4 ':' FIN_DE_LINEA bloque funcFinal
 
-    '='  desplazar e ir al estado 114
-    '('  desplazar e ir al estado 115
+    FIN_DE_LINEA  desplazar e ir al estado 114
+    '='           desplazar e ir al estado 115
+    '('           desplazar e ir al estado 116
 
-    $default  reduce usando la regla 46 (decl)
+
+Estado 78
+
+   55 inst: init FIN_DE_LINEA .
+
+    $default  reduce usando la regla 55 (inst)
 
 
-estado 79
+Estado 79
 
-   65 inst_l: inst FIN_DE_LINEA .
-   66       | inst FIN_DE_LINEA . inst_l
+   56 inst: asign FIN_DE_LINEA .
 
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 9
-    INT            desplazar e ir al estado 11
-    LONG           desplazar e ir al estado 12
-    FLOAT          desplazar e ir al estado 13
-    DOUBLE         desplazar e ir al estado 14
-    BOOL           desplazar e ir al estado 15
-    STRING         desplazar e ir al estado 16
-    CHAR           desplazar e ir al estado 18
-    WHEN           desplazar e ir al estado 19
-    IF             desplazar e ir al estado 20
-    WHILE          desplazar e ir al estado 21
-    FOR            desplazar e ir al estado 22
-    RETURN         desplazar e ir al estado 23
-    ABREBLOQUE     desplazar e ir al estado 24
-    '('            desplazar e ir al estado 25
+    $default  reduce usando la regla 56 (inst)
+
+
+Estado 80
+
+   45 init: tipo . IDENTIFICADOR '=' exp
+   47 decl: tipo . IDENTIFICADOR FIN_DE_LINEA
+
+    IDENTIFICADOR  desplazar e ir al estado 117
+
+
+Estado 81
+
+   65 inst_l: inst inst_l .
 
     $default  reduce usando la regla 65 (inst_l)
 
-    tupla       ir al estado 27
-    tupla_decl  ir al estado 28
-    func_call   ir al estado 29
-    exp         ir al estado 30
-    tipo        ir al estado 94
-    init        ir al estado 32
-    asign       ir al estado 33
-    decl        ir al estado 34
-    comp        ir al estado 35
-    inst        ir al estado 36
-    inst_l      ir al estado 116
-    bloque      ir al estado 38
-    when        ir al estado 40
-    for         ir al estado 41
-    if          ir al estado 42
-    while       ir al estado 43
 
+Estado 82
 
-estado 80
-
-    6 lista: inst_l FIN_DE_LINEA . lista
+    5 lista: inst_l FIN_DE_LINEA . lista
 
     error          desplazar e ir al estado 1
     VALOR_FLOAT    desplazar e ir al estado 2
@@ -1549,9 +1552,9 @@ estado 80
     ABREBLOQUE     desplazar e ir al estado 24
     '('            desplazar e ir al estado 25
 
-    $end  reduce usando la regla 4 (lista)
+    $end  reduce usando la regla 7 (lista)
 
-    lista       ir al estado 117
+    lista       ir al estado 118
     tupla       ir al estado 27
     tupla_decl  ir al estado 28
     func_call   ir al estado 29
@@ -1571,14 +1574,14 @@ estado 80
     while       ir al estado 43
 
 
-estado 81
+Estado 83
 
-    5 lista: func lista .
+    4 lista: func lista .
 
-    $default  reduce usando la regla 5 (lista)
+    $default  reduce usando la regla 4 (lista)
 
 
-estado 82
+Estado 84
 
     2 lista: error FIN_DE_LINEA $@1 . lista
 
@@ -1608,9 +1611,9 @@ estado 82
     ABREBLOQUE     desplazar e ir al estado 24
     '('            desplazar e ir al estado 25
 
-    $end  reduce usando la regla 4 (lista)
+    $end  reduce usando la regla 7 (lista)
 
-    lista       ir al estado 118
+    lista       ir al estado 119
     tupla       ir al estado 27
     tupla_decl  ir al estado 28
     func_call   ir al estado 29
@@ -1630,49 +1633,72 @@ estado 82
     while       ir al estado 43
 
 
-estado 83
+Estado 85
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   45 asign: IDENTIFICADOR '=' exp .
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   46 asign: IDENTIFICADOR '=' exp .
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
-    $default  reduce usando la regla 45 (asign)
-
-
-estado 84
-
-   13 func_call: IDENTIFICADOR '(' ')' .
-
-    $default  reduce usando la regla 13 (func_call)
+    $default  reduce usando la regla 46 (asign)
 
 
-estado 85
+Estado 86
 
-   76 func: VOID IDENTIFICADOR '(' . ')' $@5 ':' FIN_DE_LINEA bloque
-   78     | VOID IDENTIFICADOR '(' . args ')' $@6 ':' FIN_DE_LINEA bloque
+   10 tupla: '(' . exp_l ')'
+   13 func_call: IDENTIFICADOR saveReg '(' . ')'
+
+    VALOR_FLOAT    desplazar e ir al estado 2
+    VALOR_DOUBLE   desplazar e ir al estado 3
+    VALOR_INT      desplazar e ir al estado 4
+    VALOR_BOOL     desplazar e ir al estado 5
+    VALOR_LONG     desplazar e ir al estado 6
+    VALOR_CHAR     desplazar e ir al estado 7
+    VALOR_STRING   desplazar e ir al estado 8
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
+    ')'            desplazar e ir al estado 120
+
+    exp_l      ir al estado 59
+    tupla      ir al estado 27
+    func_call  ir al estado 29
+    exp        ir al estado 60
+    comp       ir al estado 35
+
+
+Estado 87
+
+   12 func_call: IDENTIFICADOR saveReg tupla .
+
+    $default  reduce usando la regla 12 (func_call)
+
+
+Estado 88
+
+   74 func: VOID IDENTIFICADOR '(' . ')' @5 ':' FIN_DE_LINEA bloque funcFinal
+   76     | VOID IDENTIFICADOR '(' . args ')' @6 ':' FIN_DE_LINEA bloque funcFinal
 
     INT     desplazar e ir al estado 11
     LONG    desplazar e ir al estado 12
@@ -1681,18 +1707,18 @@ estado 85
     BOOL    desplazar e ir al estado 15
     STRING  desplazar e ir al estado 16
     CHAR    desplazar e ir al estado 18
-    '('     desplazar e ir al estado 119
-    ')'     desplazar e ir al estado 120
+    '('     desplazar e ir al estado 121
+    ')'     desplazar e ir al estado 122
 
     tupla_decl  ir al estado 28
-    tipo        ir al estado 121
-    args        ir al estado 122
+    tipo        ir al estado 123
+    args        ir al estado 124
 
 
-estado 86
+Estado 89
 
-   92 rango: exp RANGE . exp
-   93      | exp RANGE . exp ',' exp
+   99 rango: exp RANGE . exp
+  100      | exp RANGE . exp ',' exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1701,70 +1727,49 @@ estado 86
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 123
+    exp        ir al estado 125
     comp       ir al estado 35
 
 
-estado 87
+Estado 90
 
-   81 when: WHEN exp ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-
-    FIN_DE_LINEA  desplazar e ir al estado 124
-
-
-estado 88
-
-   82 when: WHEN rango ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-
-    FIN_DE_LINEA  desplazar e ir al estado 125
-
-
-estado 89
-
-   84 if: IF exp ':' . FIN_DE_LINEA bloque
-   85   | IF exp ':' . FIN_DE_LINEA bloque else
-   86   | IF exp ':' . FIN_DE_LINEA bloque elif_l
-   87   | IF exp ':' . FIN_DE_LINEA bloque elif_l else
+   80 when: WHEN exp ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     FIN_DE_LINEA  desplazar e ir al estado 126
 
 
-estado 90
+Estado 91
 
-   91 while: WHILE exp ':' . FIN_DE_LINEA bloque
+   81 when: WHEN rango ':' . FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 
     FIN_DE_LINEA  desplazar e ir al estado 127
 
 
-estado 91
+Estado 92
 
-   47 in: IDENTIFICADOR IN . rango
+   84 if: IF exp ':' . FIN_DE_LINEA ne if_evalua_expresion bloque
+   86   | IF exp ':' . FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 elif_l
 
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
-
-    tupla      ir al estado 27
-    func_call  ir al estado 29
-    exp        ir al estado 128
-    comp       ir al estado 35
-    rango      ir al estado 129
+    FIN_DE_LINEA  desplazar e ir al estado 128
 
 
-estado 92
+Estado 93
 
-   48 in: IDENTIFICADOR NOTIN . rango
+   98 while: WHILE ne ne . $@10 exp ':' $@11 FIN_DE_LINEA bloque
+
+    $default  reduce usando la regla 96 ($@10)
+
+    $@10  ir al estado 129
+
+
+Estado 94
+
+   83 for: FOR IDENTIFICADOR IN . rango ne ne ':' FIN_DE_LINEA $@7 bloque
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -1773,64 +1778,45 @@ estado 92
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 128
+    exp        ir al estado 130
     comp       ir al estado 35
-    rango      ir al estado 130
+    rango      ir al estado 131
 
 
-estado 93
+Estado 95
 
-   83 for: FOR in ':' . FIN_DE_LINEA bloque
+   63 inst: RETURN exp FIN_DE_LINEA .
 
-    FIN_DE_LINEA  desplazar e ir al estado 131
-
-
-estado 94
-
-   44 init: tipo . IDENTIFICADOR '=' exp
-   46 decl: tipo . IDENTIFICADOR
-
-    IDENTIFICADOR  desplazar e ir al estado 132
+    $default  reduce usando la regla 63 (inst)
 
 
-estado 95
+Estado 96
 
-   65 inst_l: inst . FIN_DE_LINEA
-   66       | inst . FIN_DE_LINEA inst_l
-   70 dentroBloque: inst .
+   68 dentroBloque: inst_l .
 
-    FIN_DE_LINEA  desplazar e ir al estado 79
-
-    $default  reduce usando la regla 70 (dentroBloque)
+    $default  reduce usando la regla 68 (dentroBloque)
 
 
-estado 96
+Estado 97
 
-   69 dentroBloque: inst_l .
+   67 bloque: ABREBLOQUE $@2 dentroBloque . CIERRABLOQUE
 
-    $default  reduce usando la regla 69 (dentroBloque)
-
-
-estado 97
-
-   68 bloque: ABREBLOQUE $@2 dentroBloque . CIERRABLOQUE
-
-    CIERRABLOQUE  desplazar e ir al estado 133
+    CIERRABLOQUE  desplazar e ir al estado 132
 
 
-estado 98
+Estado 98
 
    10 tupla: '(' exp_l ')' .
 
     $default  reduce usando la regla 10 (tupla)
 
 
-estado 99
+Estado 99
 
     9 exp_l: exp ',' . exp_l
 
@@ -1841,19 +1827,19 @@ estado 99
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
-    exp_l      ir al estado 134
+    exp_l      ir al estado 133
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 62
+    exp        ir al estado 60
     comp       ir al estado 35
 
 
-estado 100
+Estado 100
 
-   41 tipo_l: tipo ',' . tipo_l
+   42 tipo_l: tipo ',' . tipo_l
 
     INT     desplazar e ir al estado 11
     LONG    desplazar e ir al estado 12
@@ -1862,317 +1848,324 @@ estado 100
     BOOL    desplazar e ir al estado 15
     STRING  desplazar e ir al estado 16
     CHAR    desplazar e ir al estado 18
-    '('     desplazar e ir al estado 119
+    '('     desplazar e ir al estado 121
 
     tupla_decl  ir al estado 28
-    tipo        ir al estado 63
-    tipo_l      ir al estado 135
+    tipo        ir al estado 61
+    tipo_l      ir al estado 134
 
 
-estado 101
+Estado 101
 
    11 tupla_decl: '(' tipo_l ')' .
 
     $default  reduce usando la regla 11 (tupla_decl)
 
 
-estado 102
+Estado 102
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   54     | exp NOTIS exp .
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   53     | exp NOTIS exp .
 
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 54 (comp)
-
-
-estado 103
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   53     | exp IS exp .
-   54     | exp . NOTIS exp
-
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
     $default  reduce usando la regla 53 (comp)
 
 
-estado 104
+Estado 103
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   19    | exp OR exp .
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   52     | exp IS exp .
+   53     | exp . NOTIS exp
 
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 19 (exp)
-
-
-estado 105
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   18    | exp AND exp .
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 18 (exp)
-
-
-estado 106
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   52     | exp MAYORIGUAL exp .
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-
-    '-'  desplazar e ir al estado 74
-    '+'  desplazar e ir al estado 75
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
     $default  reduce usando la regla 52 (comp)
 
 
-estado 107
+Estado 104
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   51     | exp MENORIGUAL exp .
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   20    | exp OR exp .
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    '-'  desplazar e ir al estado 74
-    '+'  desplazar e ir al estado 75
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+
+    $default  reduce usando la regla 20 (exp)
+
+
+Estado 105
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   19    | exp AND exp .
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+
+    $default  reduce usando la regla 19 (exp)
+
+
+Estado 106
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   51     | exp MAYORIGUAL exp .
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+
+    '-'  desplazar e ir al estado 73
+    '+'  desplazar e ir al estado 74
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
     $default  reduce usando la regla 51 (comp)
 
 
-estado 108
+Estado 107
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   50     | exp MAYORQUE exp .
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   50     | exp MENORIGUAL exp .
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    '-'  desplazar e ir al estado 74
-    '+'  desplazar e ir al estado 75
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    '-'  desplazar e ir al estado 73
+    '+'  desplazar e ir al estado 74
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
     $default  reduce usando la regla 50 (comp)
 
 
-estado 109
+Estado 108
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   49     | exp MENORQUE exp .
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   49     | exp MAYORQUE exp .
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    '-'  desplazar e ir al estado 74
-    '+'  desplazar e ir al estado 75
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    '-'  desplazar e ir al estado 73
+    '+'  desplazar e ir al estado 74
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
     $default  reduce usando la regla 49 (comp)
 
 
-estado 110
+Estado 109
 
-   14 exp: exp . '-' exp
-   14    | exp '-' exp .
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   48     | exp MENORQUE exp .
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    '-'  desplazar e ir al estado 73
+    '+'  desplazar e ir al estado 74
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
-    $default  reduce usando la regla 14 (exp)
+    $default  reduce usando la regla 48 (comp)
 
 
-estado 111
+Estado 110
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   15    | exp '+' exp .
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   15    | exp '-' exp .
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    '*'  desplazar e ir al estado 76
-    '/'  desplazar e ir al estado 77
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
     $default  reduce usando la regla 15 (exp)
 
 
-estado 112
+Estado 111
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   17    | exp '*' exp .
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   16    | exp '+' exp .
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    $default  reduce usando la regla 17 (exp)
-
-
-estado 113
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   16    | exp '/' exp .
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
+    '*'  desplazar e ir al estado 75
+    '/'  desplazar e ir al estado 76
 
     $default  reduce usando la regla 16 (exp)
 
 
-estado 114
+Estado 112
 
-   44 init: tipo IDENTIFICADOR '=' . exp
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   18    | exp '*' exp .
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+
+    $default  reduce usando la regla 18 (exp)
+
+
+Estado 113
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   17    | exp '/' exp .
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+
+    $default  reduce usando la regla 17 (exp)
+
+
+Estado 114
+
+   47 decl: tipo IDENTIFICADOR FIN_DE_LINEA .
+
+    $default  reduce usando la regla 47 (decl)
+
+
+Estado 115
+
+   45 init: tipo IDENTIFICADOR '=' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -2181,19 +2174,19 @@ estado 114
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 136
+    exp        ir al estado 135
     comp       ir al estado 35
 
 
-estado 115
+Estado 116
 
-   72 func: tipo IDENTIFICADOR '(' . ')' $@3 ':' FIN_DE_LINEA bloque
-   74     | tipo IDENTIFICADOR '(' . args ')' $@4 ':' FIN_DE_LINEA bloque
+   70 func: tipo IDENTIFICADOR '(' . ')' @3 ':' FIN_DE_LINEA bloque funcFinal
+   72     | tipo IDENTIFICADOR '(' . args ')' @4 ':' FIN_DE_LINEA bloque funcFinal
 
     INT     desplazar e ir al estado 11
     LONG    desplazar e ir al estado 12
@@ -2202,36 +2195,45 @@ estado 115
     BOOL    desplazar e ir al estado 15
     STRING  desplazar e ir al estado 16
     CHAR    desplazar e ir al estado 18
-    '('     desplazar e ir al estado 119
-    ')'     desplazar e ir al estado 137
+    '('     desplazar e ir al estado 121
+    ')'     desplazar e ir al estado 136
 
     tupla_decl  ir al estado 28
-    tipo        ir al estado 121
-    args        ir al estado 138
+    tipo        ir al estado 123
+    args        ir al estado 137
 
 
-estado 116
+Estado 117
 
-   66 inst_l: inst FIN_DE_LINEA inst_l .
+   45 init: tipo IDENTIFICADOR . '=' exp
+   47 decl: tipo IDENTIFICADOR . FIN_DE_LINEA
 
-    $default  reduce usando la regla 66 (inst_l)
-
-
-estado 117
-
-    6 lista: inst_l FIN_DE_LINEA lista .
-
-    $default  reduce usando la regla 6 (lista)
+    FIN_DE_LINEA  desplazar e ir al estado 114
+    '='           desplazar e ir al estado 115
 
 
-estado 118
+Estado 118
+
+    5 lista: inst_l FIN_DE_LINEA lista .
+
+    $default  reduce usando la regla 5 (lista)
+
+
+Estado 119
 
     2 lista: error FIN_DE_LINEA $@1 lista .
 
     $default  reduce usando la regla 2 (lista)
 
 
-estado 119
+Estado 120
+
+   13 func_call: IDENTIFICADOR saveReg '(' ')' .
+
+    $default  reduce usando la regla 13 (func_call)
+
+
+Estado 121
 
    11 tupla_decl: '(' . tipo_l ')'
 
@@ -2242,269 +2244,254 @@ estado 119
     BOOL    desplazar e ir al estado 15
     STRING  desplazar e ir al estado 16
     CHAR    desplazar e ir al estado 18
-    '('     desplazar e ir al estado 119
+    '('     desplazar e ir al estado 121
 
     tupla_decl  ir al estado 28
-    tipo        ir al estado 63
-    tipo_l      ir al estado 64
+    tipo        ir al estado 61
+    tipo_l      ir al estado 62
 
 
-estado 120
+Estado 122
 
-   76 func: VOID IDENTIFICADOR '(' ')' . $@5 ':' FIN_DE_LINEA bloque
+   74 func: VOID IDENTIFICADOR '(' ')' . @5 ':' FIN_DE_LINEA bloque funcFinal
 
-    $default  reduce usando la regla 75 ($@5)
+    $default  reduce usando la regla 73 (@5)
 
-    $@5  ir al estado 139
-
-
-estado 121
-
-   42 args: tipo . IDENTIFICADOR
-   43     | tipo . IDENTIFICADOR ',' args
-
-    IDENTIFICADOR  desplazar e ir al estado 140
+    @5  ir al estado 138
 
 
-estado 122
+Estado 123
 
-   78 func: VOID IDENTIFICADOR '(' args . ')' $@6 ':' FIN_DE_LINEA bloque
+   43 args: tipo . IDENTIFICADOR
+   44     | tipo . IDENTIFICADOR ',' args
 
-    ')'  desplazar e ir al estado 141
-
-
-estado 123
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   92 rango: exp RANGE exp .
-   93      | exp RANGE exp . ',' exp
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    ','         desplazar e ir al estado 142
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 92 (rango)
+    IDENTIFICADOR  desplazar e ir al estado 139
 
 
-estado 124
+Estado 124
 
-   81 when: WHEN exp ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
+   76 func: VOID IDENTIFICADOR '(' args . ')' @6 ':' FIN_DE_LINEA bloque funcFinal
+
+    ')'  desplazar e ir al estado 140
+
+
+Estado 125
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   99 rango: exp RANGE exp .
+  100      | exp RANGE exp . ',' exp
+
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    ','         desplazar e ir al estado 141
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+
+    $default  reduce usando la regla 99 (rango)
+
+
+Estado 126
+
+   80 when: WHEN exp ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
+
+    ABREBLOQUE  desplazar e ir al estado 142
+
+
+Estado 127
+
+   81 when: WHEN rango ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
 
     ABREBLOQUE  desplazar e ir al estado 143
 
 
-estado 125
+Estado 128
 
-   82 when: WHEN rango ':' FIN_DE_LINEA . ABREBLOQUE cases CIERRABLOQUE
+   84 if: IF exp ':' FIN_DE_LINEA . ne if_evalua_expresion bloque
+   86   | IF exp ':' FIN_DE_LINEA . ne if_evalua_expresion bloque ne @8 elif_l
 
-    ABREBLOQUE  desplazar e ir al estado 144
+    $default  reduce usando la regla 91 (ne)
 
-
-estado 126
-
-   84 if: IF exp ':' FIN_DE_LINEA . bloque
-   85   | IF exp ':' FIN_DE_LINEA . bloque else
-   86   | IF exp ':' FIN_DE_LINEA . bloque elif_l
-   87   | IF exp ':' FIN_DE_LINEA . bloque elif_l else
-
-    ABREBLOQUE  desplazar e ir al estado 24
-
-    bloque  ir al estado 145
+    ne  ir al estado 144
 
 
-estado 127
+Estado 129
 
-   91 while: WHILE exp ':' FIN_DE_LINEA . bloque
+   98 while: WHILE ne ne $@10 . exp ':' $@11 FIN_DE_LINEA bloque
 
-    ABREBLOQUE  desplazar e ir al estado 24
+    VALOR_FLOAT    desplazar e ir al estado 2
+    VALOR_DOUBLE   desplazar e ir al estado 3
+    VALOR_INT      desplazar e ir al estado 4
+    VALOR_BOOL     desplazar e ir al estado 5
+    VALOR_LONG     desplazar e ir al estado 6
+    VALOR_CHAR     desplazar e ir al estado 7
+    VALOR_STRING   desplazar e ir al estado 8
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
-    bloque  ir al estado 146
-
-
-estado 128
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   92 rango: exp . RANGE exp
-   93      | exp . RANGE exp ',' exp
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    RANGE       desplazar e ir al estado 86
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    tupla      ir al estado 27
+    func_call  ir al estado 29
+    exp        ir al estado 145
+    comp       ir al estado 35
 
 
-estado 129
+Estado 130
 
-   47 in: IDENTIFICADOR IN rango .
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   99 rango: exp . RANGE exp
+  100      | exp . RANGE exp ',' exp
 
-    $default  reduce usando la regla 47 (in)
-
-
-estado 130
-
-   48 in: IDENTIFICADOR NOTIN rango .
-
-    $default  reduce usando la regla 48 (in)
-
-
-estado 131
-
-   83 for: FOR in ':' FIN_DE_LINEA . bloque
-
-    ABREBLOQUE  desplazar e ir al estado 24
-
-    bloque  ir al estado 147
-
-
-estado 132
-
-   44 init: tipo IDENTIFICADOR . '=' exp
-   46 decl: tipo IDENTIFICADOR .
-
-    '='  desplazar e ir al estado 114
-
-    $default  reduce usando la regla 46 (decl)
-
-
-estado 133
-
-   68 bloque: ABREBLOQUE $@2 dentroBloque CIERRABLOQUE .
-
-    $default  reduce usando la regla 68 (bloque)
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    RANGE       desplazar e ir al estado 89
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
 
-estado 134
+Estado 131
+
+   83 for: FOR IDENTIFICADOR IN rango . ne ne ':' FIN_DE_LINEA $@7 bloque
+
+    $default  reduce usando la regla 91 (ne)
+
+    ne  ir al estado 146
+
+
+Estado 132
+
+   67 bloque: ABREBLOQUE $@2 dentroBloque CIERRABLOQUE .
+
+    $default  reduce usando la regla 67 (bloque)
+
+
+Estado 133
 
     9 exp_l: exp ',' exp_l .
 
     $default  reduce usando la regla 9 (exp_l)
 
 
-estado 135
+Estado 134
 
-   41 tipo_l: tipo ',' tipo_l .
+   42 tipo_l: tipo ',' tipo_l .
 
-    $default  reduce usando la regla 41 (tipo_l)
-
-
-estado 136
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   44 init: tipo IDENTIFICADOR '=' exp .
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 44 (init)
+    $default  reduce usando la regla 42 (tipo_l)
 
 
-estado 137
+Estado 135
 
-   72 func: tipo IDENTIFICADOR '(' ')' . $@3 ':' FIN_DE_LINEA bloque
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   45 init: tipo IDENTIFICADOR '=' exp .
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
 
-    $default  reduce usando la regla 71 ($@3)
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
-    $@3  ir al estado 148
-
-
-estado 138
-
-   74 func: tipo IDENTIFICADOR '(' args . ')' $@4 ':' FIN_DE_LINEA bloque
-
-    ')'  desplazar e ir al estado 149
-
-
-estado 139
-
-   76 func: VOID IDENTIFICADOR '(' ')' $@5 . ':' FIN_DE_LINEA bloque
-
-    ':'  desplazar e ir al estado 150
-
-
-estado 140
-
-   42 args: tipo IDENTIFICADOR .
-   43     | tipo IDENTIFICADOR . ',' args
-
-    ','  desplazar e ir al estado 151
-
-    $default  reduce usando la regla 42 (args)
-
-
-estado 141
-
-   78 func: VOID IDENTIFICADOR '(' args ')' . $@6 ':' FIN_DE_LINEA bloque
-
-    $default  reduce usando la regla 77 ($@6)
-
-    $@6  ir al estado 152
+    $default  reduce usando la regla 45 (init)
 
 
-estado 142
+Estado 136
 
-   93 rango: exp RANGE exp ',' . exp
+   70 func: tipo IDENTIFICADOR '(' ')' . @3 ':' FIN_DE_LINEA bloque funcFinal
+
+    $default  reduce usando la regla 69 (@3)
+
+    @3  ir al estado 147
+
+
+Estado 137
+
+   72 func: tipo IDENTIFICADOR '(' args . ')' @4 ':' FIN_DE_LINEA bloque funcFinal
+
+    ')'  desplazar e ir al estado 148
+
+
+Estado 138
+
+   74 func: VOID IDENTIFICADOR '(' ')' @5 . ':' FIN_DE_LINEA bloque funcFinal
+
+    ':'  desplazar e ir al estado 149
+
+
+Estado 139
+
+   43 args: tipo IDENTIFICADOR .
+   44     | tipo IDENTIFICADOR . ',' args
+
+    ','  desplazar e ir al estado 150
+
+    $default  reduce usando la regla 43 (args)
+
+
+Estado 140
+
+   76 func: VOID IDENTIFICADOR '(' args ')' . @6 ':' FIN_DE_LINEA bloque funcFinal
+
+    $default  reduce usando la regla 75 (@6)
+
+    @6  ir al estado 151
+
+
+Estado 141
+
+  100 rango: exp RANGE exp ',' . exp
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -2513,18 +2500,39 @@ estado 142
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
+
+    tupla      ir al estado 27
+    func_call  ir al estado 29
+    exp        ir al estado 152
+    comp       ir al estado 35
+
+
+Estado 142
+
+   80 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
+
+    VALOR_FLOAT    desplazar e ir al estado 2
+    VALOR_DOUBLE   desplazar e ir al estado 3
+    VALOR_INT      desplazar e ir al estado 4
+    VALOR_BOOL     desplazar e ir al estado 5
+    VALOR_LONG     desplazar e ir al estado 6
+    VALOR_CHAR     desplazar e ir al estado 7
+    VALOR_STRING   desplazar e ir al estado 8
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
     exp        ir al estado 153
     comp       ir al estado 35
+    cases      ir al estado 154
 
 
-estado 143
+Estado 143
 
-   81 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
+   81 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -2533,93 +2541,92 @@ estado 143
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 154
+    exp        ir al estado 153
     comp       ir al estado 35
     cases      ir al estado 155
 
 
-estado 144
+Estado 144
 
-   82 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE . cases CIERRABLOQUE
+   84 if: IF exp ':' FIN_DE_LINEA ne . if_evalua_expresion bloque
+   86   | IF exp ':' FIN_DE_LINEA ne . if_evalua_expresion bloque ne @8 elif_l
 
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    $default  reduce usando la regla 93 (if_evalua_expresion)
 
-    tupla      ir al estado 27
-    func_call  ir al estado 29
-    exp        ir al estado 154
-    comp       ir al estado 35
-    cases      ir al estado 156
+    if_evalua_expresion  ir al estado 156
 
 
-estado 145
+Estado 145
 
-   84 if: IF exp ':' FIN_DE_LINEA bloque .
-   85   | IF exp ':' FIN_DE_LINEA bloque . else
-   86   | IF exp ':' FIN_DE_LINEA bloque . elif_l
-   87   | IF exp ':' FIN_DE_LINEA bloque . elif_l else
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   98 while: WHILE ne ne $@10 exp . ':' $@11 FIN_DE_LINEA bloque
 
-    ELIF  desplazar e ir al estado 157
-    ELSE  desplazar e ir al estado 158
-
-    $default  reduce usando la regla 84 (if)
-
-    elif_l  ir al estado 159
-    else    ir al estado 160
-
-
-estado 146
-
-   91 while: WHILE exp ':' FIN_DE_LINEA bloque .
-
-    $default  reduce usando la regla 91 (while)
-
-
-estado 147
-
-   83 for: FOR in ':' FIN_DE_LINEA bloque .
-
-    $default  reduce usando la regla 83 (for)
-
-
-estado 148
-
-   72 func: tipo IDENTIFICADOR '(' ')' $@3 . ':' FIN_DE_LINEA bloque
-
-    ':'  desplazar e ir al estado 161
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+    ':'         desplazar e ir al estado 157
 
 
-estado 149
+Estado 146
 
-   74 func: tipo IDENTIFICADOR '(' args ')' . $@4 ':' FIN_DE_LINEA bloque
+   83 for: FOR IDENTIFICADOR IN rango ne . ne ':' FIN_DE_LINEA $@7 bloque
 
-    $default  reduce usando la regla 73 ($@4)
+    $default  reduce usando la regla 91 (ne)
 
-    $@4  ir al estado 162
-
-
-estado 150
-
-   76 func: VOID IDENTIFICADOR '(' ')' $@5 ':' . FIN_DE_LINEA bloque
-
-    FIN_DE_LINEA  desplazar e ir al estado 163
+    ne  ir al estado 158
 
 
-estado 151
+Estado 147
 
-   43 args: tipo IDENTIFICADOR ',' . args
+   70 func: tipo IDENTIFICADOR '(' ')' @3 . ':' FIN_DE_LINEA bloque funcFinal
+
+    ':'  desplazar e ir al estado 159
+
+
+Estado 148
+
+   72 func: tipo IDENTIFICADOR '(' args ')' . @4 ':' FIN_DE_LINEA bloque funcFinal
+
+    $default  reduce usando la regla 71 (@4)
+
+    @4  ir al estado 160
+
+
+Estado 149
+
+   74 func: VOID IDENTIFICADOR '(' ')' @5 ':' . FIN_DE_LINEA bloque funcFinal
+
+    FIN_DE_LINEA  desplazar e ir al estado 161
+
+
+Estado 150
+
+   44 args: tipo IDENTIFICADOR ',' . args
 
     INT     desplazar e ir al estado 11
     LONG    desplazar e ir al estado 12
@@ -2628,186 +2635,165 @@ estado 151
     BOOL    desplazar e ir al estado 15
     STRING  desplazar e ir al estado 16
     CHAR    desplazar e ir al estado 18
-    '('     desplazar e ir al estado 119
+    '('     desplazar e ir al estado 121
 
     tupla_decl  ir al estado 28
-    tipo        ir al estado 121
-    args        ir al estado 164
+    tipo        ir al estado 123
+    args        ir al estado 162
 
 
-estado 152
+Estado 151
 
-   78 func: VOID IDENTIFICADOR '(' args ')' $@6 . ':' FIN_DE_LINEA bloque
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 . ':' FIN_DE_LINEA bloque funcFinal
 
-    ':'  desplazar e ir al estado 165
-
-
-estado 153
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   93 rango: exp RANGE exp ',' exp .
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-
-    $default  reduce usando la regla 93 (rango)
+    ':'  desplazar e ir al estado 163
 
 
-estado 154
+Estado 152
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   79 cases: exp . WHEN_CASE exp
-   80      | exp . WHEN_CASE exp FIN_DE_LINEA cases
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+  100 rango: exp RANGE exp ',' exp .
 
-    WHEN_CASE   desplazar e ir al estado 166
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
-
-estado 155
-
-   81 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
-
-    CIERRABLOQUE  desplazar e ir al estado 167
+    $default  reduce usando la regla 100 (rango)
 
 
-estado 156
+Estado 153
 
-   82 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   78 cases: exp . WHEN_CASE exp
+   79      | exp . WHEN_CASE exp FIN_DE_LINEA cases
 
-    CIERRABLOQUE  desplazar e ir al estado 168
-
-
-estado 157
-
-   88 elif_l: ELIF . exp ':' FIN_DE_LINEA bloque
-   89       | ELIF . exp ':' FIN_DE_LINEA bloque elif_l
-
-    VALOR_FLOAT    desplazar e ir al estado 2
-    VALOR_DOUBLE   desplazar e ir al estado 3
-    VALOR_INT      desplazar e ir al estado 4
-    VALOR_BOOL     desplazar e ir al estado 5
-    VALOR_LONG     desplazar e ir al estado 6
-    VALOR_CHAR     desplazar e ir al estado 7
-    VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
-
-    tupla      ir al estado 27
-    func_call  ir al estado 29
-    exp        ir al estado 169
-    comp       ir al estado 35
-
-
-estado 158
-
-   90 else: ELSE . ':' FIN_DE_LINEA bloque
-
-    ':'  desplazar e ir al estado 170
+    WHEN_CASE   desplazar e ir al estado 164
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
 
 
-estado 159
+Estado 154
 
-   86 if: IF exp ':' FIN_DE_LINEA bloque elif_l .
-   87   | IF exp ':' FIN_DE_LINEA bloque elif_l . else
+   80 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
 
-    ELSE  desplazar e ir al estado 158
-
-    $default  reduce usando la regla 86 (if)
-
-    else  ir al estado 171
+    CIERRABLOQUE  desplazar e ir al estado 165
 
 
-estado 160
+Estado 155
 
-   85 if: IF exp ':' FIN_DE_LINEA bloque else .
+   81 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases . CIERRABLOQUE
 
-    $default  reduce usando la regla 85 (if)
-
-
-estado 161
-
-   72 func: tipo IDENTIFICADOR '(' ')' $@3 ':' . FIN_DE_LINEA bloque
-
-    FIN_DE_LINEA  desplazar e ir al estado 172
+    CIERRABLOQUE  desplazar e ir al estado 166
 
 
-estado 162
+Estado 156
 
-   74 func: tipo IDENTIFICADOR '(' args ')' $@4 . ':' FIN_DE_LINEA bloque
-
-    ':'  desplazar e ir al estado 173
-
-
-estado 163
-
-   76 func: VOID IDENTIFICADOR '(' ')' $@5 ':' FIN_DE_LINEA . bloque
+   84 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion . bloque
+   86   | IF exp ':' FIN_DE_LINEA ne if_evalua_expresion . bloque ne @8 elif_l
 
     ABREBLOQUE  desplazar e ir al estado 24
 
-    bloque  ir al estado 174
+    bloque  ir al estado 167
 
 
-estado 164
+Estado 157
 
-   43 args: tipo IDENTIFICADOR ',' args .
+   98 while: WHILE ne ne $@10 exp ':' . $@11 FIN_DE_LINEA bloque
 
-    $default  reduce usando la regla 43 (args)
+    $default  reduce usando la regla 97 ($@11)
 
-
-estado 165
-
-   78 func: VOID IDENTIFICADOR '(' args ')' $@6 ':' . FIN_DE_LINEA bloque
-
-    FIN_DE_LINEA  desplazar e ir al estado 175
+    $@11  ir al estado 168
 
 
-estado 166
+Estado 158
 
-   79 cases: exp WHEN_CASE . exp
-   80      | exp WHEN_CASE . exp FIN_DE_LINEA cases
+   83 for: FOR IDENTIFICADOR IN rango ne ne . ':' FIN_DE_LINEA $@7 bloque
+
+    ':'  desplazar e ir al estado 169
+
+
+Estado 159
+
+   70 func: tipo IDENTIFICADOR '(' ')' @3 ':' . FIN_DE_LINEA bloque funcFinal
+
+    FIN_DE_LINEA  desplazar e ir al estado 170
+
+
+Estado 160
+
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 . ':' FIN_DE_LINEA bloque funcFinal
+
+    ':'  desplazar e ir al estado 171
+
+
+Estado 161
+
+   74 func: VOID IDENTIFICADOR '(' ')' @5 ':' FIN_DE_LINEA . bloque funcFinal
+
+    ABREBLOQUE  desplazar e ir al estado 24
+
+    bloque  ir al estado 172
+
+
+Estado 162
+
+   44 args: tipo IDENTIFICADOR ',' args .
+
+    $default  reduce usando la regla 44 (args)
+
+
+Estado 163
+
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 ':' . FIN_DE_LINEA bloque funcFinal
+
+    FIN_DE_LINEA  desplazar e ir al estado 173
+
+
+Estado 164
+
+   78 cases: exp WHEN_CASE . exp
+   79      | exp WHEN_CASE . exp FIN_DE_LINEA cases
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -2816,184 +2802,187 @@ estado 166
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 176
+    exp        ir al estado 174
     comp       ir al estado 35
 
 
-estado 167
+Estado 165
 
-   81 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
+   80 when: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
+
+    $default  reduce usando la regla 80 (when)
+
+
+Estado 166
+
+   81 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
 
     $default  reduce usando la regla 81 (when)
 
 
-estado 168
+Estado 167
 
-   82 when: WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE .
+   84 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque .
+   86   | IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque . ne @8 elif_l
 
-    $default  reduce usando la regla 82 (when)
+    ELIF      reduce usando la regla 91 (ne)
+    ELSE      reduce usando la regla 91 (ne)
+    $default  reduce usando la regla 84 (if)
 
-
-estado 169
-
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   88 elif_l: ELIF exp . ':' FIN_DE_LINEA bloque
-   89       | ELIF exp . ':' FIN_DE_LINEA bloque elif_l
-
-    NOTIS       desplazar e ir al estado 66
-    IS          desplazar e ir al estado 67
-    OR          desplazar e ir al estado 68
-    AND         desplazar e ir al estado 69
-    MAYORIGUAL  desplazar e ir al estado 70
-    MENORIGUAL  desplazar e ir al estado 71
-    MAYORQUE    desplazar e ir al estado 72
-    MENORQUE    desplazar e ir al estado 73
-    '-'         desplazar e ir al estado 74
-    '+'         desplazar e ir al estado 75
-    '*'         desplazar e ir al estado 76
-    '/'         desplazar e ir al estado 77
-    ':'         desplazar e ir al estado 177
+    ne  ir al estado 175
 
 
-estado 170
+Estado 168
 
-   90 else: ELSE ':' . FIN_DE_LINEA bloque
+   98 while: WHILE ne ne $@10 exp ':' $@11 . FIN_DE_LINEA bloque
 
-    FIN_DE_LINEA  desplazar e ir al estado 178
-
-
-estado 171
-
-   87 if: IF exp ':' FIN_DE_LINEA bloque elif_l else .
-
-    $default  reduce usando la regla 87 (if)
+    FIN_DE_LINEA  desplazar e ir al estado 176
 
 
-estado 172
+Estado 169
 
-   72 func: tipo IDENTIFICADOR '(' ')' $@3 ':' FIN_DE_LINEA . bloque
+   83 for: FOR IDENTIFICADOR IN rango ne ne ':' . FIN_DE_LINEA $@7 bloque
+
+    FIN_DE_LINEA  desplazar e ir al estado 177
+
+
+Estado 170
+
+   70 func: tipo IDENTIFICADOR '(' ')' @3 ':' FIN_DE_LINEA . bloque funcFinal
 
     ABREBLOQUE  desplazar e ir al estado 24
 
-    bloque  ir al estado 179
+    bloque  ir al estado 178
 
 
-estado 173
+Estado 171
 
-   74 func: tipo IDENTIFICADOR '(' args ')' $@4 ':' . FIN_DE_LINEA bloque
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 ':' . FIN_DE_LINEA bloque funcFinal
 
-    FIN_DE_LINEA  desplazar e ir al estado 180
-
-
-estado 174
-
-   76 func: VOID IDENTIFICADOR '(' ')' $@5 ':' FIN_DE_LINEA bloque .
-
-    $default  reduce usando la regla 76 (func)
+    FIN_DE_LINEA  desplazar e ir al estado 179
 
 
-estado 175
+Estado 172
 
-   78 func: VOID IDENTIFICADOR '(' args ')' $@6 ':' FIN_DE_LINEA . bloque
+   74 func: VOID IDENTIFICADOR '(' ')' @5 ':' FIN_DE_LINEA bloque . funcFinal
+
+    $default  reduce usando la regla 77 (funcFinal)
+
+    funcFinal  ir al estado 180
+
+
+Estado 173
+
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 ':' FIN_DE_LINEA . bloque funcFinal
 
     ABREBLOQUE  desplazar e ir al estado 24
 
     bloque  ir al estado 181
 
 
-estado 176
+Estado 174
 
-   14 exp: exp . '-' exp
-   15    | exp . '+' exp
-   16    | exp . '/' exp
-   17    | exp . '*' exp
-   18    | exp . AND exp
-   19    | exp . OR exp
-   49 comp: exp . MENORQUE exp
-   50     | exp . MAYORQUE exp
-   51     | exp . MENORIGUAL exp
-   52     | exp . MAYORIGUAL exp
-   53     | exp . IS exp
-   54     | exp . NOTIS exp
-   79 cases: exp WHEN_CASE exp .
-   80      | exp WHEN_CASE exp . FIN_DE_LINEA cases
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   78 cases: exp WHEN_CASE exp .
+   79      | exp WHEN_CASE exp . FIN_DE_LINEA cases
 
     FIN_DE_LINEA  desplazar e ir al estado 182
-    NOTIS         desplazar e ir al estado 66
-    IS            desplazar e ir al estado 67
-    OR            desplazar e ir al estado 68
-    AND           desplazar e ir al estado 69
-    MAYORIGUAL    desplazar e ir al estado 70
-    MENORIGUAL    desplazar e ir al estado 71
-    MAYORQUE      desplazar e ir al estado 72
-    MENORQUE      desplazar e ir al estado 73
-    '-'           desplazar e ir al estado 74
-    '+'           desplazar e ir al estado 75
-    '*'           desplazar e ir al estado 76
-    '/'           desplazar e ir al estado 77
+    NOTIS         desplazar e ir al estado 65
+    IS            desplazar e ir al estado 66
+    OR            desplazar e ir al estado 67
+    AND           desplazar e ir al estado 68
+    MAYORIGUAL    desplazar e ir al estado 69
+    MENORIGUAL    desplazar e ir al estado 70
+    MAYORQUE      desplazar e ir al estado 71
+    MENORQUE      desplazar e ir al estado 72
+    '-'           desplazar e ir al estado 73
+    '+'           desplazar e ir al estado 74
+    '*'           desplazar e ir al estado 75
+    '/'           desplazar e ir al estado 76
 
-    $default  reduce usando la regla 79 (cases)
-
-
-estado 177
-
-   88 elif_l: ELIF exp ':' . FIN_DE_LINEA bloque
-   89       | ELIF exp ':' . FIN_DE_LINEA bloque elif_l
-
-    FIN_DE_LINEA  desplazar e ir al estado 183
+    $default  reduce usando la regla 78 (cases)
 
 
-estado 178
+Estado 175
 
-   90 else: ELSE ':' FIN_DE_LINEA . bloque
+   86 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne . @8 elif_l
+
+    $default  reduce usando la regla 85 (@8)
+
+    @8  ir al estado 183
+
+
+Estado 176
+
+   98 while: WHILE ne ne $@10 exp ':' $@11 FIN_DE_LINEA . bloque
 
     ABREBLOQUE  desplazar e ir al estado 24
 
     bloque  ir al estado 184
 
 
-estado 179
+Estado 177
 
-   72 func: tipo IDENTIFICADOR '(' ')' $@3 ':' FIN_DE_LINEA bloque .
+   83 for: FOR IDENTIFICADOR IN rango ne ne ':' FIN_DE_LINEA . $@7 bloque
 
-    $default  reduce usando la regla 72 (func)
+    $default  reduce usando la regla 82 ($@7)
+
+    $@7  ir al estado 185
 
 
-estado 180
+Estado 178
 
-   74 func: tipo IDENTIFICADOR '(' args ')' $@4 ':' FIN_DE_LINEA . bloque
+   70 func: tipo IDENTIFICADOR '(' ')' @3 ':' FIN_DE_LINEA bloque . funcFinal
+
+    $default  reduce usando la regla 77 (funcFinal)
+
+    funcFinal  ir al estado 186
+
+
+Estado 179
+
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 ':' FIN_DE_LINEA . bloque funcFinal
 
     ABREBLOQUE  desplazar e ir al estado 24
 
-    bloque  ir al estado 185
+    bloque  ir al estado 187
 
 
-estado 181
+Estado 180
 
-   78 func: VOID IDENTIFICADOR '(' args ')' $@6 ':' FIN_DE_LINEA bloque .
+   74 func: VOID IDENTIFICADOR '(' ')' @5 ':' FIN_DE_LINEA bloque funcFinal .
 
-    $default  reduce usando la regla 78 (func)
+    $default  reduce usando la regla 74 (func)
 
 
-estado 182
+Estado 181
 
-   80 cases: exp WHEN_CASE exp FIN_DE_LINEA . cases
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 ':' FIN_DE_LINEA bloque . funcFinal
+
+    $default  reduce usando la regla 77 (funcFinal)
+
+    funcFinal  ir al estado 188
+
+
+Estado 182
+
+   79 cases: exp WHEN_CASE exp FIN_DE_LINEA . cases
 
     VALOR_FLOAT    desplazar e ir al estado 2
     VALOR_DOUBLE   desplazar e ir al estado 3
@@ -3002,61 +2991,256 @@ estado 182
     VALOR_LONG     desplazar e ir al estado 6
     VALOR_CHAR     desplazar e ir al estado 7
     VALOR_STRING   desplazar e ir al estado 8
-    IDENTIFICADOR  desplazar e ir al estado 51
-    '('            desplazar e ir al estado 52
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
 
     tupla      ir al estado 27
     func_call  ir al estado 29
-    exp        ir al estado 154
+    exp        ir al estado 153
     comp       ir al estado 35
-    cases      ir al estado 186
+    cases      ir al estado 189
 
 
-estado 183
+Estado 183
 
-   88 elif_l: ELIF exp ':' FIN_DE_LINEA . bloque
-   89       | ELIF exp ':' FIN_DE_LINEA . bloque elif_l
+   86 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 . elif_l
+
+    ELIF  desplazar e ir al estado 190
+    ELSE  desplazar e ir al estado 191
+
+    elif_l  ir al estado 192
+
+
+Estado 184
+
+   98 while: WHILE ne ne $@10 exp ':' $@11 FIN_DE_LINEA bloque .
+
+    $default  reduce usando la regla 98 (while)
+
+
+Estado 185
+
+   83 for: FOR IDENTIFICADOR IN rango ne ne ':' FIN_DE_LINEA $@7 . bloque
 
     ABREBLOQUE  desplazar e ir al estado 24
 
-    bloque  ir al estado 187
+    bloque  ir al estado 193
 
 
-estado 184
+Estado 186
 
-   90 else: ELSE ':' FIN_DE_LINEA bloque .
+   70 func: tipo IDENTIFICADOR '(' ')' @3 ':' FIN_DE_LINEA bloque funcFinal .
 
-    $default  reduce usando la regla 90 (else)
-
-
-estado 185
-
-   74 func: tipo IDENTIFICADOR '(' args ')' $@4 ':' FIN_DE_LINEA bloque .
-
-    $default  reduce usando la regla 74 (func)
+    $default  reduce usando la regla 70 (func)
 
 
-estado 186
+Estado 187
 
-   80 cases: exp WHEN_CASE exp FIN_DE_LINEA cases .
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 ':' FIN_DE_LINEA bloque . funcFinal
 
-    $default  reduce usando la regla 80 (cases)
+    $default  reduce usando la regla 77 (funcFinal)
+
+    funcFinal  ir al estado 194
 
 
-estado 187
+Estado 188
 
-   88 elif_l: ELIF exp ':' FIN_DE_LINEA bloque .
-   89       | ELIF exp ':' FIN_DE_LINEA bloque . elif_l
+   76 func: VOID IDENTIFICADOR '(' args ')' @6 ':' FIN_DE_LINEA bloque funcFinal .
 
-    ELIF  desplazar e ir al estado 157
+    $default  reduce usando la regla 76 (func)
+
+
+Estado 189
+
+   79 cases: exp WHEN_CASE exp FIN_DE_LINEA cases .
+
+    $default  reduce usando la regla 79 (cases)
+
+
+Estado 190
+
+   87 elif_l: ELIF . exp ':' FIN_DE_LINEA ne elif_control bloque
+   88       | ELIF . exp ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    VALOR_FLOAT    desplazar e ir al estado 2
+    VALOR_DOUBLE   desplazar e ir al estado 3
+    VALOR_INT      desplazar e ir al estado 4
+    VALOR_BOOL     desplazar e ir al estado 5
+    VALOR_LONG     desplazar e ir al estado 6
+    VALOR_CHAR     desplazar e ir al estado 7
+    VALOR_STRING   desplazar e ir al estado 8
+    IDENTIFICADOR  desplazar e ir al estado 50
+    '('            desplazar e ir al estado 51
+
+    tupla      ir al estado 27
+    func_call  ir al estado 29
+    exp        ir al estado 195
+    comp       ir al estado 35
+
+
+Estado 191
+
+   90 elif_l: ELSE . ':' FIN_DE_LINEA $@9 bloque
+
+    ':'  desplazar e ir al estado 196
+
+
+Estado 192
+
+   86 if: IF exp ':' FIN_DE_LINEA ne if_evalua_expresion bloque ne @8 elif_l .
+
+    $default  reduce usando la regla 86 (if)
+
+
+Estado 193
+
+   83 for: FOR IDENTIFICADOR IN rango ne ne ':' FIN_DE_LINEA $@7 bloque .
+
+    $default  reduce usando la regla 83 (for)
+
+
+Estado 194
+
+   72 func: tipo IDENTIFICADOR '(' args ')' @4 ':' FIN_DE_LINEA bloque funcFinal .
+
+    $default  reduce usando la regla 72 (func)
+
+
+Estado 195
+
+   15 exp: exp . '-' exp
+   16    | exp . '+' exp
+   17    | exp . '/' exp
+   18    | exp . '*' exp
+   19    | exp . AND exp
+   20    | exp . OR exp
+   48 comp: exp . MENORQUE exp
+   49     | exp . MAYORQUE exp
+   50     | exp . MENORIGUAL exp
+   51     | exp . MAYORIGUAL exp
+   52     | exp . IS exp
+   53     | exp . NOTIS exp
+   87 elif_l: ELIF exp . ':' FIN_DE_LINEA ne elif_control bloque
+   88       | ELIF exp . ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    NOTIS       desplazar e ir al estado 65
+    IS          desplazar e ir al estado 66
+    OR          desplazar e ir al estado 67
+    AND         desplazar e ir al estado 68
+    MAYORIGUAL  desplazar e ir al estado 69
+    MENORIGUAL  desplazar e ir al estado 70
+    MAYORQUE    desplazar e ir al estado 71
+    MENORQUE    desplazar e ir al estado 72
+    '-'         desplazar e ir al estado 73
+    '+'         desplazar e ir al estado 74
+    '*'         desplazar e ir al estado 75
+    '/'         desplazar e ir al estado 76
+    ':'         desplazar e ir al estado 197
+
+
+Estado 196
+
+   90 elif_l: ELSE ':' . FIN_DE_LINEA $@9 bloque
+
+    FIN_DE_LINEA  desplazar e ir al estado 198
+
+
+Estado 197
+
+   87 elif_l: ELIF exp ':' . FIN_DE_LINEA ne elif_control bloque
+   88       | ELIF exp ':' . FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    FIN_DE_LINEA  desplazar e ir al estado 199
+
+
+Estado 198
+
+   90 elif_l: ELSE ':' FIN_DE_LINEA . $@9 bloque
+
+    $default  reduce usando la regla 89 ($@9)
+
+    $@9  ir al estado 200
+
+
+Estado 199
+
+   87 elif_l: ELIF exp ':' FIN_DE_LINEA . ne elif_control bloque
+   88       | ELIF exp ':' FIN_DE_LINEA . ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    $default  reduce usando la regla 91 (ne)
+
+    ne  ir al estado 201
+
+
+Estado 200
+
+   90 elif_l: ELSE ':' FIN_DE_LINEA $@9 . bloque
+
+    ABREBLOQUE  desplazar e ir al estado 24
+
+    bloque  ir al estado 202
+
+
+Estado 201
+
+   87 elif_l: ELIF exp ':' FIN_DE_LINEA ne . elif_control bloque
+   88       | ELIF exp ':' FIN_DE_LINEA ne . elif_control bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    $default  reduce usando la regla 92 (elif_control)
+
+    elif_control  ir al estado 203
+
+
+Estado 202
+
+   90 elif_l: ELSE ':' FIN_DE_LINEA $@9 bloque .
+
+    $default  reduce usando la regla 90 (elif_l)
+
+
+Estado 203
+
+   87 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control . bloque
+   88       | ELIF exp ':' FIN_DE_LINEA ne elif_control . bloque elif_copia_salida elif_copia_siguiente elif_l
+
+    ABREBLOQUE  desplazar e ir al estado 24
+
+    bloque  ir al estado 204
+
+
+Estado 204
+
+   87 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control bloque .
+   88       | ELIF exp ':' FIN_DE_LINEA ne elif_control bloque . elif_copia_salida elif_copia_siguiente elif_l
+
+    ELIF      reduce usando la regla 94 (elif_copia_salida)
+    ELSE      reduce usando la regla 94 (elif_copia_salida)
+    $default  reduce usando la regla 87 (elif_l)
+
+    elif_copia_salida  ir al estado 205
+
+
+Estado 205
+
+   88 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida . elif_copia_siguiente elif_l
+
+    $default  reduce usando la regla 95 (elif_copia_siguiente)
+
+    elif_copia_siguiente  ir al estado 206
+
+
+Estado 206
+
+   88 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente . elif_l
+
+    ELIF  desplazar e ir al estado 190
+    ELSE  desplazar e ir al estado 191
+
+    elif_l  ir al estado 207
+
+
+Estado 207
+
+   88 elif_l: ELIF exp ':' FIN_DE_LINEA ne elif_control bloque elif_copia_salida elif_copia_siguiente elif_l .
 
     $default  reduce usando la regla 88 (elif_l)
-
-    elif_l  ir al estado 188
-
-
-estado 188
-
-   89 elif_l: ELIF exp ':' FIN_DE_LINEA bloque elif_l .
-
-    $default  reduce usando la regla 89 (elif_l)

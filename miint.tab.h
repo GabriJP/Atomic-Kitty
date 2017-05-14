@@ -34,19 +34,19 @@
 # define YY_YY_MIINT_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 43 "miint.y" /* yacc.c:1909  */
+#line 32 "miint.y" /* yacc.c:1909  */
 
   #include "structs.h"
   #include "Scope.h"
   #include "MemManager.h"
-  void gc(const char* code, ...);
   class ParameterNode;
+
 
 #line 52 "miint.tab.h" /* yacc.c:1909  */
 
@@ -103,7 +103,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 51 "miint.y" /* yacc.c:1909  */
+#line 41 "miint.y" /* yacc.c:1909  */
  float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; 
 
 #line 110 "miint.tab.h" /* yacc.c:1909  */

@@ -1,3 +1,8 @@
+int b
+
+int a2 = b + 2
+
+
 int a(int n, int m):
     if m is 0:
         return n + 1

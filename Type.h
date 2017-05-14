@@ -4,9 +4,9 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cmath>
 #include "miint.tab.h"
 
-using namespace std;
 
 class TupleType;
 
@@ -57,14 +57,15 @@ enum yytokentype
 };
 #endif
 
+
 #pragma clang diagnostic push
-#pragma ide diagnostic ignored "ClangTidyInspection"
+//#pragma ide diagnostic ignored "ClangTidyInspection"
 
 class Type {
 protected:
-    int id;
+    yytokentype id;
 public:
-    explicit Type(int id);
+    Type(yytokentype id);
 
     ~Type() = default;
 
@@ -76,9 +77,14 @@ public:
 
     virtual yytokentype getType() = 0;
 
-    virtual string toString() = 0;
+    std::size_t size();
+    virtual std::size_t realSize() = 0;
+
+    virtual std::string toString() = 0;
 
     virtual bool equals(Type *type) = 0;
+
+    virtual Type* clone() = 0;
 };
 
 #pragma clang diagnostic pop
@@ -88,7 +94,7 @@ class TupleType : public Type {
 private:
     std::vector<Type *> types;
 public:
-    explicit TupleType(int id);
+    explicit TupleType(yytokentype id);
 
     bool isTuple() override;
 
@@ -98,16 +104,23 @@ public:
 
     yytokentype getType() override;
 
-    string toString() override;
+    std::size_t realSize() override;
+
+    std::string toString() override;
 
     bool equals(Type *type) override;
+
+    Type* clone() override;
+
 };
+
 
 class PrimitiveType : public Type {
 private:
     yytokentype type;
+    size_t _size = 0;
 public:
-    explicit PrimitiveType(int id, yytokentype type);
+    PrimitiveType(yytokentype id);
 
     bool isTuple() override;
 
@@ -115,8 +128,14 @@ public:
 
     yytokentype getType() override;
 
-    string toString() override;
+    std::size_t realSize() override;
+
+    std::string toString() override;
 
     bool equals(Type *type) override;
 
+    Type* clone() override;
+
 };
+
+std::ostream& operator<<(std::ostream& os, yytokentype const& yytoken);
