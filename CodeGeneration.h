@@ -79,6 +79,7 @@ int generateReturn(int expId);
 int primitiveExp(yytokentype tipo);
 int buildExpList(int exp, int exp_l);
 bool isASystemFunction(std::string);
+void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLabel);
 
 template <typename T>
 int primitiveExp(yytokentype tipo, T n) {

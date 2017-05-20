@@ -559,5 +559,16 @@ MemManager::StackElement &MemManager::get(RegCode reg) {
         return registers64Bits[int(reg) - RR0];
 }
 
+int MemManager::saveInStack(int id) {
+    if(isInRegister(id)) {
+        StackElement& elem = get(id);
+        addToStack(elem.type, id, elem.name);
+        RegCode reg = getFromRegisters(id);
+        release(id);
+        assign(id, reg);
+    }
+    return id;
+}
+
 
 

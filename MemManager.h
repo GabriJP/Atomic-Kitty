@@ -122,6 +122,8 @@ public:
     void block(RegCode reg);
     void unBlock(RegCode reg);
 
+    int saveInStack(int id);
+
     struct StackElement{
         int id;
         Type *type;

@@ -7,7 +7,7 @@ Scope::Scope(Scope *scope, std::string nombre) : parent(scope) {
 
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
-    for (auto parameter : *args)
+    if(args) for (auto parameter : *args)
         defineVariable(parameter->getName(), new ParameterNode(parameter->getType(), parameter->getName()));
 
 }

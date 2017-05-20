@@ -38,7 +38,7 @@ extern  void  yyerror(char *str);
 }
 
 
-%union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango* valoresRango; }
+%union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango valoresRango; }
 %token <f> VALOR_FLOAT
 %token <d> VALOR_DOUBLE
 %token <i> VALOR_INT VALOR_BOOL ACCESO
@@ -211,7 +211,6 @@ func				: tipo IDENTIFICADOR '(' ')'  {
                              $<i>$ = createFunction($2, $1, NULL);
 						} ':' FIN_DE_LINEA bloque funcFinal
 					| tipo IDENTIFICADOR '(' args ')'  {
-					std::cout << "FUUUUNC!";
                             $<i>$ = createFunction($2, $1, $4);
 					        } ':' FIN_DE_LINEA bloque funcFinal
 					| VOID IDENTIFICADOR '(' ')' {
@@ -224,17 +223,21 @@ func				: tipo IDENTIFICADOR '(' ')'  {
 
 funcFinal           : { functionEnd($<i>-3); }
 
-cases				: exp WHEN_CASE exp
-					| exp WHEN_CASE exp FIN_DE_LINEA cases
+cases				: exp case_cond WHEN_CASE exp
+					| exp case_cond WHEN_CASE exp FIN_DE_LINEA cases
 					;
 
-when				: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
-					| WHEN rango ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
+case_cond           : { int caseId = memStack.load($<i>0); int condId = memStack.load($<i>-1);
+                        //gc <<
+                      }
+                    ;
+
+when				: WHEN exp[cond] ':' FIN_DE_LINEA ABREBLOQUE { $<i>$ = $cond; } cases CIERRABLOQUE
 					;
 
 for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {
-                        /*crear variable identificador si no existe, assignarle el valor de inicio menos paso, label vuelta,
-                         identificador+=paso, comprobar que sea menor que fin y hacer bloque o ir a salida*/} bloque
+                            forInst($2, $4, $5, $6);
+                        } bloque
                          { gc << "\tGT(" << $vuelta << ");\nL " << $salida << ":\n"; }
 					;
 
@@ -293,13 +296,20 @@ elif_copia_siguiente: { $$ = $<i>-3; }
 /*FIN ELIF*/
 
 
-while				: WHILE ne[salida] ne[vuelta] { gc << "L " << $vuelta << ":\n"; } exp ':'
-                    { gc << "\tIF(!R " << memStack.load($exp) << ") GT(" << $salida << ");\n"; } FIN_DE_LINEA
+while				: WHILE ne[salida] ne[vuelta] { gc << "L " << $vuelta << ":\n"; } exp[cond] ':'
+                    { gc << "\tIF( !" << memStack.load($cond) << " ) GT(" << $salida << ");\n"; } FIN_DE_LINEA
                     bloque { gc << "\tGT(" << $vuelta << ");\nL " << $salida << ":\n"; }
 					;
 
-rango				: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango = {memStack.getType($inicio), memStack.getType($fin), new PrimitiveType(INT)}; $$=&valoresRango; }
-					| exp[inicio] RANGE exp[fin] ',' exp[paso] { ValoresRango valoresRango = {memStack.getType($inicio), memStack.getType($fin), memStack.getType($paso)}; $$=&valoresRango; }
+rango				: exp[inicio] RANGE exp[fin] { ValoresRango valoresRango =
+                            {memStack.getType($inicio), memStack.saveInStack($inicio), memStack.saveInStack($fin),
+                            memStack.addToStack(new PrimitiveType(INT))};
+                            memStack.assign(valoresRango.paso, "1");
+                            $$=valoresRango; }
+					| exp[inicio] RANGE exp[fin] ',' exp[paso] { $$ = ValoresRango{memStack.getType($inicio),
+					                                                memStack.saveInStack($inicio),
+					                                                memStack.saveInStack($fin),
+					                                                memStack.saveInStack($paso)}; }
 					;
 %%
 

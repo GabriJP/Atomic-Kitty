@@ -5,7 +5,7 @@ MemManager memStack;
 enum yytokentype;
 
 Scope *scope;
-std::ofstream gc("../program.q");
+std::ofstream gc("program.q");
 int ec = 1;
 
 void opera(int left, int right, const char* op){ //TODO detect type
@@ -64,7 +64,7 @@ int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
         gc << "\nL " << label << ":\t\t\t\t\t\t# Function: " << name << '\n';
         scope = new Scope(scope, name);
 
-        for(auto& param : *v) {
+        if(v) for(auto& param : *v) {
             int id = memStack.addToStackWithoutChangingR7(param->getType(), "param: " + param->getName());
             ((ParameterNode*)scope->getVariable(param->getName()))->setId(id);
         }
@@ -149,7 +149,9 @@ int callFunction(char* funcName, int id, int returnLabel){
 
     memStack.loadRegisters();
 
-    gc << "\tR7 = R6 - " << nodo->getType()->size() + PrimitiveType(INT).size() <<  "; # Update R7 = R6 - R6.size - returned.size \n";
+    std::size_t stackSize = memStack.currentStackSize();
+
+    gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize() <<  "; # Update R7 = R6 - R6.size - returned.size \n";
 
     gc.flush();
 
@@ -258,6 +260,37 @@ int buildExpList(int exp, int expList) {
 
 bool isASystemFunction(std::string name) {
     return name == "print" || name == "getchar";
+}
+
+void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLabel) {
+    int varId;
+    if(!scope->existsVariable(variable)) {
+        varId = memStack.addToStack(range.type ,variable+" loop iterator");
+        scope->defineVariable(variable, new VariableNode(range.type, varId));
+    }else{
+        varId = scope->getVariable(variable)->getId();
+    }
+    RegCode initReg = memStack.load(range.inicio);
+    memStack.assign(varId, range.inicio);
+
+    int jumpUpdate = ne();
+    gc << "\tGT( " << jumpUpdate << " ); # dont update iterator the first time\n";
+
+    gc << "L " << loopLabel << ": # for loop tag\n";
+    RegCode stepReg = memStack.load(range.paso);
+    RegCode varReg = memStack.load(varId);
+    gc << '\t' << varReg << " = " << varReg << " + " << stepReg << "; # Update for range\n";
+    memStack.assign(varId, varReg);
+
+    gc << "L " << jumpUpdate << ": # for condition label \n";
+
+    RegCode cond = memStack.getFreeRegister(range.type);
+    RegCode finalReg = memStack.load(range.fin);
+    varReg = memStack.load(varId); //Reload just in case
+    gc << '\t' << cond << " = " << varReg << " == " << finalReg << "; # Check for end\n";
+    gc << "\tIF( " << cond << " ) GT( " << exitLabel << " ); # Update for range\n";
+
+
 }
 
 

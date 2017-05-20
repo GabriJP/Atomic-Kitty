@@ -60,7 +60,7 @@ class FunctionNode : public Node {
     std::vector<ParameterNode *> *parameters;
     Type *returned;
     int label;
-    int returnId;
+    //int returnId;
 
 public:
     FunctionNode(int label, Type *returned, std::vector<ParameterNode *> *v);

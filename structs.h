@@ -5,8 +5,9 @@
 class Type;
 
 typedef struct _ValoresRango {
-	Type* inicio;
-	Type* fin;
-	Type* paso;
+	Type* type;
+	int inicio;
+	int fin;
+	int paso;
 } ValoresRango;
 
