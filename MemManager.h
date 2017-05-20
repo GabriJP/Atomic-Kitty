@@ -83,6 +83,7 @@ public:
 
     int addToStack(Type* type, int id, std::string name="");
     int addToRegister(Type* type, int id);
+    RegCode getFreeRegister(Type* type);
     int addToStack(Type* type, std::string name="") {
         return addToStack(type, getId(), name);
     };
@@ -95,25 +96,38 @@ public:
     int addToRegister(Type* type) {
         return addToRegister(type, getId());
     };
-    void remove(int id);
+    void release(int id);
+    void releaseAllRegisters();
 
     void saveRegisters();
     void loadRegisters();
+
+    RegCode getFromRegisters(int id);
+    bool isInRegister(int id);
 
     void createFunction();
 
     void print();
 
+    void enterBlock();
+    void exitBlock();
+
+    RegCode load(int id, int pos, int& newId);
     RegCode load(int id, int &newId);
     RegCode load(int id) {
         int n;
         return load(id, n);
     };
 
+    void block(RegCode reg);
+    void unBlock(RegCode reg);
+
     struct StackElement{
         int id;
         Type *type;
         std::string name;
+        int blockDepth = -1; //Only working in registers
+        bool blocked = false; //Register can't be used
 
         StackElement() : id(-1), type(nullptr), name(""){}
         StackElement(int id, Type* type) : id(id), type(type), name(""){}
@@ -122,16 +136,31 @@ public:
     };
 
     StackElement& get(int id);
+    StackElement& get(RegCode reg);
     yytokentype typeOf(int id);
     Type* getType(int id);
 
-    void asign(int varId, int expId);
-    void asign(int varId, RegCode expRegister);
-    void asign(int varId, std::string value);
+    void assign(int varId, int expId);
+    void assign(int varId, RegCode expRegister);
+    void assign(int varId, std::string value);
+
+    void pop();
 
     std::string getInstruction(StackElement &element);
+    std::string getInstruction(std::size_t offset, bool inGlobal, Type* type);
 
     size_t currentStackSize();
+
+    void endFuntion();
+
+    static std::map<RegCode, char *> regNames;
+
+    void saveReturn(int i);
+
+    void assign(std::size_t varOffset, bool  varInGlobal, std::size_t expOffset, bool  expInGlobal, Type* type);
+    std::size_t offsetOf(int id, bool &offsetFromGlobal);
+    static char letter(Type* type);
+    std::string offsetToString(int offset, bool inGlobal);
 
 private:
 
@@ -158,10 +187,13 @@ private:
     int id = 0;
     int getId();
 
-    std::size_t offsetOf(int id, bool &offsetFromGlobal);
+    int currentDepth = 0;
 
-    static char letter(Type* type);
     const static std::map<yytokentype, char> letterMap;
+
+    std::array<bool, RegCode::RR3> savedRegisters;
+
+    void assignTuple(int id, int expId);
 
 };
 

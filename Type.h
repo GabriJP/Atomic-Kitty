@@ -99,6 +99,8 @@ public:
     bool isTuple() override;
 
     Type *getSubType(int pos);
+    int length();
+    std::size_t offsetOf(int pos);
 
     TupleType *add(Type *other) override;
 
@@ -109,6 +111,7 @@ public:
     std::string toString() override;
 
     bool equals(Type *type) override;
+
 
     Type* clone() override;
 

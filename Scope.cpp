@@ -135,6 +135,15 @@ int FunctionNode::getLabel() {
     return label;
 }
 
+std::size_t FunctionNode::paramterSize() {
+    if(!parameters) return 0;
+
+    std::size_t size = 0;
+    for(auto& parameter : *parameters) size += parameter->getType()->size();
+
+    return size;
+}
+
 int VariableNode::getId() {
     gc.flush();
     return id;

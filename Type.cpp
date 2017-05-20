@@ -98,6 +98,9 @@ PrimitiveType::PrimitiveType(yytokentype type) : Type(type), type(type) {
         case STRING:
             _size = 1;
             break;
+        case VOID:
+            _size = 0;
+            break;
         default:
             fprintf(stderr, "Tipo no reconocido: %d\n", type);
             //exit(-1);
@@ -142,6 +145,19 @@ std::size_t PrimitiveType::realSize() {
 
 Type *TupleType::clone() {
     return new TupleType(*this);
+}
+
+int TupleType::length() {
+    return types.size();
+}
+
+std::size_t TupleType::offsetOf(int pos) {
+    std::size_t size = 0;
+    //for(int i = 0; i < pos; i++)
+    for(int i = types.size()-1; i > pos; i--)
+        size += getSubType(i)->size();
+
+    return size;
 }
 
 Type *PrimitiveType::clone() {

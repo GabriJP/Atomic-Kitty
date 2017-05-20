@@ -66,19 +66,26 @@ extern std::stack<int> returnLabels;
 extern int fines;
 
 void initQ();
+void endQ();
 void opera(int left, int right, const char *op);
 void logError(std::string str);
-int createFunction(char *nombre, Type *returnType, vector<ParameterNode *> *v);
+int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v);
+int functionEnd(int endLabel);
 bool isNumberType(Type *tipo);
 int ne();
-int callFunction(char* nombreFun, int tupleId);
+int callFunction(char* funcName, int tupleId, int returnLabel);
+int callFunctionInit(char* name);
+int generateReturn(int expId);
 int primitiveExp(yytokentype tipo);
+int buildExpList(int exp, int exp_l);
+bool isASystemFunction(std::string);
 
 template <typename T>
 int primitiveExp(yytokentype tipo, T n) {
     int id = primitiveExp(tipo);
     RegCode reg = memStack.load(id);
     gc << "\t" << reg << " = " << std::to_string(n) << "; \n";
+    gc.flush();
     return id;
 }
 ;

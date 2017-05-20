@@ -48,7 +48,7 @@ extern  void  yyerror(char *str);
 %token FIN_DE_LINEA INT LONG FLOAT DOUBLE BOOL STRING VOID CHAR WHEN WHEN_CASE IF ELIF ELSE WHILE FOR NOTIS IS OR AND RANGE RETURN ABREBLOQUE CIERRABLOQUE IN NOTIN MAYORIGUAL MENORIGUAL MAYORQUE MENORQUE TUPLE
 
 %type  <type>  tipo tupla_decl tipo_l
-%type  <str> func_call
+%type  <i> func_call
 %type  <args_v> args
 %type  <i> ne elif_copia_salida elif_copia_siguiente
 %type  <i> exp exp_l tupla comp
@@ -68,13 +68,13 @@ extern  void  yyerror(char *str);
 lista				: error FIN_DE_LINEA {printf(" en expresión\n");} lista
 					| FIN_DE_LINEA lista
 					| func lista
-					| inst_l FIN_DE_LINEA lista //TODO Solucionar
+					| inst_l lista //TODO Solucionar
 					| inst_l
               		|
 					;
 
 exp_l				: exp { $$ = $1; }
-					| exp ',' exp_l { memStack.getType($3)->add( memStack.getType($1) ); $$ = $3; memStack.remove($1); }
+					| exp ',' exp_l { $$ = buildExpList($1, $3); }
 					;
 
 tupla 				: '(' exp_l ')' { $$ = $2; };
@@ -83,11 +83,11 @@ tupla 				: '(' exp_l ')' { $$ = $2; };
 tupla_decl			: '(' tipo_l ')' { $$ = $2; }
                     ;
 
-func_call			: IDENTIFICADOR saveReg tupla { $<i>$ = callFunction($1, $3); memStack.loadRegisters(); }
-					| IDENTIFICADOR saveReg '(' ')' { $<i>$ = callFunction($1, -1); memStack.loadRegisters(); }
+func_call			: IDENTIFICADOR func_call_init tupla { $<i>$ = callFunction($1, $3, $<i>2); }
+					| IDENTIFICADOR func_call_init '(' ')' { $<i>$ = callFunction($1, -1, $<i>2); }
 					;
 
-saveReg                 : { memStack.saveRegisters(); }
+func_call_init                 : { $<i>$ = callFunctionInit($<str>0); }
 
 exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
 					| exp '+' exp { opera($1, $3, "+"); $$ = $1; }
@@ -96,12 +96,8 @@ exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
 					| exp AND exp { opera($1, $3, "&&"); $$ = $1; }
 					| exp OR exp  { opera($1, $3, "||"); $$ = $1; }
 					| comp { $$ = $1; }
-					| func_call { $$ = 0; //scope->getFunction($1)->getType(); //TODO Think about it
-					    //returnLabels.push(ne());
-					     //gc << "\tGT(" << scope->getFunction($1)->getLabel() << ");" //TODO Change!!
-					     //"\t\t\t\t#Ir a función: " << $1 << "\nL " << returnLabels.top() << ":\t\t\t\t\t#Label para vuelta de funcion\n";
-					     }
-					| VALOR_INT { $$ = primitiveExp(INT, $1); } //TODO Añadir código tipo R0 = 2
+					| func_call { $$ = $1; }
+					| VALOR_INT { $$ = primitiveExp(INT, $1); } //TODO Añadir otros tipos de código
 					| VALOR_FLOAT { $$ = primitiveExp(FLOAT); }
 					| VALOR_DOUBLE  { $$ = primitiveExp(DOUBLE); }
 					| VALOR_LONG { $$ = primitiveExp(LONG); }
@@ -113,10 +109,10 @@ exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
 					| IDENTIFICADOR ACCESO {
 					    VariableNode* var = scope->getVariable($1);
 
-						if(var->getType()->isTuple()) ;
-							//memStack.load(var->getId(), $$); //TODO Create new loadSub
+						if(var->getType()->isTuple())
+							memStack.load(var->getId(), $2, $$);
 						else
-							yyerror("Acceso a una tupla");
+							logError(std::string($1) + " isn't a tuple");
 					}
 					;
 
@@ -140,21 +136,21 @@ args				: tipo IDENTIFICADOR
 					| tipo IDENTIFICADOR ',' args { $4->push_back(new ParameterNode($1, $2)); $$ = $4; }
 					;
 
-init				: tipo IDENTIFICADOR '=' exp {
+init				: tipo IDENTIFICADOR '=' exp FIN_DE_LINEA {
                                                             if (scope->haveVariable($2)) {
                                                                 logError("Se intenta crear '" + std::string($2) + "', pero ya existe.");
                                                             } else {
                                                                 int id = addNewVar($1, $2);
-                                                                memStack.asign(id, $4);
+                                                                memStack.assign(id, $4);
                                                             }
 						}
 					;
 
-asign				: IDENTIFICADOR '=' exp {
+assign				: IDENTIFICADOR '=' exp FIN_DE_LINEA {
                                                             if (!scope->existsVariable($1)) {
                                                                 logError("Se intenta usar '" + std::string($1) + "', pero no existe.");
                                                             } else {
-                                                                memStack.asign(scope->getVariable($1)->getId(), $3);
+                                                                memStack.assign(scope->getVariable($1)->getId(), $3);
                                                             }
 							}
 					;
@@ -169,24 +165,24 @@ decl				: tipo IDENTIFICADOR FIN_DE_LINEA{
 					;
 
 
-comp				: exp MENORQUE exp { opera($1, $3, "<"); $$ = primitiveExp(BOOL); }
-					| exp MAYORQUE exp { opera($1, $3, ">"); $$ = primitiveExp(BOOL); }
-					| exp MENORIGUAL exp { opera($1, $3, "<="); $$ = primitiveExp(BOOL); }
-					| exp MAYORIGUAL exp { opera($1, $3, ">="); $$ = primitiveExp(BOOL); }
-					| exp IS exp { opera($1, $3, "=="); $$ = primitiveExp(BOOL); }
-					| exp NOTIS exp { opera($1, $3, "!="); $$ = primitiveExp(BOOL); }
+comp				: exp MENORQUE exp { opera($1, $3, "<"); $$ = $1; }
+					| exp MAYORQUE exp { opera($1, $3, ">"); $$ = $1; }
+					| exp MENORIGUAL exp { opera($1, $3, "<="); $$ = $1; }
+					| exp MAYORIGUAL exp { opera($1, $3, ">="); $$ = $1; }
+					| exp IS exp { opera($1, $3, "=="); $$ = $1; }
+					| exp NOTIS exp { opera($1, $3, "!="); $$ = $1; }
 					;
 
 inst				: exp FIN_DE_LINEA
-					| init FIN_DE_LINEA
-					| asign FIN_DE_LINEA
+					| init
+					| assign
 					| decl
 					| when
 					| for
 					| while
 					| if
 					| bloque
-					| RETURN exp FIN_DE_LINEA {gc << "#Aquí hay un RETURN\n";}
+					| RETURN exp FIN_DE_LINEA { generateReturn($2); }
 					;
 
 inst_l				: inst
@@ -194,12 +190,16 @@ inst_l				: inst
 					;
 
 bloque          	: ABREBLOQUE
-            				  { scope = new Scope(scope); }
+            				  {
+            				    scope = new Scope(scope);
+            				    memStack.enterBlock();
+            				  }
             				  dentroBloque
             				  CIERRABLOQUE
             				  {
             					Scope* oldScope = scope;
             					scope = scope->getParent();
+            					memStack.exitBlock();
             					delete oldScope;
             				  }
           				;
@@ -222,7 +222,7 @@ func				: tipo IDENTIFICADOR '(' ')'  {
 					        } ':' FIN_DE_LINEA bloque funcFinal
 					;
 
-funcFinal           : { gc << "L " << $<i>-3 << ": #End of function\n\n"; }
+funcFinal           : { functionEnd($<i>-3); }
 
 cases				: exp WHEN_CASE exp
 					| exp WHEN_CASE exp FIN_DE_LINEA cases
@@ -233,7 +233,7 @@ when				: WHEN exp ':' FIN_DE_LINEA ABREBLOQUE cases CIERRABLOQUE
 					;
 
 for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {
-                        /*crear variable identificador si no existe, asignarle el valor de inicio menos paso, label vuelta,
+                        /*crear variable identificador si no existe, assignarle el valor de inicio menos paso, label vuelta,
                          identificador+=paso, comprobar que sea menor que fin y hacer bloque o ir a salida*/} bloque
                          { gc << "\tGT(" << $vuelta << ");\nL " << $salida << ":\n"; }
 					;
@@ -241,21 +241,21 @@ for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {
 
 
 
-
 if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque
-                        {gc << "L " << $salida << ":\t\t\t#Label salida if\n";}
+                        {gc << "L " << $salida << ":\t\t\t# Label salida if\n";}
 					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida]
-					    { $<i>$=$<i>elif; } elif_l {gc << "L " << $salida << ":\t\t\t\t\t\t#Label salida if\n"; }
+					    { $<i>$=$<i>elif; } elif_l {gc << "L " << $salida << ":\t\t\t\t\t\t# Label salida if\n"; }
 					;
 
 /*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
 
-elif_l				: ELIF exp ':' FIN_DE_LINEA ne[fin] elif_control bloque
-                        {gc << "L %d:\t\t#Se termina el bloque del if y se sale\n", $fin;}
-					| ELIF exp ':' FIN_DE_LINEA ne[siguiente_elif] elif_control bloque
+
+elif_l				: ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
+                        {gc << "L %d:\t\t# Se termina el bloque del if y se sale\n", $fin;}
+					| ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
                         elif_copia_salida elif_copia_siguiente elif_l
 					| ELSE ':' FIN_DE_LINEA
-					    { gc << "\tGT(" << $<i>-1 << ");\t\t\t\t\t#Ir a salida\nL " << $<i>0 << ":\t\t\t\t\t\t#Label del else\n";} bloque
+					    { gc << "\tGT(" << $<i>-1 << ");\t\t\t\t\t# Ir a salida\nL " << $<i>0 << ":\t\t\t\t\t\t# Label del else\n";} bloque
 					;
 
 
@@ -264,15 +264,21 @@ ne					: { $<i>$ = ne(); }
 					;
 
 /* Ir a salida, Si (!cond) ir a siguiente elif/else/salida */
-elif_control		: { gc << "\tGT  (" << $<i>-6 << ");\t\t#Fin bloque y salida a fin del if\n"
-                        "L " <<  $<i>-5 << ":\t\t\t#Label de este elif\n"
-                        "\tIF(!" << memStack.load($<i>-3) << ") "
-                        "GT(" << $<i>0 << ");\t#Si no se cumple la condición se va al siguiente elif\n"; }
+elif_control		: { gc << "\tGT  (" << $<i>-2 << ");\t\t# Fin bloque y salida a fin del if\n"
+                        "L " <<  $<i>-1 << ":\t\t\t# Label de este elif\n";
+                      }
+					;
+
+elif_eval           : {
+                        gc << "\tIF(!" << memStack.load($<i>-3) << ") "
+                          "GT(" << $<i>0 << ");\t# Si no se cumple la condición se va al siguiente elif\n";
+                           memStack.release($<i>-3);
+                      }
 					;
 
 /*Evalua expresión en $-3 y si no se cumple salta a $0*/
-if_evalua_expresion	: { gc << "\tIF(!" << memStack.load($<i>-3) << ") GT(" << $<i>0 << ");\t\t\t#Comprobación condición if\n";
-                        memStack.remove($<i>-3);
+if_evalua_expresion	: { gc << "\tIF(!" << memStack.load($<i>-3) << ") GT(" << $<i>0 << ");\t\t\t# Comprobación condición if\n";
+                        memStack.release($<i>-3);
                       }
 					;
 
@@ -302,8 +308,8 @@ int main(int argc, char **argv) {
     scope = new Scope();
 
 //Funciones del sistema
-    scope->defineFunction("print", new FunctionNode(new PrimitiveType(VOID)));
-    scope->defineFunction("getchar", new FunctionNode(new PrimitiveType(CHAR)));
+    /*scope->defineFunction("print", new FunctionNode(new PrimitiveType(VOID)));
+    scope->defineFunction("getchar", new FunctionNode(new PrimitiveType(CHAR)));*/
     if(argc <= 1) return -1;
 
     yyin = fopen(argv[1], "r");
@@ -313,16 +319,17 @@ int main(int argc, char **argv) {
     initQ();
 
     std::cout << "Compiling " << argv[1] << "...\n";
-    //try{
+    try{
         yyparse();
-    /**}catch(const std::exception& e) {
+    }catch(const std::exception& e) {
         std::cout << "Unexpected error" << e.what() << "\n";
+        memStack.print();
         gc.flush();
         gc.close();
         fclose(yyin);
         exit(-3);
-    }*/
-    gc << "\tR0=0;\t\t\t\t\t#Código de salida\n\tGT(-2);\t\t\t\t\t#Fin de programa";
+    }
+    endQ();
     gc.close();
     fclose(yyin);
 }

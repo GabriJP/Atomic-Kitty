@@ -71,6 +71,8 @@ public:
 
     std::vector<ParameterNode *> *getParameters();
 
+    std::size_t paramterSize();
+
     Type *getType();
 
     int getLabel();

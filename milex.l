@@ -45,8 +45,8 @@
 #define YY_USER_ACTION                                   \
 {                                                        \
   if (tabulado<numtabs){                                 \
-      numtabs--;                                         \
     yyless(0);                                           \
+    numtabs--;                                           \
     return CIERRABLOQUE;                                 \
   } else if (tabulado>numtabs){                          \
       numtabs++;                                         \
@@ -58,6 +58,9 @@
 int tabulado = 0;
 int numtabs = 0;
 int fines = 0;
+bool reachEof = false;
+bool a = false;
+
 %}
 %option noyywrap
 FINLINEA                                                 [ \t]*\n
@@ -91,9 +94,10 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
 
 
 \n[^\t\n ]|\n" "[^ \n]|\n"  "[^ \n]|\n"   "[^ \n]         {
-                                                             tabulado = 0;
                                                              yyless(yyleng - 1);
                                                              fines++;
+                                                             if(tabulado == 0) return FIN_DE_LINEA;
+                                                             tabulado = 0;
                                                          }
 
 \n                                                       {
@@ -272,7 +276,10 @@ in							 {
                                                              if(tabulado<numtabs){
                                                                  numtabs--;
                                                                  return CIERRABLOQUE;
-                                                             } else {
+                                                             } else if(!reachEof) {
+                                                                 reachEof = true;
+                                                                 return FIN_DE_LINEA;
+                                                             }else{
                                                                  return 0;
                                                              }
                                                          }
