@@ -9,6 +9,4 @@
         int j = tupla[1]
         return (i+j, i)
 
-int f = fibo(6)
-
-print("fibo(6)=%i\n", f)
+print(fibo(10)[0])
