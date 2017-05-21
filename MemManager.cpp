@@ -524,11 +524,14 @@ void MemManager::enterBlock() {
 }
 
 void MemManager::exitBlock() {
+    int toRelease = 0;
     while(stack().back().id != -2) {
-        gc << "\tR7 = R7 + " << stack().back().type->size() <<
-           "; # Releasing id:" << stack().back().id << " " << stack().back().name << "\n";
+        /*gc << "\tR7 = R7 + " << stack().back().type->size() <<
+           "; # Releasing id:" << stack().back().id << " " << stack().back().name << "\n";*/
+        toRelease += stack().back().type->size();
         stack().pop_back();
     }
+    gc << "\tR7 = R7 + " << toRelease << "; # Releasing stack because block ends\n";
     stack().pop_back();
 
     for(auto& reg : registers32Bits) if(reg.blockDepth == currentDepth) {

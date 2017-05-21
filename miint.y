@@ -177,7 +177,7 @@ inst				: exp FIN_DE_LINEA
 					| init
 					| assign
 					| decl
-					| when
+					| when FIN_DE_LINEA
 					| for
 					| while
 					| if
