@@ -266,7 +266,7 @@ if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque
 
 
 elif_l				: ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
-                        {gc << "L %d:\t\t# Se termina el bloque del if y se sale\n", $fin;}
+                        {gc << "L " << $fin << ":\t\t# Se termina el bloque del if y se sale\n";}
 					| ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
                         elif_copia_salida elif_copia_siguiente elif_l
 					| ELSE ':' FIN_DE_LINEA

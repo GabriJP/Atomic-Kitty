@@ -1942,7 +1942,7 @@ yyreduce:
 
   case 91:
 #line 269 "miint.y" /* yacc.c:1646  */
-    {gc << "L %d:\t\t# Se termina el bloque del if y se sale\n", (yyvsp[-2].i);}
+    {gc << "L " << (yyvsp[-2].i) << ":\t\t# Se termina el bloque del if y se sale\n";}
 #line 1948 "miint.tab.c" /* yacc.c:1646  */
     break;
 
