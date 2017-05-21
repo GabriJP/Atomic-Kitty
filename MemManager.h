@@ -102,6 +102,7 @@ public:
     void saveRegisters();
     void loadRegisters();
 
+
     RegCode getFromRegisters(int id);
     bool isInRegister(int id);
 
@@ -161,6 +162,10 @@ public:
 
     void assign(std::size_t varOffset, bool  varInGlobal, std::size_t expOffset, bool  expInGlobal, Type* type);
     std::size_t offsetOf(int id, bool &offsetFromGlobal);
+    std::size_t offsetOf(int id) {
+        bool nop;
+        return offsetOf(id, nop);
+    };
     static char letter(Type* type);
     std::string offsetToString(int offset, bool inGlobal);
 

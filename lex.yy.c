@@ -1057,133 +1057,132 @@ case 20:
 YY_RULE_SETUP
 #line 198 "milex.l"
 {
-							     yylval.i = std::atoi(yytext+1);
-							     printf("%i<------------------------------------------------------------------ \n", yylval.i);
-							     return ACCESO;
-							 }
+                                                             yylval.i = std::atoi(yytext+1);
+                                                             return ACCESO;
+                                                         }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 204 "milex.l"
+#line 203 "milex.l"
 {
                                                              return IF;
                                                          }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 208 "milex.l"
+#line 207 "milex.l"
 {
                                                              return WHILE;
                                                          }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 212 "milex.l"
+#line 211 "milex.l"
 {
                                                              return FOR;
                                                          }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 216 "milex.l"
+#line 215 "milex.l"
 {
                                                              return WHEN;
                                                          }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 220 "milex.l"
+#line 219 "milex.l"
 {
                                                              return ELSE;
                                                          }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 224 "milex.l"
+#line 223 "milex.l"
 {
                                                              return ELIF;
                                                          }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 228 "milex.l"
+#line 227 "milex.l"
 {
                                                              return NOTIS;
                                                          }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 232 "milex.l"
+#line 231 "milex.l"
 {
                                                              return IS;
                                                          }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 236 "milex.l"
+#line 235 "milex.l"
 {
                                                              return OR;
                                                          }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 240 "milex.l"
+#line 239 "milex.l"
 {
                                                              return AND;
                                                          }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 244 "milex.l"
+#line 243 "milex.l"
 {
 							     return IN;
 							 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 248 "milex.l"
+#line 247 "milex.l"
 {
 							     return MENORQUE;
 							 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 252 "milex.l"
+#line 251 "milex.l"
 {
 							     return MAYORQUE;
 							 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 256 "milex.l"
+#line 255 "milex.l"
 {
 							     return MENORIGUAL;
 							 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 260 "milex.l"
+#line 259 "milex.l"
 {
 							     return MAYORIGUAL;
 							 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 264 "milex.l"
+#line 263 "milex.l"
 {
                                                              return RANGE;
                                                          }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 268 "milex.l"
+#line 267 "milex.l"
 {
                                                              return RETURN;
                                                          }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 272 "milex.l"
+#line 271 "milex.l"
 {
                                                              yylval.str = strdup(yytext);
                                                              return IDENTIFICADOR;
@@ -1191,18 +1190,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 277 "milex.l"
+#line 276 "milex.l"
 {
                                                              return yytext[0];
                                                          }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 281 "milex.l"
+#line 280 "milex.l"
 { }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 284 "milex.l"
+#line 283 "milex.l"
 {
                                                              tabulado = 0;
                                                              if(tabulado<numtabs){
@@ -1218,17 +1217,17 @@ case YY_STATE_EOF(INITIAL):
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 299 "milex.l"
+#line 298 "milex.l"
 {
                                                              printf( "Unrecognized character: %s\n", yytext );
                                                          }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 303 "milex.l"
+#line 302 "milex.l"
 ECHO;
 	YY_BREAK
-#line 1232 "lex.yy.c"
+#line 1231 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2230,7 +2229,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 303 "milex.l"
+#line 302 "milex.l"
 
 
 

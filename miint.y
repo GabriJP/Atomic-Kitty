@@ -54,6 +54,7 @@ extern  void  yyerror(char *str);
 %type  <i> exp exp_l tupla comp
 %type  <valoresRango> rango
 
+%left FIN_DE_LINEA
 %right '='
 %left ','
 %left IN
@@ -62,13 +63,14 @@ extern  void  yyerror(char *str);
 %left MAYORIGUAL MENORIGUAL MAYORQUE MENORQUE
 %left '-' '+'
 %left '*' '/'
+%left ACCESO
 
 %%
 
 lista				: error FIN_DE_LINEA {printf(" en expresión\n");} lista
 					| FIN_DE_LINEA lista
 					| func lista
-					| inst_l lista //TODO Solucionar
+					| inst_l FIN_DE_LINEA lista //TODO Solucionar
 					| inst_l
               		|
 					;
@@ -97,22 +99,20 @@ exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
 					| exp OR exp  { opera($1, $3, "||"); $$ = $1; }
 					| comp { $$ = $1; }
 					| func_call { $$ = $1; }
-					| VALOR_INT { $$ = primitiveExp(INT, $1); } //TODO Añadir otros tipos de código
-					| VALOR_FLOAT { $$ = primitiveExp(FLOAT); }
-					| VALOR_DOUBLE  { $$ = primitiveExp(DOUBLE); }
-					| VALOR_LONG { $$ = primitiveExp(LONG); }
-					| VALOR_BOOL { $$ = primitiveExp(BOOL); }
-					| VALOR_CHAR { $$ = primitiveExp(CHAR); }
+					| VALOR_INT { $$ = primitiveExp(INT, $1); }
+					| VALOR_FLOAT { $$ = primitiveExp(FLOAT, $1); }
+					| VALOR_DOUBLE  { $$ = primitiveExp(DOUBLE, $1); }
+					| VALOR_LONG { $$ = primitiveExp(LONG, $1); }
+					| VALOR_BOOL { $$ = primitiveExp(BOOL, $1); }
+					| VALOR_CHAR { $$ = primitiveExp(CHAR, $1); }
 					| VALOR_STRING { $$ = primitiveExp(STRING); }
 					| IDENTIFICADOR { memStack.load(scope->getVariable($1)->getId(), $$); }
 					| tupla { $$ = $1; }
-					| IDENTIFICADOR ACCESO {
-					    VariableNode* var = scope->getVariable($1);
-
-						if(var->getType()->isTuple())
-							memStack.load(var->getId(), $2, $$);
+					| exp ACCESO { //TODO corregir desplazamiento
+						if(memStack.get($1).type->isTuple())
+							memStack.load($1, $2, $$);
 						else
-							logError(std::string($1) + " isn't a tuple");
+							logError("id:" + std::to_string(memStack.get($1).id) + " " + memStack.get($1).name + " isn't a tuple");
 					}
 					;
 
@@ -132,7 +132,7 @@ tipo_l				: tipo { $$ = $1; }
 
 args				: tipo IDENTIFICADOR
                         { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>();
-                          vector->push_back(new ParameterNode($1, $2)); $$ = vector; } //TODO Change
+                          vector->push_back(new ParameterNode($1, $2)); $$ = vector; }
 					| tipo IDENTIFICADOR ',' args { $4->push_back(new ParameterNode($1, $2)); $$ = $4; }
 					;
 
@@ -223,16 +223,28 @@ func				: tipo IDENTIFICADOR '(' ')'  {
 
 funcFinal           : { functionEnd($<i>-3); }
 
-cases				: exp case_cond WHEN_CASE exp
-					| exp case_cond WHEN_CASE exp FIN_DE_LINEA cases
+cases				: exp case_cond WHEN_CASE exp case_jump
+					| exp case_cond WHEN_CASE exp case_jump FIN_DE_LINEA { $<i>$ = $<i>0; } cases
 					;
 
-case_cond           : { int caseId = memStack.load($<i>0); int condId = memStack.load($<i>-1);
-                        //gc <<
+case_cond           : { RegCode caseReg = memStack.load($<i>0); RegCode condReg = memStack.load($<i>-1);
+                        PrimitiveType b(BOOL);
+                        RegCode condResult = memStack.getFreeRegister(&b);
+                        gc << '\t' << condResult << " = " << caseReg << " == " << condReg << "; # Case check\n";
+                        int nextCase = ne();
+                        gc << "\tIF( !" << condResult << " ) GT( " << nextCase <<  " ); \n";
+                        $<i>$ = nextCase;
+
+                        memStack.enterBlock();
+                        gc.flush();
+;
                       }
                     ;
 
-when				: WHEN exp[cond] ':' FIN_DE_LINEA ABREBLOQUE { $<i>$ = $cond; } cases CIERRABLOQUE
+case_jump           : { memStack.exitBlock(); gc << "L " << $<i>-2 << ":\n"; gc.flush(); }
+                    ;
+
+when				: WHEN exp[cond] ':' FIN_DE_LINEA ABREBLOQUE { $<i>$ = $cond; memStack.saveInStack($cond); } cases CIERRABLOQUE
 					;
 
 for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {

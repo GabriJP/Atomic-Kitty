@@ -8,8 +8,8 @@ Scope *scope;
 std::ofstream gc("program.q");
 int ec = 1;
 
-void opera(int left, int right, const char* op){ //TODO detect type
-    if (memStack.getType(left)->equals(memStack.getType(right))) {
+void opera(int left, int right, const char* op){
+    if (memStack.getType(left)->equals(memStack.getType(right)) || (isNumberType(left) && isNumberType(right)) ) {
         RegCode r1 = memStack.load(left);
         RegCode r2 = memStack.load(right);
         gc << '\t' << r1 << " = " << r1 << " " << op << " " << r2 <<
@@ -23,7 +23,8 @@ void opera(int left, int right, const char* op){ //TODO detect type
     }
 }
 
-bool isNumberType(Type *tipo) {
+bool isNumberType(int id) {
+    auto tipo = memStack.getType(id);
     switch (tipo->getType()) {
         case INT:
         case LONG:
@@ -43,6 +44,7 @@ int ne() {
 void logError(std::string str) {
     yyerror((char *) str.c_str());
 }
+
 int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
 
     if (isASystemFunction(name)){
@@ -67,6 +69,9 @@ int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
         if(v) for(auto& param : *v) {
             int id = memStack.addToStackWithoutChangingR7(param->getType(), "param: " + param->getName());
             ((ParameterNode*)scope->getVariable(param->getName()))->setId(id);
+        }else{
+            PrimitiveType t(INT);
+            memStack.addToStackWithoutChangingR7(&t, "VOID SPACE tweak"); //tweak
         }
 
         gc.flush();
@@ -116,6 +121,10 @@ int callFunctionInit(char *name) {
 int callFunction(char* funcName, int id, int returnLabel){
 
 
+    if(isASystemFunction(funcName)) {
+        return callSystemFunction(funcName, id, returnLabel);
+    }
+
     FunctionNode *nodo = scope->getFunction(funcName);
 
     if(id != -1) {
@@ -129,6 +138,11 @@ int callFunction(char* funcName, int id, int returnLabel){
         }
 
         gc << "\tR6 = R7 + " << nodo->paramterSize() - 4 << "; # Update R6 \n";
+    }else{
+        PrimitiveType p(INT); //Little tweak
+        memStack.addToStack(&p, "VOID SPACE");
+        gc << "\tR6 = R7; # Update R6 \n";
+
     }
 
     gc << "\tGT( " << nodo->getLabel() << " ); # Call " << funcName << "\n";
@@ -149,13 +163,33 @@ int callFunction(char* funcName, int id, int returnLabel){
 
     memStack.loadRegisters();
 
-    std::size_t stackSize = memStack.currentStackSize();
-
     gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize() <<  "; # Update R7 = R6 - R6.size - returned.size \n";
 
     gc.flush();
 
+    if(nodo->getType()->getType() == VOID) return -1;
     return memStack.addToStackWithoutChangingR7(nodo->getType(), std::string("returned by ") + funcName);
+}
+
+int callSystemFunction(std::string name, int id, int returnLabel) {
+    if(std::string(name) == "print") {
+        memStack.block(R0);
+        memStack.block(R1);
+        memStack.block(R2);
+        RegCode reg = memStack.load(id);
+        gc << "\tR2 = " << reg << "; # Loading print argument\n";
+        gc << "\tR1 = 0x11FFC; # Adress of print format\n";
+        gc << "\tR0 = "<< returnLabel << "; # Return Address\n";
+        gc << "\tGT(putf_); # Call print\n";
+        gc << "L " << returnLabel << ": # Return Label\n";
+        memStack.unBlock(R0);
+        memStack.unBlock(R1);
+        memStack.unBlock(R2);
+        return -1;
+    }else if(std::string(name) == "exit") {
+        gc << "\tR0 = 0;\n";
+        gc << "\tGT( -2 );\n";
+    }
 }
 
 void yyerror(char *str) {
@@ -181,6 +215,15 @@ void initQ() {
           "L 0:\n"
           "\tR6 = R7;\n";
 
+    std::string printCode("%d\\n");
+    memStack.addToStackWithoutChangingR7(new PrimitiveType(STRING, 4));
+
+    gc << "STAT(0)\n";
+    gc << "\tSTR( 0x11FFC, \"" << printCode << "\");\n";
+    gc << "CODE(0)\n";
+
+    gc << "GT( -1 );\n";
+
     gc.flush();
 
 }
@@ -197,11 +240,10 @@ void endQ() {
 
 }
 
-
 int primitiveExp(yytokentype tipo, char c) {
     int id = primitiveExp(tipo);
     RegCode reg = memStack.load(id);
-    gc << "\t" << reg << " = " << std::string(1,c) << "; \n";
+    gc << "\t" << reg << " = '" << std::string(1,c) << "'; \n";
     return id;
 }
 
@@ -259,7 +301,7 @@ int buildExpList(int exp, int expList) {
 }
 
 bool isASystemFunction(std::string name) {
-    return name == "print" || name == "getchar";
+    return name == "print" || name == "getchar" || name == "exit";
 }
 
 void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLabel) {

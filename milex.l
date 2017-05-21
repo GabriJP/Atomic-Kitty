@@ -195,11 +195,10 @@ string                                                   {
                                                              return VALOR_BOOL;
                                                          }
 
-{ACCESO}						 {
-							     yylval.i = std::atoi(yytext+1);
-							     printf("%i<------------------------------------------------------------------ \n", yylval.i);
-							     return ACCESO;
-							 }
+{ACCESO}                            					 {
+                                                             yylval.i = std::atoi(yytext+1);
+                                                             return ACCESO;
+                                                         }
 
 if                                                       {
                                                              return IF;

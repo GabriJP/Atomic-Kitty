@@ -164,6 +164,8 @@ Type *PrimitiveType::clone() {
     return new PrimitiveType(*this);
 }
 
+PrimitiveType::PrimitiveType(yytokentype id, std::size_t size) : Type(id), type(id), _size(size){ }
+
 std::ostream &operator<<(std::ostream &os, yytokentype const &yytoken) {
 
     os << [](yytokentype const &yytoken){

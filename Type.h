@@ -124,6 +124,7 @@ private:
     size_t _size = 0;
 public:
     PrimitiveType(yytokentype id);
+    PrimitiveType(yytokentype id, std::size_t size);
 
     bool isTuple() override;
 
