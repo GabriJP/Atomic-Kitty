@@ -6,7 +6,7 @@ const std::map<yytokentype, char> MemManager::letterMap = {
         {FLOAT,  'F'},
         {DOUBLE, 'D'},
         {CHAR,   'U'},
-        {TUPLE,  'I'}, //TODO: Implement
+        {TUPLE,  'I'},
         {STRING,  'I'},
         {BOOL,   'U'},
 };
@@ -72,7 +72,6 @@ void MemManager::release(int id) {
     }
 }
 
-//TODO Improve
 void MemManager::saveRegisters() {
 
     savedRegisters.fill(false);
@@ -98,9 +97,11 @@ void MemManager::saveRegisters() {
 
 void MemManager::loadRegisters() {
 
-    auto loadReg = [this](int i) {
+    int it = 1;
+    auto loadReg = [this, &it](int i) {
         if(savedRegisters[i]){
-            StackElement& loadedReg = stack().back();
+            StackElement& loadedReg = stack().at(stack().size() - it);
+            it++;
             gc << "\t" << RegCode(i) << " = " <<  getInstruction(loadedReg) << "; # Loading register " << RegCode(i) << "\n";
             //gc << "\tR7 = R7 + " << loadedReg.type->size() << ";\n";
             if(i >= R0 && i < R6) {
@@ -108,6 +109,7 @@ void MemManager::loadRegisters() {
             }else if(i >= RR0) {
                 registers32Bits[i-RR0] = loadedReg;
             }
+            ;
             //stack().pop_back();
         }
     };
@@ -523,6 +525,8 @@ void MemManager::enterBlock() {
 
 void MemManager::exitBlock() {
     while(stack().back().id != -2) {
+        gc << "\tR7 = R7 + " << stack().back().type->size() <<
+           "; # Releasing id:" << stack().back().id << " " << stack().back().name << "\n";
         stack().pop_back();
     }
     stack().pop_back();
@@ -540,6 +544,8 @@ void MemManager::exitBlock() {
             reg.type = nullptr;
             reg.id = -1;
         }
+
+
 
     currentDepth--;
 }
@@ -569,6 +575,8 @@ int MemManager::saveInStack(int id) {
     }
     return id;
 }
+
+
 
 
 
