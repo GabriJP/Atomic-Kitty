@@ -114,7 +114,7 @@ bool ofType(Car1 car1, Car2 car2, Cdr ... cdr) {
 
 int callFunctionInit(char *name) {
 
-    bp();
+    
 
     memStack.saveRegisters();
 
@@ -155,7 +155,7 @@ int callFunction(char* funcName, int id, int returnLabel){
 
     }
 
-    bp();
+    
 
     gc << "\tGT( " << nodo->getLabel() << " ); # Call " << funcName << "\n";
     gc << "L " << returnLabel << ": # Return Label\n";
@@ -169,7 +169,7 @@ int callFunction(char* funcName, int id, int returnLabel){
 
     gc.flush();
 
-    bp();
+    
 
     if(nodo->getType()->getType() == VOID) return -1;
     return memStack.addToStackWithoutChangingR7(nodo->getType(), std::string("returned by ") + funcName);
@@ -251,7 +251,7 @@ int primitiveExp(yytokentype tipo, char c) {
 
 int generateReturn(int expId) {
 
-    bp();
+    
 
     PrimitiveType tInt(INT);
     RegCode reg = memStack.getFreeRegister(&tInt);
@@ -262,7 +262,7 @@ int generateReturn(int expId) {
 
     memStack.saveReturn(expId);
 
-    bp();
+    
 
     gc << "\tGT( " << reg << " ); # Return \n";
 

@@ -4,4 +4,11 @@ int tritar(int m, int n):
     else:
         return tritar(m-1, n-1) + tritar(m-1, n)
 
+int tritarTupla((int, int)n):
+    if n[1] is 0 or n[1] is n[0]:
+        return 1
+    else:
+        return tritar(n[0]-1, n[1]-1) + tritar(n[0]-1, n[1])
+
 print(tritar(4, 3))
+print(tritarTupla(4, 3))
