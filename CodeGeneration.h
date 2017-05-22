@@ -67,7 +67,7 @@ extern int fines;
 
 void initQ();
 void endQ();
-void opera(int left, int right, const char *op);
+int opera(int left, int right, const char *op);
 void logError(std::string str);
 int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v);
 int callSystemFunction(std::string name, int paramId, int returnLabel);
@@ -94,6 +94,6 @@ int primitiveExp(yytokentype tipo, T n) {
 
 int primitiveExp(yytokentype tipo, char c);
 
-void yyerror(char *str);
+void yyerror(const char *str);
 
 int addNewVar(Type* type, char* name);

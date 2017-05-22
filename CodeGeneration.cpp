@@ -8,7 +8,7 @@ Scope *scope;
 std::ofstream gc("program.q");
 int ec = 1;
 
-void opera(int left, int right, const char* op){
+int opera(int left, int right, const char* op){
     if (memStack.getType(left)->equals(memStack.getType(right)) || (isNumberType(left) && isNumberType(right)) ) {
         RegCode r1 = memStack.load(left);
         RegCode r2 = memStack.load(right);
@@ -17,6 +17,8 @@ void opera(int left, int right, const char* op){
 
         gc.flush();
         memStack.release(right);
+
+        return memStack.get(r1).id;
     } else {
         logError(std::string("Tipos diferentes: '") +
                          memStack.getType(left)->toString() + "' y '" + memStack.getType(right)->toString() + "'");
@@ -45,8 +47,14 @@ void logError(std::string str) {
     yyerror((char *) str.c_str());
 }
 
-int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
+static void bp() {
+    static int p = 0;
 
+    gc << "\tRR3 = " << p++ << ";\n";
+    gc << "\tGT( -1 );\n";
+}
+
+int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
     if (isASystemFunction(name)){
         logError("'" + std::string(name) + "' it's a system function");
         return -1;
@@ -106,6 +114,8 @@ bool ofType(Car1 car1, Car2 car2, Cdr ... cdr) {
 
 int callFunctionInit(char *name) {
 
+    bp();
+
     memStack.saveRegisters();
 
     int returnLabel = ne();
@@ -145,27 +155,21 @@ int callFunction(char* funcName, int id, int returnLabel){
 
     }
 
+    bp();
+
     gc << "\tGT( " << nodo->getLabel() << " ); # Call " << funcName << "\n";
-
-
     gc << "L " << returnLabel << ": # Return Label\n";
-
-    /**gc << "R0 = 0;\n" //For Testing
-            "    R1 = 0;\n"
-            "    R2 = 0;\n"
-            "    R3 = 0;\n"
-            "    R4 = 0;\n"
-            "    R5 = 0;\n";*/
-
 
     memStack.pop();
     memStack.pop();
 
     memStack.loadRegisters();
 
-    gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize() <<  "; # Update R7 = R6 - R6.size - returned.size \n";
+    gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize() - 4 <<  "; # Update R7 \n";
 
     gc.flush();
+
+    bp();
 
     if(nodo->getType()->getType() == VOID) return -1;
     return memStack.addToStackWithoutChangingR7(nodo->getType(), std::string("returned by ") + funcName);
@@ -192,7 +196,7 @@ int callSystemFunction(std::string name, int id, int returnLabel) {
     }
 }
 
-void yyerror(char *str) {
+void yyerror(const char *str) {
     extern int yylineno;
     printf("Parse  Error near line %d \n %s\n", fines, str);
     memStack.print();
@@ -222,8 +226,6 @@ void initQ() {
     gc << "\tSTR( 0x11FFC, \"" << printCode << "\");\n";
     gc << "CODE(0)\n";
 
-    gc << "GT( -1 );\n";
-
     gc.flush();
 
 }
@@ -248,6 +250,9 @@ int primitiveExp(yytokentype tipo, char c) {
 }
 
 int generateReturn(int expId) {
+
+    bp();
+
     PrimitiveType tInt(INT);
     RegCode reg = memStack.getFreeRegister(&tInt);
 
@@ -256,6 +261,9 @@ int generateReturn(int expId) {
     gc << "\t" << reg << " = I( R6 + 4 ); # Load return label \n";
 
     memStack.saveReturn(expId);
+
+    bp();
+
     gc << "\tGT( " << reg << " ); # Return \n";
 
     memStack.unBlock(reg);

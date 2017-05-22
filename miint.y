@@ -37,6 +37,7 @@ extern  void  yyerror(char *str);
 
 }
 
+%error-verbose
 
 %union { float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango valoresRango; }
 %token <f> VALOR_FLOAT
@@ -91,12 +92,12 @@ func_call			: IDENTIFICADOR func_call_init tupla { $<i>$ = callFunction($1, $3, 
 
 func_call_init                 : { $<i>$ = callFunctionInit($<str>0); }
 
-exp					: exp '-' exp { opera($1, $3, "-"); $$ = $1; }
-					| exp '+' exp { opera($1, $3, "+"); $$ = $1; }
-					| exp '/' exp { opera($1, $3, "/"); $$ = $1; }
-					| exp '*' exp { opera($1, $3, "*"); $$ = $1; }
-					| exp AND exp { opera($1, $3, "&&"); $$ = $1; }
-					| exp OR exp  { opera($1, $3, "||"); $$ = $1; }
+exp					: exp '-' exp { $$ = opera($1, $3, "-"); }
+					| exp '+' exp { $$ = opera($1, $3, "+");  }
+					| exp '/' exp { $$ = opera($1, $3, "/"); }
+					| exp '*' exp { $$ = opera($1, $3, "*"); }
+					| exp AND exp { $$ = opera($1, $3, "&&"); }
+					| exp OR exp  { $$ = opera($1, $3, "||"); }
 					| comp { $$ = $1; }
 					| func_call { $$ = $1; }
 					| VALOR_INT { $$ = primitiveExp(INT, $1); }
@@ -165,12 +166,12 @@ decl				: tipo IDENTIFICADOR FIN_DE_LINEA{
 					;
 
 
-comp				: exp MENORQUE exp { opera($1, $3, "<"); $$ = $1; }
-					| exp MAYORQUE exp { opera($1, $3, ">"); $$ = $1; }
-					| exp MENORIGUAL exp { opera($1, $3, "<="); $$ = $1; }
-					| exp MAYORIGUAL exp { opera($1, $3, ">="); $$ = $1; }
-					| exp IS exp { opera($1, $3, "=="); $$ = $1; }
-					| exp NOTIS exp { opera($1, $3, "!="); $$ = $1; }
+comp				: exp MENORQUE exp { $$ = opera($1, $3, "<"); }
+					| exp MAYORQUE exp { $$ = opera($1, $3, ">"); }
+					| exp MENORIGUAL exp { $$ = opera($1, $3, "<="); }
+					| exp MAYORIGUAL exp { $$ = opera($1, $3, ">="); }
+					| exp IS exp { $$ = opera($1, $3, "=="); }
+					| exp NOTIS exp { $$ = opera($1, $3, "!="); }
 					;
 
 inst				: exp FIN_DE_LINEA
@@ -343,8 +344,8 @@ int main(int argc, char **argv) {
     std::cout << "Compiling " << argv[1] << "...\n";
     try{
         yyparse();
-    }catch(const std::exception& e) {
-        std::cout << "Unexpected error" << e.what() << "\n";
+    }catch(...) {
+        std::cout << "Unexpected error\n";
         memStack.print();
         gc.flush();
         gc.close();

@@ -4,4 +4,11 @@ int fact(int n):
         result = result * i
     return result
 
+int factRecursivo(int n):
+    if n < 1:
+        return 1
+    else:
+        return n * factRecursivo(n - 1)
+
 print(fact(6))
+print(factRecursivo(6))

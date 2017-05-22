@@ -1,0 +1,7 @@
+int tritar(int m, int n):
+    if n is 0 or n is m:
+        return 1
+    else:
+        return tritar(m-1, n-1) + tritar(m-1, n)
+
+print(tritar(4, 3))

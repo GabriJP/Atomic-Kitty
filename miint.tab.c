@@ -98,7 +98,7 @@ extern  void  yyerror(char *str);
 # undef YYERROR_VERBOSE
 # define YYERROR_VERBOSE 1
 #else
-# define YYERROR_VERBOSE 0
+# define YYERROR_VERBOSE 1
 #endif
 
 /* In a future release of Bison, this section will be replaced
@@ -176,7 +176,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 41 "miint.y" /* yacc.c:355  */
+#line 42 "miint.y" /* yacc.c:355  */
  float f; double d; int i; long l; char c; char* str; Type* type; std::vector<ParameterNode*> *args_v; ValoresRango valoresRango; 
 
 #line 184 "miint.tab.c" /* yacc.c:355  */
@@ -497,21 +497,21 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    70,    70,    70,    71,    72,    73,    74,    75,    78,
-      79,    82,    85,    88,    89,    92,    94,    95,    96,    97,
-      98,    99,   100,   101,   102,   103,   104,   105,   106,   107,
-     108,   109,   110,   111,   119,   120,   121,   122,   123,   124,
-     125,   126,   129,   130,   133,   136,   139,   149,   158,   168,
-     169,   170,   171,   172,   173,   176,   177,   178,   179,   180,
-     181,   182,   183,   184,   185,   188,   189,   193,   192,   207,
-     210,   210,   213,   213,   216,   216,   219,   219,   224,   226,
-     227,   227,   230,   244,   247,   247,   250,   250,   259,   262,
-     261,   268,   270,   273,   272,   278,   282,   287,   295,   301,
-     305,   311,   312,   311,   316,   321
+       0,    71,    71,    71,    72,    73,    74,    75,    76,    79,
+      80,    83,    86,    89,    90,    93,    95,    96,    97,    98,
+      99,   100,   101,   102,   103,   104,   105,   106,   107,   108,
+     109,   110,   111,   112,   120,   121,   122,   123,   124,   125,
+     126,   127,   130,   131,   134,   137,   140,   150,   159,   169,
+     170,   171,   172,   173,   174,   177,   178,   179,   180,   181,
+     182,   183,   184,   185,   186,   189,   190,   194,   193,   208,
+     211,   211,   214,   214,   217,   217,   220,   220,   225,   227,
+     228,   228,   231,   245,   248,   248,   251,   251,   260,   263,
+     262,   269,   271,   274,   273,   279,   283,   288,   296,   302,
+     306,   312,   313,   312,   317,   322
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if YYDEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1503,157 +1503,157 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 70 "miint.y" /* yacc.c:1646  */
+#line 71 "miint.y" /* yacc.c:1646  */
     {printf(" en expresión\n");}
 #line 1510 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 78 "miint.y" /* yacc.c:1646  */
+#line 79 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[0].i); }
 #line 1516 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 79 "miint.y" /* yacc.c:1646  */
+#line 80 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = buildExpList((yyvsp[-2].i), (yyvsp[0].i)); }
 #line 1522 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 82 "miint.y" /* yacc.c:1646  */
+#line 83 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[-1].i); }
 #line 1528 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 85 "miint.y" /* yacc.c:1646  */
+#line 86 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[-1].type); }
 #line 1534 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 88 "miint.y" /* yacc.c:1646  */
+#line 89 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = callFunction((yyvsp[-2].str), (yyvsp[0].i), (yyvsp[-1].i)); }
 #line 1540 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 89 "miint.y" /* yacc.c:1646  */
+#line 90 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = callFunction((yyvsp[-3].str), -1, (yyvsp[-2].i)); }
 #line 1546 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 92 "miint.y" /* yacc.c:1646  */
+#line 93 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = callFunctionInit((yyvsp[0].str)); }
 #line 1552 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 94 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "-"); (yyval.i) = (yyvsp[-2].i); }
+#line 95 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "-"); }
 #line 1558 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 95 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "+"); (yyval.i) = (yyvsp[-2].i); }
+#line 96 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "+");  }
 #line 1564 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 96 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "/"); (yyval.i) = (yyvsp[-2].i); }
+#line 97 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "/"); }
 #line 1570 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 97 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "*"); (yyval.i) = (yyvsp[-2].i); }
+#line 98 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "*"); }
 #line 1576 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 98 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "&&"); (yyval.i) = (yyvsp[-2].i); }
+#line 99 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "&&"); }
 #line 1582 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 99 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "||"); (yyval.i) = (yyvsp[-2].i); }
+#line 100 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "||"); }
 #line 1588 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 100 "miint.y" /* yacc.c:1646  */
+#line 101 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[0].i); }
 #line 1594 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 101 "miint.y" /* yacc.c:1646  */
+#line 102 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[0].i); }
 #line 1600 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 102 "miint.y" /* yacc.c:1646  */
+#line 103 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(INT, (yyvsp[0].i)); }
 #line 1606 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 103 "miint.y" /* yacc.c:1646  */
+#line 104 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(FLOAT, (yyvsp[0].f)); }
 #line 1612 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 104 "miint.y" /* yacc.c:1646  */
+#line 105 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(DOUBLE, (yyvsp[0].d)); }
 #line 1618 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 105 "miint.y" /* yacc.c:1646  */
+#line 106 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(LONG, (yyvsp[0].l)); }
 #line 1624 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 106 "miint.y" /* yacc.c:1646  */
+#line 107 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(BOOL, (yyvsp[0].i)); }
 #line 1630 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 107 "miint.y" /* yacc.c:1646  */
+#line 108 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(CHAR, (yyvsp[0].c)); }
 #line 1636 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 108 "miint.y" /* yacc.c:1646  */
+#line 109 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = primitiveExp(STRING); }
 #line 1642 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 109 "miint.y" /* yacc.c:1646  */
+#line 110 "miint.y" /* yacc.c:1646  */
     { memStack.load(scope->getVariable((yyvsp[0].str))->getId(), (yyval.i)); }
 #line 1648 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 110 "miint.y" /* yacc.c:1646  */
+#line 111 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[0].i); }
 #line 1654 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 111 "miint.y" /* yacc.c:1646  */
+#line 112 "miint.y" /* yacc.c:1646  */
     { //TODO corregir desplazamiento
 						if(memStack.get((yyvsp[-1].i)).type->isTuple())
 							memStack.load((yyvsp[-1].i), (yyvsp[0].i), (yyval.i));
@@ -1664,80 +1664,80 @@ yyreduce:
     break;
 
   case 34:
-#line 119 "miint.y" /* yacc.c:1646  */
+#line 120 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
 #line 1671 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 120 "miint.y" /* yacc.c:1646  */
+#line 121 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(INT); }
 #line 1677 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 121 "miint.y" /* yacc.c:1646  */
+#line 122 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(FLOAT); }
 #line 1683 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 122 "miint.y" /* yacc.c:1646  */
+#line 123 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(LONG); }
 #line 1689 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 123 "miint.y" /* yacc.c:1646  */
+#line 124 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(DOUBLE); }
 #line 1695 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 124 "miint.y" /* yacc.c:1646  */
+#line 125 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(BOOL); }
 #line 1701 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 125 "miint.y" /* yacc.c:1646  */
+#line 126 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(STRING); }
 #line 1707 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 126 "miint.y" /* yacc.c:1646  */
+#line 127 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = new PrimitiveType(CHAR); }
 #line 1713 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 129 "miint.y" /* yacc.c:1646  */
+#line 130 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type); }
 #line 1719 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 130 "miint.y" /* yacc.c:1646  */
+#line 131 "miint.y" /* yacc.c:1646  */
     { (yyval.type) = (yyvsp[0].type)->add((yyvsp[-2].type)); }
 #line 1725 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 134 "miint.y" /* yacc.c:1646  */
+#line 135 "miint.y" /* yacc.c:1646  */
     { std::vector<ParameterNode*> *vector = new std::vector<ParameterNode*>();
                           vector->push_back(new ParameterNode((yyvsp[-1].type), (yyvsp[0].str))); (yyval.args_v) = vector; }
 #line 1732 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 136 "miint.y" /* yacc.c:1646  */
+#line 137 "miint.y" /* yacc.c:1646  */
     { (yyvsp[0].args_v)->push_back(new ParameterNode((yyvsp[-3].type), (yyvsp[-2].str))); (yyval.args_v) = (yyvsp[0].args_v); }
 #line 1738 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 139 "miint.y" /* yacc.c:1646  */
+#line 140 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveVariable((yyvsp[-3].str))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[-3].str)) + "', pero ya existe.");
@@ -1750,7 +1750,7 @@ yyreduce:
     break;
 
   case 47:
-#line 149 "miint.y" /* yacc.c:1646  */
+#line 150 "miint.y" /* yacc.c:1646  */
     {
                                                             if (!scope->existsVariable((yyvsp[-3].str))) {
                                                                 logError("Se intenta usar '" + std::string((yyvsp[-3].str)) + "', pero no existe.");
@@ -1762,7 +1762,7 @@ yyreduce:
     break;
 
   case 48:
-#line 158 "miint.y" /* yacc.c:1646  */
+#line 159 "miint.y" /* yacc.c:1646  */
     {
                                                             if (scope->haveVariable((yyvsp[-1].str))) {
                                                                 logError("Se intenta crear '" + std::string((yyvsp[-1].str)) + "', pero ya existe.");
@@ -1774,49 +1774,49 @@ yyreduce:
     break;
 
   case 49:
-#line 168 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "<"); (yyval.i) = (yyvsp[-2].i); }
+#line 169 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "<"); }
 #line 1781 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 169 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), ">"); (yyval.i) = (yyvsp[-2].i); }
+#line 170 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), ">"); }
 #line 1787 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 170 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "<="); (yyval.i) = (yyvsp[-2].i); }
+#line 171 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "<="); }
 #line 1793 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 171 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), ">="); (yyval.i) = (yyvsp[-2].i); }
+#line 172 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), ">="); }
 #line 1799 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 172 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "=="); (yyval.i) = (yyvsp[-2].i); }
+#line 173 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "=="); }
 #line 1805 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 173 "miint.y" /* yacc.c:1646  */
-    { opera((yyvsp[-2].i), (yyvsp[0].i), "!="); (yyval.i) = (yyvsp[-2].i); }
+#line 174 "miint.y" /* yacc.c:1646  */
+    { (yyval.i) = opera((yyvsp[-2].i), (yyvsp[0].i), "!="); }
 #line 1811 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 185 "miint.y" /* yacc.c:1646  */
+#line 186 "miint.y" /* yacc.c:1646  */
     { generateReturn((yyvsp[-1].i)); }
 #line 1817 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 193 "miint.y" /* yacc.c:1646  */
+#line 194 "miint.y" /* yacc.c:1646  */
     {
             				    scope = new Scope(scope);
             				    memStack.enterBlock();
@@ -1825,7 +1825,7 @@ yyreduce:
     break;
 
   case 68:
-#line 199 "miint.y" /* yacc.c:1646  */
+#line 200 "miint.y" /* yacc.c:1646  */
     {
             					Scope* oldScope = scope;
             					scope = scope->getParent();
@@ -1836,7 +1836,7 @@ yyreduce:
     break;
 
   case 70:
-#line 210 "miint.y" /* yacc.c:1646  */
+#line 211 "miint.y" /* yacc.c:1646  */
     {
                              (yyval.i) = createFunction((yyvsp[-2].str), (yyvsp[-3].type), NULL);
 						}
@@ -1844,7 +1844,7 @@ yyreduce:
     break;
 
   case 72:
-#line 213 "miint.y" /* yacc.c:1646  */
+#line 214 "miint.y" /* yacc.c:1646  */
     {
                             (yyval.i) = createFunction((yyvsp[-3].str), (yyvsp[-4].type), (yyvsp[-1].args_v));
 					        }
@@ -1852,7 +1852,7 @@ yyreduce:
     break;
 
   case 74:
-#line 216 "miint.y" /* yacc.c:1646  */
+#line 217 "miint.y" /* yacc.c:1646  */
     {
                             (yyval.i) = createFunction((yyvsp[-2].str), new PrimitiveType(VOID), NULL);
 					        }
@@ -1860,7 +1860,7 @@ yyreduce:
     break;
 
   case 76:
-#line 219 "miint.y" /* yacc.c:1646  */
+#line 220 "miint.y" /* yacc.c:1646  */
     {
                             (yyval.i) = createFunction((yyvsp[-3].str), new PrimitiveType(VOID), (yyvsp[-1].args_v));
 					        }
@@ -1868,19 +1868,19 @@ yyreduce:
     break;
 
   case 78:
-#line 224 "miint.y" /* yacc.c:1646  */
+#line 225 "miint.y" /* yacc.c:1646  */
     { functionEnd((yyvsp[(-3) - (0)].i)); }
 #line 1875 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 227 "miint.y" /* yacc.c:1646  */
+#line 228 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[-6].i); }
 #line 1881 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 230 "miint.y" /* yacc.c:1646  */
+#line 231 "miint.y" /* yacc.c:1646  */
     { RegCode caseReg = memStack.load((yyvsp[0].i)); RegCode condReg = memStack.load((yyvsp[(-1) - (0)].i));
                         PrimitiveType b(BOOL);
                         RegCode condResult = memStack.getFreeRegister(&b);
@@ -1897,19 +1897,19 @@ yyreduce:
     break;
 
   case 83:
-#line 244 "miint.y" /* yacc.c:1646  */
+#line 245 "miint.y" /* yacc.c:1646  */
     { memStack.exitBlock(); gc << "L " << (yyvsp[(-2) - (0)].i) << ":\n"; gc.flush(); }
 #line 1904 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 247 "miint.y" /* yacc.c:1646  */
+#line 248 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[-3].i); memStack.saveInStack((yyvsp[-3].i)); }
 #line 1910 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 250 "miint.y" /* yacc.c:1646  */
+#line 251 "miint.y" /* yacc.c:1646  */
     {
                             forInst((yyvsp[-6].str), (yyvsp[-4].valoresRango), (yyvsp[-3].i), (yyvsp[-2].i));
                         }
@@ -1917,49 +1917,49 @@ yyreduce:
     break;
 
   case 87:
-#line 253 "miint.y" /* yacc.c:1646  */
+#line 254 "miint.y" /* yacc.c:1646  */
     { gc << "\tGT(" << (yyvsp[-5].i) << ");\nL " << (yyvsp[-4].i) << ":\n"; }
 #line 1924 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 260 "miint.y" /* yacc.c:1646  */
+#line 261 "miint.y" /* yacc.c:1646  */
     {gc << "L " << (yyvsp[-2].i) << ":\t\t\t# Label salida if\n";}
 #line 1930 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 262 "miint.y" /* yacc.c:1646  */
+#line 263 "miint.y" /* yacc.c:1646  */
     { (yyval.i)=(yyvsp[-3].i); }
 #line 1936 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 262 "miint.y" /* yacc.c:1646  */
+#line 263 "miint.y" /* yacc.c:1646  */
     {gc << "L " << (yyvsp[-2].i) << ":\t\t\t\t\t\t# Label salida if\n"; }
 #line 1942 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 269 "miint.y" /* yacc.c:1646  */
+#line 270 "miint.y" /* yacc.c:1646  */
     {gc << "L " << (yyvsp[-2].i) << ":\t\t# Se termina el bloque del if y se sale\n";}
 #line 1948 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 273 "miint.y" /* yacc.c:1646  */
+#line 274 "miint.y" /* yacc.c:1646  */
     { gc << "\tGT(" << (yyvsp[(-1) - (3)].i) << ");\t\t\t\t\t# Ir a salida\nL " << (yyvsp[-3].i) << ":\t\t\t\t\t\t# Label del else\n";}
 #line 1954 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 278 "miint.y" /* yacc.c:1646  */
+#line 279 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = ne(); }
 #line 1960 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 282 "miint.y" /* yacc.c:1646  */
+#line 283 "miint.y" /* yacc.c:1646  */
     { gc << "\tGT  (" << (yyvsp[(-2) - (0)].i) << ");\t\t# Fin bloque y salida a fin del if\n"
                         "L " <<  (yyvsp[(-1) - (0)].i) << ":\t\t\t# Label de este elif\n";
                       }
@@ -1967,7 +1967,7 @@ yyreduce:
     break;
 
   case 97:
-#line 287 "miint.y" /* yacc.c:1646  */
+#line 288 "miint.y" /* yacc.c:1646  */
     {
                         gc << "\tIF(!" << memStack.load((yyvsp[(-3) - (0)].i)) << ") "
                           "GT(" << (yyvsp[0].i) << ");\t# Si no se cumple la condición se va al siguiente elif\n";
@@ -1977,7 +1977,7 @@ yyreduce:
     break;
 
   case 98:
-#line 295 "miint.y" /* yacc.c:1646  */
+#line 296 "miint.y" /* yacc.c:1646  */
     { gc << "\tIF(!" << memStack.load((yyvsp[(-3) - (0)].i)) << ") GT(" << (yyvsp[0].i) << ");\t\t\t# Comprobación condición if\n";
                         memStack.release((yyvsp[(-3) - (0)].i));
                       }
@@ -1985,37 +1985,37 @@ yyreduce:
     break;
 
   case 99:
-#line 301 "miint.y" /* yacc.c:1646  */
+#line 302 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[(-8) - (0)].i); /*($-1 del anterior)*/ }
 #line 1992 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 305 "miint.y" /* yacc.c:1646  */
+#line 306 "miint.y" /* yacc.c:1646  */
     { (yyval.i) = (yyvsp[(-3) - (0)].i); }
 #line 1998 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 311 "miint.y" /* yacc.c:1646  */
+#line 312 "miint.y" /* yacc.c:1646  */
     { gc << "L " << (yyvsp[0].i) << ":\n"; }
 #line 2004 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 312 "miint.y" /* yacc.c:1646  */
+#line 313 "miint.y" /* yacc.c:1646  */
     { gc << "\tIF( !" << memStack.load((yyvsp[-1].i)) << " ) GT(" << (yyvsp[-4].i) << ");\n"; }
 #line 2010 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 313 "miint.y" /* yacc.c:1646  */
+#line 314 "miint.y" /* yacc.c:1646  */
     { gc << "\tGT(" << (yyvsp[-6].i) << ");\nL " << (yyvsp[-7].i) << ":\n"; }
 #line 2016 "miint.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 316 "miint.y" /* yacc.c:1646  */
+#line 317 "miint.y" /* yacc.c:1646  */
     { ValoresRango valoresRango =
                             {memStack.getType((yyvsp[-2].i)), memStack.saveInStack((yyvsp[-2].i)), memStack.saveInStack((yyvsp[0].i)),
                             memStack.addToStack(new PrimitiveType(INT))};
@@ -2025,7 +2025,7 @@ yyreduce:
     break;
 
   case 105:
-#line 321 "miint.y" /* yacc.c:1646  */
+#line 322 "miint.y" /* yacc.c:1646  */
     { (yyval.valoresRango) = ValoresRango{memStack.getType((yyvsp[-4].i)),
 					                                                memStack.saveInStack((yyvsp[-4].i)),
 					                                                memStack.saveInStack((yyvsp[-2].i)),
@@ -2262,7 +2262,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 326 "miint.y" /* yacc.c:1906  */
+#line 327 "miint.y" /* yacc.c:1906  */
 
 
 int main(int argc, char **argv) {
@@ -2283,8 +2283,8 @@ int main(int argc, char **argv) {
     std::cout << "Compiling " << argv[1] << "...\n";
     try{
         yyparse();
-    }catch(const std::exception& e) {
-        std::cout << "Unexpected error" << e.what() << "\n";
+    }catch(...) {
+        std::cout << "Unexpected error\n";
         memStack.print();
         gc.flush();
         gc.close();
