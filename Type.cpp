@@ -84,7 +84,7 @@ PrimitiveType::PrimitiveType(yytokentype type) : Type(type), type(type) {
             _size = 8;
             break;
         case FLOAT:
-            _size = 4;
+            _size = 8;
             break;
         case DOUBLE:
             _size = 8;
@@ -195,4 +195,17 @@ std::ostream &operator<<(std::ostream &os, yytokentype const &yytoken) {
         return "UNKNOWN";
     }(yytoken) << '(' << (int)yytoken << ')';
     return os;
+}
+
+
+bool isNumberType(Type *tipo) {
+    switch (tipo->getType()) {
+        case INT:
+        case LONG:
+        case FLOAT:
+        case DOUBLE:
+            return true;
+        default:
+            return false;
+    }
 }

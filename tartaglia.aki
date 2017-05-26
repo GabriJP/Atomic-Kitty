@@ -10,5 +10,18 @@ int tritarTupla((int, int)n):
     else:
         return tritar(n[0]-1, n[1]-1) + tritar(n[0]-1, n[1])
 
-print(tritar(4, 3))
-print(tritarTupla(4, 3))
+int tritar2((int, int)n):
+    int n0 = n[0]
+    int n1 = n[1]
+    if n1 is 0 or n1 is n0:
+        return 1
+    else:
+        return tritar(n0-1, n1-1) + tritar(n0-1, n1)
+
+for i in 1..10:
+    print(tritar(10, i))
+    print('\n')
+    print(tritar2((10, i)))
+    print('\n')
+    print(tritarTupla((10, i)))
+    print('\n')

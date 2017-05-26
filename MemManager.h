@@ -136,6 +136,14 @@ public:
         StackElement(int id, Type* type) : id(id), type(type), name(""){}
         StackElement(int id, Type* type, std::string name) : id(id), type(type), name(name){}
 
+        void reset() {
+            id = -1;
+            type = nullptr;
+            name = "";
+            blockDepth = -1;
+            blocked = false;
+        }
+
     };
 
     StackElement& get(int id);
@@ -156,11 +164,11 @@ public:
 
     void endFuntion();
 
-    static std::map<RegCode, char *> regNames;
+    static std::map<RegCode, const char *> regNames;
 
     void saveReturn(int i);
 
-    void assign(std::size_t varOffset, bool  varInGlobal, std::size_t expOffset, bool  expInGlobal, Type* type);
+    void assign(int varOffset, bool  varInGlobal, int expOffset, bool  expInGlobal, Type* type);
     std::size_t offsetOf(int id, bool &offsetFromGlobal);
     std::size_t offsetOf(int id) {
         bool nop;

@@ -143,3 +143,5 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, yytokentype const& yytoken);
+
+bool isNumberType(Type* type);

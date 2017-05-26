@@ -9,7 +9,7 @@ std::ofstream gc("program.q");
 int ec = 1;
 
 int opera(int left, int right, const char* op){
-    if (memStack.getType(left)->equals(memStack.getType(right)) || (isNumberType(left) && isNumberType(right)) ) {
+    if (memStack.getType(left)->equals(memStack.getType(right)) || (isNumberType(memStack.getType(left)) && isNumberType(memStack.getType(right))) ) {
         RegCode r1 = memStack.load(left);
         RegCode r2 = memStack.load(right);
         gc << '\t' << r1 << " = " << r1 << " " << op << " " << r2 <<
@@ -22,22 +22,9 @@ int opera(int left, int right, const char* op){
     } else {
         logError(std::string("Tipos diferentes: '") +
                          memStack.getType(left)->toString() + "' y '" + memStack.getType(right)->toString() + "'");
+        return -1;
     }
 }
-
-bool isNumberType(int id) {
-    auto tipo = memStack.getType(id);
-    switch (tipo->getType()) {
-        case INT:
-        case LONG:
-        case FLOAT:
-        case DOUBLE:
-            return true;
-        default:
-            return false;
-    }
-}
-
 
 int ne() {
     return ec++;
@@ -50,7 +37,7 @@ void logError(std::string str) {
 static void bp() {
     static int p = 0;
 
-    gc << "\tRR3 = " << p++ << ";\n";
+    //gc << "\tRR3 = " << p++ << ";\n";
     gc << "\tGT( -1 );\n";
 }
 
@@ -77,9 +64,6 @@ int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v) {
         if(v) for(auto& param : *v) {
             int id = memStack.addToStackWithoutChangingR7(param->getType(), "param: " + param->getName());
             ((ParameterNode*)scope->getVariable(param->getName()))->setId(id);
-        }else{
-            PrimitiveType t(INT);
-            memStack.addToStackWithoutChangingR7(&t, "VOID SPACE tweak"); //tweak
         }
 
         gc.flush();
@@ -114,8 +98,6 @@ bool ofType(Car1 car1, Car2 car2, Cdr ... cdr) {
 
 int callFunctionInit(char *name) {
 
-    
-
     memStack.saveRegisters();
 
     int returnLabel = ne();
@@ -128,44 +110,50 @@ int callFunctionInit(char *name) {
 }
 
 
-int callFunction(char* funcName, int id, int returnLabel){
+int callFunction(char* funcName, int paramId, int returnLabel){
 
 
     if(isASystemFunction(funcName)) {
-        return callSystemFunction(funcName, id, returnLabel);
+        return callSystemFunction(funcName, paramId, returnLabel);
     }
 
     FunctionNode *nodo = scope->getFunction(funcName);
+    if(!nodo) {
+        logError("Function " + std::string(funcName) + " don't exist");
+        return -1;
+    }
 
-    if(id != -1) {
-        MemManager::StackElement& param = memStack.get(id);
-        RegCode reg = memStack.getFromRegisters(id);
+    if(paramId != -1) {
+        MemManager::StackElement& param = memStack.get(paramId);
+        RegCode reg = memStack.getFromRegisters(paramId);
         if(reg != RegCode::INVALID) {
             int newId = memStack.addToStack(param.type, "Parameters");
             memStack.assign(newId, reg);
-            memStack.release(id);
-            id = newId;
+            memStack.release(paramId);
         }
 
-        gc << "\tR6 = R7 + " << nodo->paramterSize() - 4 << "; # Update R6 \n";
+        gc << "\tR6 = R7 + " << nodo->paramterSize() << "; # Update R6 \n";
     }else{
         PrimitiveType p(INT); //Little tweak
-        memStack.addToStack(&p, "VOID SPACE");
         gc << "\tR6 = R7; # Update R6 \n";
 
     }
 
-    
+    bp();
 
     gc << "\tGT( " << nodo->getLabel() << " ); # Call " << funcName << "\n";
     gc << "L " << returnLabel << ": # Return Label\n";
 
-    memStack.pop();
+    bp();
+
+    if(paramId != -1) memStack.pop();
     memStack.pop();
 
     memStack.loadRegisters();
 
-    gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize() - 4 <<  "; # Update R7 \n";
+    gc << "\tR7 = R6 - " << nodo->getType()->size()  + memStack.currentStackSize()  <<  "; # Update R7 \n";
+
+    bp();
 
     gc.flush();
 
@@ -182,7 +170,12 @@ int callSystemFunction(std::string name, int id, int returnLabel) {
         memStack.block(R2);
         RegCode reg = memStack.load(id);
         gc << "\tR2 = " << reg << "; # Loading print argument\n";
-        gc << "\tR1 = 0x11FFC; # Adress of print format\n";
+
+        if(memStack.typeOf(id) == CHAR)
+            gc << "\tR1 = 0x11FF8; # Address of print char format\n";
+        else
+            gc << "\tR1 = 0x11FFC; # Address of print int format\n";
+
         gc << "\tR0 = "<< returnLabel << "; # Return Address\n";
         gc << "\tGT(putf_); # Call print\n";
         gc << "L " << returnLabel << ": # Return Label\n";
@@ -194,6 +187,7 @@ int callSystemFunction(std::string name, int id, int returnLabel) {
         gc << "\tR0 = 0;\n";
         gc << "\tGT( -2 );\n";
     }
+    return -1;
 }
 
 void yyerror(const char *str) {
@@ -217,13 +211,16 @@ void initQ() {
           "#define B R6    // base del marco actual \n\n"
           "BEGIN \n\n"
           "L 0:\n"
-          "\tR6 = R7;\n";
+          "\tR6 = 0x12000;\n";
 
-    std::string printCode("%d\\n");
+    std::string printIntCode("%d");
+    memStack.addToStackWithoutChangingR7(new PrimitiveType(STRING, 4));
+    std::string printCharCode("%c");
     memStack.addToStackWithoutChangingR7(new PrimitiveType(STRING, 4));
 
     gc << "STAT(0)\n";
-    gc << "\tSTR( 0x11FFC, \"" << printCode << "\");\n";
+    gc << "\tSTR( 0x11FFC, \"" << printIntCode << "\");\n";
+    gc << "\tSTR( 0x11FF8, \"" << printCharCode << "\");\n";
     gc << "CODE(0)\n";
 
     gc.flush();
@@ -245,24 +242,27 @@ void endQ() {
 int primitiveExp(yytokentype tipo, char c) {
     int id = primitiveExp(tipo);
     RegCode reg = memStack.load(id);
-    gc << "\t" << reg << " = '" << std::string(1,c) << "'; \n";
+
+    gc << "\t" << reg << " = '";
+    if(c == '\n') gc  << "\\n'; \n";
+    else if(c == '\t') gc  << "\\t'; \n";
+    else gc << std::string(1,c) << "'; \n";
+
     return id;
 }
 
 int generateReturn(int expId) {
 
-    
 
     PrimitiveType tInt(INT);
-    RegCode reg = memStack.getFreeRegister(&tInt);
+    RegCode reg = memStack.getFreeRegister(&tInt); //Register for label
 
     memStack.block(reg);
 
-    gc << "\t" << reg << " = I( R6 + 4 ); # Load return label \n";
+    gc << "\t" << reg << " = I( R6 ); # Load return label \n";
 
     memStack.saveReturn(expId);
 
-    
 
     gc << "\tGT( " << reg << " ); # Return \n";
 
@@ -271,7 +271,12 @@ int generateReturn(int expId) {
     return 0;
 }
 
-int functionEnd(int endLabel) {
+void functionEnd(int endLabel) {
+    PrimitiveType tInt(INT);
+    RegCode reg = memStack.getFreeRegister(&tInt);
+    gc << "\t" << reg << " = I( R6 ); # Load return label \n";
+    gc << "\tGT( " << reg << " ); # Return \n";
+
     gc << "L " << endLabel << ": # End of function\n\n";
     memStack.endFuntion();
 }
@@ -297,8 +302,8 @@ int buildExpList(int exp, int expList) {
                 " = " << reg << "; # Saving " << memStack.getType(expList)->toString() << " tuple sub-element\n";
     }else{
         bool expInGlobal;
-        memStack.assign(memStack.offsetOf(expList, expListInGlobal) + memStack.getType(expList)->size(), expListInGlobal,
-                        memStack.offsetOf(exp, expInGlobal), expInGlobal, memStack.getType(exp));
+        memStack.assign((int) (memStack.offsetOf(expList, expListInGlobal) + memStack.getType(expList)->size()), expListInGlobal,
+                        (int) memStack.offsetOf(exp, expInGlobal), expInGlobal, memStack.getType(exp));
 
     }
 
@@ -320,7 +325,7 @@ void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLa
     }else{
         varId = scope->getVariable(variable)->getId();
     }
-    RegCode initReg = memStack.load(range.inicio);
+
     memStack.assign(varId, range.inicio);
 
     int jumpUpdate = ne();
@@ -330,16 +335,25 @@ void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLa
     RegCode stepReg = memStack.load(range.paso);
     RegCode varReg = memStack.load(varId);
     gc << '\t' << varReg << " = " << varReg << " + " << stepReg << "; # Update for range\n";
+    memStack.release(stepReg);
     memStack.assign(varId, varReg);
 
     gc << "L " << jumpUpdate << ": # for condition label \n";
 
     RegCode cond = memStack.getFreeRegister(range.type);
     RegCode finalReg = memStack.load(range.fin);
+    RegCode initReg = memStack.load(range.inicio);
     varReg = memStack.load(varId); //Reload just in case
-    gc << '\t' << cond << " = " << varReg << " == " << finalReg << "; # Check for end\n";
-    gc << "\tIF( " << cond << " ) GT( " << exitLabel << " ); # Update for range\n";
+    gc << '\t' << cond << " = " << varReg << " >= " << finalReg << "; # Check for end\n";
+    gc << "\tIF( " << cond << " ) GT( " << exitLabel << " ); # Exit for range\n";
 
+    gc << '\t' << cond << " = " << varReg << " < " << initReg << "; # Check for init\n";
+    gc << "\tIF( " << cond << " ) GT( " << exitLabel << " ); # Exit for range\n";
+
+    memStack.release(cond);
+    memStack.release(finalReg);
+    memStack.release(initReg);
+    memStack.release(varReg);
 
 }
 

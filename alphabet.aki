@@ -1,0 +1,5 @@
+for c in 'a'..'z':
+    print(c)
+
+print('z')
+print('\n')

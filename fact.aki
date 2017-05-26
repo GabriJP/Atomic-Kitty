@@ -11,4 +11,5 @@ int factRecursivo(int n):
         return n * factRecursivo(n - 1)
 
 print(fact(6))
+print('\n')
 print(factRecursivo(6))

@@ -128,15 +128,15 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
                                                          }
 
 "\'"(.|\\.)"\'"                                          {
-                                                             if(strcmp("'\\n'", yytext))
+                                                             if(!strcmp("'\\n'", yytext))
                                                                 yylval.c = '\n';
-                                                             else if(strcmp("'\\t'", yytext))
+                                                             else if(!strcmp("'\\t'", yytext))
                                                                 yylval.c = '\t';
-                                                             else if(strcmp("'\\0'", yytext))
+                                                             else if(!strcmp("'\\0'", yytext))
                                                                 yylval.c = '\0';
                                                              else
                                                                 yylval.c = yytext[1];
-                                                             printf("Carácter: %s\n", yytext);
+                                                             printf("Carácter: %c\n", yylval.c);
                                                              return VALOR_CHAR;
                                                          }
 
