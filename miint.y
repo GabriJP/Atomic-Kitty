@@ -258,9 +258,9 @@ for					: FOR IDENTIFICADOR IN rango ne[vuelta] ne[salida] ':' FIN_DE_LINEA {
 
 
 if					: IF exp ':' FIN_DE_LINEA ne[salida] if_evalua_expresion bloque
-                        {gc << "L " << $salida << ":\t\t\t# Label salida if\n";}
+                        {gc << "L " << $salida << ":\t\t\t\t# Label salida if\n";}
 					| IF exp ':' FIN_DE_LINEA ne[elif] if_evalua_expresion bloque ne[salida]
-					    { $<i>$=$<i>elif; } elif_l {gc << "L " << $salida << ":\t\t\t\t\t\t# Label salida if\n"; }
+					    { $<i>$=$<i>elif; } elif_l {gc << "L " << $salida << ":\t\t\t\t\t\t\t# Label salida if\n"; }
 					;
 
 /*ELIF. $0=fin elif -> donde se va si no se cumple la condición / $-1=salida if -> donde se va al acabar un bloque */
@@ -271,7 +271,7 @@ elif_l				: ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
 					| ELIF elif_control exp ':' FIN_DE_LINEA ne[fin] elif_eval bloque
                         elif_copia_salida elif_copia_siguiente elif_l
 					| ELSE ':' FIN_DE_LINEA
-					    { gc << "\tGT(" << $<i>-1 << ");\t\t\t\t\t# Ir a salida\nL " << $<i>0 << ":\t\t\t\t\t\t# Label del else\n";} bloque
+					    { gc << "\tGT(" << $<i>-1 << ");\t\t\t\t\t\t# Ir a salida\nL " << $<i>0 << ":\t\t\t\t\t\t\t# Label del else\n";} bloque
 					;
 
 
@@ -281,7 +281,7 @@ ne					: { $<i>$ = ne(); }
 
 /* Ir a salida, Si (!cond) ir a siguiente elif/else/salida */
 elif_control		: { gc << "\tGT  (" << $<i>-2 << ");\t\t# Fin bloque y salida a fin del if\n"
-                        "L " <<  $<i>-1 << ":\t\t\t# Label de este elif\n";
+                        "L " <<  $<i>-1 << ":\t\t\t\t# Label de este elif\n";
                       }
 					;
 
@@ -293,7 +293,7 @@ elif_eval           : {
 					;
 
 /*Evalua expresión en $-3 y si no se cumple salta a $0*/
-if_evalua_expresion	: { gc << "\tIF(!" << memStack.load($<i>-3) << ") GT(" << $<i>0 << ");\t\t\t# Comprobación condición if\n";
+if_evalua_expresion	: { gc << "\tIF(!" << memStack.load($<i>-3) << ") GT(" << $<i>0 << ");\t\t\t\t# Comprobación condición if\n";
                         memStack.release($<i>-3);
                       }
 					;

@@ -7,8 +7,9 @@ Scope::Scope(Scope *scope, std::string nombre) : parent(scope) {
 
     std::vector<ParameterNode *> *args = ((FunctionNode *) scope->getSymbol(
             std::string("func_") + nombre))->getParameters();
-    if(args) for (auto parameter : *args)
-        defineVariable(parameter->getName(), new ParameterNode(parameter->getType(), parameter->getName()));
+    if (args)
+        for (auto parameter : *args)
+            defineVariable(parameter->getName(), new ParameterNode(parameter->getType(), parameter->getName()));
 
 }
 
@@ -73,7 +74,7 @@ bool Scope::isEmpty() {
 }
 
 Scope::~Scope() {
-    for (auto dato : symbolTable){
+    for (auto dato : symbolTable) {
         //memManager->libera(dato.second->getType()->getId());
         delete dato.second->getType();
         delete dato.second;
@@ -136,10 +137,10 @@ int FunctionNode::getLabel() {
 }
 
 std::size_t FunctionNode::paramterSize() {
-    if(!parameters) return 0;
+    if (!parameters) return 0;
 
     std::size_t size = 0;
-    for(auto& parameter : *parameters) size += parameter->getType()->size();
+    for (auto &parameter : *parameters) size += parameter->getType()->size();
 
     return size;
 }

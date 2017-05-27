@@ -1,0 +1,10 @@
+int tritar((int, int) t):
+    int m = t[0]
+    int n = t[1]
+    if n is 0 or n is m:
+        return 1
+    else:
+        return tritar((m-1, n-1))+tritar((m-1, n))
+
+for i in 1..5, 10:
+    print(tritar((5,3)))

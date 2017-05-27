@@ -16,7 +16,7 @@ int Type::getId() {
 
 std::size_t Type::size() {
     float typeSize = realSize();
-    return std::ceil( typeSize / 4.f ) * 4;
+    return std::ceil(typeSize / 4.f) * 4;
 }
 
 
@@ -133,7 +133,7 @@ yytokentype PrimitiveType::getType() {
 
 std::size_t TupleType::realSize() {
     std::size_t size = 0;
-    for(auto& type : types)
+    for (auto &type : types)
         size += type->size();
 
     return size;
@@ -154,7 +154,7 @@ int TupleType::length() {
 std::size_t TupleType::offsetOf(int pos) {
     std::size_t size = 0;
     //for(int i = 0; i < pos; i++)
-    for(int i = types.size()-1; i > pos; i--)
+    for (int i = types.size() - 1; i > pos; i--)
         size += getSubType(i)->size();
 
     return size;
@@ -164,12 +164,12 @@ Type *PrimitiveType::clone() {
     return new PrimitiveType(*this);
 }
 
-PrimitiveType::PrimitiveType(yytokentype id, std::size_t size) : Type(id), type(id), _size(size){ }
+PrimitiveType::PrimitiveType(yytokentype id, std::size_t size) : Type(id), type(id), _size(size) {}
 
 std::ostream &operator<<(std::ostream &os, yytokentype const &yytoken) {
 
-    os << [](yytokentype const &yytoken){
-        switch(yytoken) {
+    os << [](yytokentype const &yytoken) {
+        switch (yytoken) {
             case yytokentype::VALOR_INT:
             case yytokentype::INT:
                 return "INT";
@@ -193,7 +193,7 @@ std::ostream &operator<<(std::ostream &os, yytokentype const &yytoken) {
                 return "STRING";
         }
         return "UNKNOWN";
-    }(yytoken) << '(' << (int)yytoken << ')';
+    }(yytoken) << '(' << (int) yytoken << ')';
     return os;
 }
 

@@ -1,15 +1,16 @@
-int fact(int n):
-    int result = 1
+long valor = 12
+
+long fact(long n):
+    long result = 1
     for i in 2..n + 1:
         result = result * i
     return result
 
-int factRecursivo(int n):
-    if n < 1:
+long factRecursivo(long n):
+    if n <= 1:
         return 1
     else:
         return n * factRecursivo(n - 1)
 
-print(fact(6))
-print('\n')
-print(factRecursivo(6))
+print(fact(valor))
+print(factRecursivo(valor))

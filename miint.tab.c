@@ -1924,7 +1924,7 @@ yyreduce:
 
   case 88:
 #line 261 "miint.y" /* yacc.c:1646  */
-    {gc << "L " << (yyvsp[-2].i) << ":\t\t\t# Label salida if\n";}
+    {gc << "L " << (yyvsp[-2].i) << ":\t\t\t\t# Label salida if\n";}
 #line 1930 "miint.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1936,7 +1936,7 @@ yyreduce:
 
   case 90:
 #line 263 "miint.y" /* yacc.c:1646  */
-    {gc << "L " << (yyvsp[-2].i) << ":\t\t\t\t\t\t# Label salida if\n"; }
+    {gc << "L " << (yyvsp[-2].i) << ":\t\t\t\t\t\t\t# Label salida if\n"; }
 #line 1942 "miint.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1948,7 +1948,7 @@ yyreduce:
 
   case 93:
 #line 274 "miint.y" /* yacc.c:1646  */
-    { gc << "\tGT(" << (yyvsp[(-1) - (3)].i) << ");\t\t\t\t\t# Ir a salida\nL " << (yyvsp[-3].i) << ":\t\t\t\t\t\t# Label del else\n";}
+    { gc << "\tGT(" << (yyvsp[(-1) - (3)].i) << ");\t\t\t\t\t\t# Ir a salida\nL " << (yyvsp[-3].i) << ":\t\t\t\t\t\t\t# Label del else\n";}
 #line 1954 "miint.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1961,7 +1961,7 @@ yyreduce:
   case 96:
 #line 283 "miint.y" /* yacc.c:1646  */
     { gc << "\tGT  (" << (yyvsp[(-2) - (0)].i) << ");\t\t# Fin bloque y salida a fin del if\n"
-                        "L " <<  (yyvsp[(-1) - (0)].i) << ":\t\t\t# Label de este elif\n";
+                        "L " <<  (yyvsp[(-1) - (0)].i) << ":\t\t\t\t# Label de este elif\n";
                       }
 #line 1968 "miint.tab.c" /* yacc.c:1646  */
     break;
@@ -1978,7 +1978,7 @@ yyreduce:
 
   case 98:
 #line 296 "miint.y" /* yacc.c:1646  */
-    { gc << "\tIF(!" << memStack.load((yyvsp[(-3) - (0)].i)) << ") GT(" << (yyvsp[0].i) << ");\t\t\t# Comprobación condición if\n";
+    { gc << "\tIF(!" << memStack.load((yyvsp[(-3) - (0)].i)) << ") GT(" << (yyvsp[0].i) << ");\t\t\t\t# Comprobación condición if\n";
                         memStack.release((yyvsp[(-3) - (0)].i));
                       }
 #line 1986 "miint.tab.c" /* yacc.c:1646  */

@@ -7,7 +7,9 @@
 #include <iostream>
 #include "Type.h"
 
+
 class MemManager;
+
 class Type;
 
 enum Category {
@@ -31,9 +33,9 @@ protected:
     Type *type;
     int id;
 public:
-    explicit VariableNode(Type* type, int id);
+    explicit VariableNode(Type *type, int id);
 
-    Category getCategory();
+    Category getCategory() override;
 
     std::string toString() override;
 
@@ -73,7 +75,7 @@ public:
 
     std::size_t paramterSize();
 
-    Type *getType();
+    Type *getType() override;
 
     int getLabel();
 

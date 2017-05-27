@@ -219,8 +219,8 @@ void initQ() {
     memStack.addToStackWithoutChangingR7(new PrimitiveType(STRING, 4));
 
     gc << "STAT(0)\n";
-    gc << "\tSTR( 0x11FFC, \"" << printIntCode << "\");\n";
-    gc << "\tSTR( 0x11FF8, \"" << printCharCode << "\");\n";
+    gc << "\tSTR( 0x11FFC, \"" << printIntCode << "\\n\");\n";
+    gc << "\tSTR( 0x11FF8, \"" << printCharCode << "\\n\");\n";
     gc << "CODE(0)\n";
 
     gc.flush();
