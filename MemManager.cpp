@@ -7,7 +7,7 @@ const std::map<yytokentype, char> MemManager::letterMap = {
         {DOUBLE, 'D'},
         {CHAR,   'U'},
         {TUPLE,  'I'},
-        {STRING,  'I'},
+        {STRING, 'I'},
         {BOOL,   'U'},
 };
 
@@ -34,9 +34,9 @@ int MemManager::addToStackWithoutChangingR7(Type *type, int id, std::string name
 
 int MemManager::addToRegister(Type *type, int id) {
 
-    if(type->size() <= 4)
+    if (type->size() <= 4)
         addToRegister(registers32Bits, type, id);
-    else if(type->size() == 8)
+    else if (type->size() == 8)
         addToRegister(registers64Bits, type, id);
     else
         addToStack(type, id);
@@ -46,9 +46,9 @@ int MemManager::addToRegister(Type *type, int id) {
 
 
 RegCode MemManager::getFreeRegister(Type *type) {
-    if(type->size() <= 4)
+    if (type->size() <= 4)
         return addToRegister(registers32Bits, type, getId());
-    else if(type->size() == 8)
+    else if (type->size() == 8)
         return addToRegister(registers64Bits, type, getId());
 
     return RegCode::INVALID;
@@ -56,15 +56,15 @@ RegCode MemManager::getFreeRegister(Type *type) {
 
 
 void MemManager::release(int id) {
-    for(auto& reg : registers32Bits) {
-        if(reg.id == id) {
+    for (auto &reg : registers32Bits) {
+        if (reg.id == id) {
             reg.id = NOT_USED;
             reg.type = nullptr;
             return;
         }
     }
-    for(auto& reg : registers64Bits) {
-        if(reg.id == id) {
+    for (auto &reg : registers64Bits) {
+        if (reg.id == id) {
             reg.id = NOT_USED;
             reg.type = nullptr;
             return;
@@ -77,8 +77,8 @@ void MemManager::saveRegisters() {
     savedRegisters.fill(false);
 
     PrimitiveType p(INT);
-    auto save = [this, &p](StackElement& reg, RegCode i) {
-        if(reg.id !=  NOT_USED) {
+    auto save = [this, &p](StackElement &reg, RegCode i) {
+        if (reg.id != NOT_USED) {
             int id = addToStack(reg.type, reg.id, MemManager::regNames[RegCode(i)] + std::string(" saved"));
             assign(id, i);
             savedRegisters[i] = true;
@@ -87,8 +87,8 @@ void MemManager::saveRegisters() {
     };
 
     StackElement e{getId(), &p};
-    for(int i = 0; i < registers32Bits.size(); i++) save(registers32Bits[i], RegCode(i));
-    for(int i = 0; i < registers64Bits.size(); i++) save(registers64Bits[i], RegCode(i + (int)RR0));
+    for (int i = 0; i < registers32Bits.size(); i++) save(registers32Bits[i], RegCode(i));
+    for (int i = 0; i < registers64Bits.size(); i++) save(registers64Bits[i], RegCode(i + (int) RR0));
     //save(e, R7);
     save(e, R6);
 
@@ -106,22 +106,23 @@ void MemManager::loadRegisters() {
 
 RegCode MemManager::load(int id, int &newId) {
     newId = id;
-    auto& element = get(id);
+    auto &element = get(id);
 
-    if(element.type->isTuple()) return RegCode::INVALID;
+    if (element.type->isTuple()) return RegCode::INVALID;
 
     RegCode reg = getFromRegisters(id);
-    if(reg != RegCode::INVALID) return reg;
+    if (reg != RegCode::INVALID) return reg;
 
     newId = getId();
 
     int m = element.type->size();
 
-    if(element.type->size() <= 4) reg = addToRegister(registers32Bits, element.type, newId);
-    else if(element.type->size() == 8) reg = addToRegister(registers64Bits, element.type, newId);
+    if (element.type->size() <= 4) reg = addToRegister(registers32Bits, element.type, newId);
+    else if (element.type->size() == 8) reg = addToRegister(registers64Bits, element.type, newId);
     else return RegCode::INVALID;
 
-    gc << '\t' << reg << " = " << getInstruction(element) << "; # Load id:" << id << " " << element.name << " from stack\n";
+    gc << '\t' << reg << " = " << getInstruction(element) << "; # Load id:" << id << " " << element.name
+       << " from stack\n";
     gc.flush();
 
     return reg;
@@ -129,17 +130,17 @@ RegCode MemManager::load(int id, int &newId) {
 }
 
 RegCode MemManager::load(int id, int pos, int &newId) {
-    auto& element = get(id);
+    auto &element = get(id);
 
-    if(!element.type->isTuple()) throw new bad_alloc();
+    if (!element.type->isTuple()) throw new bad_alloc();
 
-    TupleType* tuple = (TupleType*)element.type;
+    TupleType *tuple = (TupleType *) element.type;
     bool isInGlobal;
     std::size_t offset = offsetOf(id, isInGlobal) + tuple->offsetOf(pos);
-    Type* subType = tuple->getSubType(pos);
+    Type *subType = tuple->getSubType(pos);
 
-    if(tuple->getSubType(pos)->isTuple()) {
-        newId = addToStack(subType, "sub-element "+std::to_string(pos)+" of tuple "+element.name);
+    if (tuple->getSubType(pos)->isTuple()) {
+        newId = addToStack(subType, "sub-element " + std::to_string(pos) + " of tuple " + element.name);
 
         bool SubElemIsInGlobal = false;
         std::size_t SubElemOffset = offsetOf(id, isInGlobal);
@@ -147,11 +148,11 @@ RegCode MemManager::load(int id, int pos, int &newId) {
 
         gc.flush();
         return RegCode::INVALID;
-    }else{
+    } else {
         newId = addToRegister(subType);
         RegCode reg = getFromRegisters(newId);
         gc << '\t' << reg << " = " << getInstruction(offset, isInGlobal, subType) <<
-            "; # Load id:" << newId << " sub-element "+std::to_string(pos)+" of tuple "+element.name + "\n";
+           "; # Load id:" << newId << " sub-element " + std::to_string(pos) + " of tuple " + element.name + "\n";
         gc.flush();
 
         return reg;
@@ -166,41 +167,45 @@ void MemManager::print() {
 
     std::cout << "STACK INFO-------------------\n";
 
-    if(inFunction)std::cout << "Parsing function code\n";
+    if (inFunction)std::cout << "Parsing function code\n";
     else std::cout << "Parsing global code\n";
 
     std::cout << "REG INFO:\n";
-    for(int i = 0; i < registers32Bits.size(); i++)
-        if(registers32Bits[i].id != NOT_USED)
-            std::cout << "\t" << (RegCode)i << ":" << registers32Bits[i].id << " -> " << registers32Bits[i].type->toString() << "\n";
+    for (int i = 0; i < registers32Bits.size(); i++)
+        if (registers32Bits[i].id != NOT_USED)
+            std::cout << "\t" << (RegCode) i << ":" << registers32Bits[i].id << " -> "
+                      << registers32Bits[i].type->toString() << "\n";
         else
-            std::cout << "\t" << (RegCode)i << ": Not used\n";
+            std::cout << "\t" << (RegCode) i << ": Not used\n";
 
-    for(int i = 0; i < registers64Bits.size(); i++)
-        if(registers64Bits[i].id != NOT_USED)
-            std::cout << "\t" << (RegCode) (i + (int)RR0) << ":" << registers32Bits[i].id << " -> " << registers32Bits[i].type->toString() << "\n";
+    for (int i = 0; i < registers64Bits.size(); i++)
+        if (registers64Bits[i].id != NOT_USED)
+            std::cout << "\t" << (RegCode) (i + (int) RR0) << ":" << registers32Bits[i].id << " -> "
+                      << registers32Bits[i].type->toString() << "\n";
         else
-            std::cout << "\t" << (RegCode) (i + (int)RR0) << ": Not used\n";
+            std::cout << "\t" << (RegCode) (i + (int) RR0) << ": Not used\n";
 
     std::cout << "LOCAL STACK:\n";
-    for(auto&item : localStack) std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
+    for (auto &item : localStack)
+        std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
 
     std::cout << "GLOBAL STACK:\n";
-    for(auto&item : globalStack) std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
+    for (auto &item : globalStack)
+        std::cout << "\t" << item.id << " " << item.name << ":" << item.type->toString() << "\n";
 
     std::cout << "STACK INFO END---------------\n";
 }
 
 
 template<typename T>
-RegCode MemManager::addToRegister(T &registers, Type* type, int id) {
+RegCode MemManager::addToRegister(T &registers, Type *type, int id) {
     int reg;
 
     int b = 0;
 
-    if(haveFreeRegister(registers, reg)){
+    if (haveFreeRegister(registers, reg)) {
         registers[reg] = StackElement{id, type->clone()};
-    }else{
+    } else {
         reg = lastRegister(registers);
         addToStack(registers[reg].type, registers[reg].id);
         registers[reg] = {id, type->clone()};
@@ -209,16 +214,16 @@ RegCode MemManager::addToRegister(T &registers, Type* type, int id) {
     gc.flush();
 
     registers[reg].blockDepth = currentDepth;
-    if(type->size() == 8) return RegCode(reg + RR0);
-    else return (RegCode)reg;
+    if (type->size() == 8) return RegCode(reg + RR0);
+    else return (RegCode) reg;
 
 }
 
 
 template<typename T>
 bool MemManager::haveFreeRegister(T &registers, int &id) {
-    for(int i = 0; i < registers.size(); i++) {
-        if(registers[i].id == NOT_USED && !registers[i].blocked) {
+    for (int i = 0; i < registers.size(); i++) {
+        if (registers[i].id == NOT_USED && !registers[i].blocked) {
             id = i;
             return true;
         }
@@ -230,8 +235,8 @@ template<typename T>
 int MemManager::lastRegister(T &registers) {
     int minId = std::numeric_limits<int>::max();
     int regNumber = 0;
-    for(int i = 0; i < registers.size(); i++)
-        if(minId > registers[i].id && !registers[i].blocked) {
+    for (int i = 0; i < registers.size(); i++)
+        if (minId > registers[i].id && !registers[i].blocked) {
             minId = registers[i].id;
             regNumber = i;
         }
@@ -240,7 +245,7 @@ int MemManager::lastRegister(T &registers) {
 }
 
 std::deque<MemManager::StackElement> &MemManager::stack() {
-    if(inFunction) return localStack;
+    if (inFunction) return localStack;
     else return globalStack;
 }
 
@@ -267,11 +272,11 @@ std::ostream &operator<<(std::ostream &os, RegCode const &reg) {
 
 MemManager::StackElement &MemManager::get(int id) {
 
-    for(auto& elem : registers32Bits) if(id==elem.id) return elem;
-    for(auto& elem : registers64Bits) if(id==elem.id) return elem;
+    for (auto &elem : registers32Bits) if (id == elem.id) return elem;
+    for (auto &elem : registers64Bits) if (id == elem.id) return elem;
 
-    for(auto& elem : localStack) if(id==elem.id) return elem;
-    for(auto& elem : globalStack) if(id==elem.id) return elem;
+    for (auto &elem : localStack) if (id == elem.id) return elem;
+    for (auto &elem : globalStack) if (id == elem.id) return elem;
 
     throw new std::bad_alloc();
 
@@ -286,10 +291,10 @@ Type *MemManager::getType(int id) {
 }
 
 std::size_t MemManager::offsetOf(int id, bool &offsetFromGlobal) {
-    if(inFunction) {
+    if (inFunction) {
         std::size_t offset = 0;
-        for(auto& item : localStack) {
-            if(item.id == id) {
+        for (auto &item : localStack) {
+            if (item.id == id) {
                 offsetFromGlobal = false;
                 return offset;
             }
@@ -299,8 +304,8 @@ std::size_t MemManager::offsetOf(int id, bool &offsetFromGlobal) {
 
     offsetFromGlobal = true;
     std::size_t offset = 0;
-    for(auto& item : globalStack) {
-        if(item.id == id) return offset;
+    for (auto &item : globalStack) {
+        if (item.id == id) return offset;
         offset += item.type->size();
     }
 
@@ -313,25 +318,25 @@ char MemManager::letter(Type *type) {
 }
 
 void MemManager::assign(int varId, int expId) {
-    if(getType(expId)->isTuple()) return assignTuple(varId, expId);
+    if (getType(expId)->isTuple()) return assignTuple(varId, expId);
 
     int expLoadedId;
-    StackElement& var = get(varId);
+    StackElement &var = get(varId);
 
     RegCode expRegister = load(expId, expLoadedId);
     StackElement exp = get(expLoadedId);
 
-    if(!exp.type->equals(var.type) && !(isNumberType(exp.type) && isNumberType(var.type) ) ) {
+    if (!exp.type->equals(var.type) && !(isNumberType(exp.type) && isNumberType(var.type))) {
         std::cout << "Types don't match in assign";
         exit(-1);
     }
 
     gc << '\t' << getInstruction(var) << " = " << expRegister
        << "; # Asign value id:" << varId << " " << var.name << " = id:"
-       << expId << " " << exp.name <<'\n';
+       << expId << " " << exp.name << '\n';
 
     release(expLoadedId);
-    if(expId != expLoadedId) release(expId);
+    if (expId != expLoadedId) release(expId);
 
     gc.flush();
 
@@ -339,22 +344,23 @@ void MemManager::assign(int varId, int expId) {
 
 void MemManager::assign(int varId, RegCode expRegister) {
 
-    StackElement& var = get(varId);
-    gc << '\t' << getInstruction(var) << " = " << expRegister << "; # Asign value id:" << varId << " " << var.name <<'\n';
+    StackElement &var = get(varId);
+    gc << '\t' << getInstruction(var) << " = " << expRegister << "; # Asign value id:" << varId << " " << var.name
+       << '\n';
     gc.flush();
 
 }
 
 
 void MemManager::assign(int varId, std::string value) {
-    StackElement& var = get(varId);
-    gc << '\t' << getInstruction(var) << " = " << value << "; # Asign id:" << varId << " " << var.name <<'\n';
+    StackElement &var = get(varId);
+    gc << '\t' << getInstruction(var) << " = " << value << "; # Asign id:" << varId << " " << var.name << '\n';
     gc.flush();
 }
 
 
 std::string MemManager::getInstruction(MemManager::StackElement &var) {
-    std::string out(1,letter(var.type));
+    std::string out(1, letter(var.type));
     bool inGlobal;
     std::size_t offset = offsetOf(var.id, inGlobal);
 
@@ -362,17 +368,17 @@ std::string MemManager::getInstruction(MemManager::StackElement &var) {
 }
 
 std::string MemManager::getInstruction(std::size_t offset, bool inGlobal, Type *type) {
-    std::string out(1,letter(type));
+    std::string out(1, letter(type));
 
-    if(inGlobal) {
+    if (inGlobal) {
 
         stringstream ss;
         ss << std::uppercase << std::hex << stackStart - offset - 4;
         string str = ss.str();
 
         return out + "(0x" + str + ")";
-    }else
-        return out + "(R6 - "+ std::to_string(offset+4) + ")";
+    } else
+        return out + "(R6 - " + std::to_string(offset + 4) + ")";
 }
 
 
@@ -382,7 +388,7 @@ MemManager::MemManager() {
 
 size_t MemManager::currentStackSize() {
     size_t size = 0;
-    for(auto& elem : stack()) size += elem.type->size();
+    for (auto &elem : stack()) size += elem.type->size();
 
     return size;
 }
@@ -407,13 +413,13 @@ void MemManager::pop() {
 }
 
 RegCode MemManager::getFromRegisters(int id) {
-    for(int i = 0; i < registers32Bits.size(); i++)
-        if(registers32Bits[i].id == id)
+    for (int i = 0; i < registers32Bits.size(); i++)
+        if (registers32Bits[i].id == id)
             return (RegCode) i;
 
-    for(int i = 0; i < registers64Bits.size(); i++)
-        if(registers64Bits[i].id == id)
-            return (RegCode) (i + (int)RR0);
+    for (int i = 0; i < registers64Bits.size(); i++)
+        if (registers64Bits[i].id == id)
+            return (RegCode) (i + (int) RR0);
 
     return RegCode::INVALID;
 }
@@ -424,10 +430,10 @@ bool MemManager::isInRegister(int id) {
 
 void MemManager::assignTuple(int varId, int expId) {
 
-    StackElement& var = get(varId);
-    StackElement& exp = get(expId);
+    StackElement &var = get(varId);
+    StackElement &exp = get(expId);
 
-    if(!exp.type->equals(var.type)) {
+    if (!exp.type->equals(var.type)) {
         std::cout << "Types don't match in assign";
         exit(-1);
     }
@@ -442,20 +448,20 @@ void MemManager::assignTuple(int varId, int expId) {
 
 }
 
-void MemManager::assign(int varOffset, bool  varInGlobal, int expOffset, bool  expInGlobal, Type* type) {
+void MemManager::assign(int varOffset, bool varInGlobal, int expOffset, bool expInGlobal, Type *type) {
 
-    if(type->isTuple()) {
-        TupleType* types = (TupleType*)type;
+    if (type->isTuple()) {
+        TupleType *types = (TupleType *) type;
         int typeLength = types->length();
 
-        for(int i = 0; i < typeLength; i++) {
-        //for(int i = typeLength-1; i >= 0; i--) {
-            Type* subType = types->getSubType(i);
+        for (int i = 0; i < typeLength; i++) {
+            //for(int i = typeLength-1; i >= 0; i--) {
+            Type *subType = types->getSubType(i);
             std::size_t offset = types->offsetOf(i);
-            assign(varOffset + (int)offset, varInGlobal, expOffset + (int)offset, expInGlobal, subType);
+            assign(varOffset + (int) offset, varInGlobal, expOffset + (int) offset, expInGlobal, subType);
 
         }
-    }else{
+    } else {
         RegCode reg = getFreeRegister(type);
         gc << "\t" << reg << " = " << letter(type) <<
            offsetToString(expOffset, expInGlobal) <<
@@ -470,26 +476,25 @@ void MemManager::assign(int varOffset, bool  varInGlobal, int expOffset, bool  e
 }
 
 
-
 std::string MemManager::offsetToString(int offset, bool inGlobal) {
-    if(inGlobal) {
+    if (inGlobal) {
 
         stringstream ss;
         ss << std::hex << stackStart - offset - 4;
         string str = ss.str();
 
         return "(0x" + str + ")";
-    }else if(offset >= 0)
-        return "(R6 - "+ std::to_string((offset + 4 )) + ")";
+    } else if (offset >= 0)
+        return "(R6 - " + std::to_string((offset + 4)) + ")";
     else
-        return "(R6 + "+ std::to_string(( offset + 4 ) * -1) + ")";
+        return "(R6 + " + std::to_string((offset + 4) * -1) + ")";
 }
 
 void MemManager::saveReturn(int i) {
     RegCode reg = getFromRegisters(i);
-    if(reg != RegCode::INVALID) {
+    if (reg != RegCode::INVALID) {
         gc << "\t" << letter(getType(i)) << "( R6 ) = " << reg << "; # Saving return id:" << i << "\n";
-    }else {
+    } else {
         bool nop;
         assign(-4, false, (int) offsetOf(i, nop), false, getType(i));
     }
@@ -502,7 +507,7 @@ void MemManager::enterBlock() {
 
 void MemManager::exitBlock() {
     int toRelease = 0;
-    while(stack().back().id != -2) {
+    while (stack().back().id != -2) {
         /*gc << "\tR7 = R7 + " << stack().back().type->size() <<
            "; # Releasing id:" << stack().back().id << " " << stack().back().name << "\n";*/
         toRelease += stack().back().type->size();
@@ -511,20 +516,21 @@ void MemManager::exitBlock() {
     gc << "\tR7 = R7 + " << toRelease << "; # Releasing stack because block ends\n";
     stack().pop_back();
 
-    for(auto& reg : registers32Bits) if(reg.blockDepth == currentDepth) {
+    for (auto &reg : registers32Bits)
+        if (reg.blockDepth == currentDepth) {
             reg.blockDepth = -1;
             reg.name = "";
             reg.type = nullptr;
             reg.id = -1;
         }
 
-    for(auto& reg : registers64Bits) if(reg.blockDepth == currentDepth) {
+    for (auto &reg : registers64Bits)
+        if (reg.blockDepth == currentDepth) {
             reg.blockDepth = -1;
             reg.name = "";
             reg.type = nullptr;
             reg.id = -1;
         }
-
 
 
     currentDepth--;
@@ -539,17 +545,17 @@ void MemManager::unBlock(RegCode reg) {
 }
 
 MemManager::StackElement &MemManager::get(RegCode reg) {
-    if(reg >= R0 && reg < R6) {
+    if (reg >= R0 && reg < R6) {
         return registers32Bits[reg];
-    }else if(reg >= RR0 && reg <= RR3)
+    } else if (reg >= RR0 && reg <= RR3)
         return registers64Bits[int(reg) - RR0];
 
     throw bad_alloc();
 }
 
 int MemManager::saveInStack(int id) {
-    if(isInRegister(id)) {
-        StackElement& elem = get(id);
+    if (isInRegister(id)) {
+        StackElement &elem = get(id);
         addToStack(elem.type, id, elem.name);
         RegCode reg = getFromRegisters(id);
         release(id);

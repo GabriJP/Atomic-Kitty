@@ -81,29 +81,37 @@ public:
 
     MemManager();
 
-    int addToStack(Type* type, int id, std::string name="");
-    int addToRegister(Type* type, int id);
-    RegCode getFreeRegister(Type* type);
-    int addToStack(Type* type, std::string name="") {
+    int addToStack(Type *type, int id, std::string name = "");
+
+    int addToRegister(Type *type, int id);
+
+    RegCode getFreeRegister(Type *type);
+
+    int addToStack(Type *type, std::string name = "") {
         return addToStack(type, getId(), name);
     };
 
-    int addToStackWithoutChangingR7(Type* type, int id, std::string name = "");
-    int addToStackWithoutChangingR7(Type* type, std::string name = "") {
+    int addToStackWithoutChangingR7(Type *type, int id, std::string name = "");
+
+    int addToStackWithoutChangingR7(Type *type, std::string name = "") {
         return addToStackWithoutChangingR7(type, getId(), name);
     };
 
-    int addToRegister(Type* type) {
+    int addToRegister(Type *type) {
         return addToRegister(type, getId());
     };
+
     void release(int id);
+
     void releaseAllRegisters();
 
     void saveRegisters();
+
     void loadRegisters();
 
 
     RegCode getFromRegisters(int id);
+
     bool isInRegister(int id);
 
     void createFunction();
@@ -111,30 +119,36 @@ public:
     void print();
 
     void enterBlock();
+
     void exitBlock();
 
-    RegCode load(int id, int pos, int& newId);
+    RegCode load(int id, int pos, int &newId);
+
     RegCode load(int id, int &newId);
+
     RegCode load(int id) {
         int n;
         return load(id, n);
     };
 
     void block(RegCode reg);
+
     void unBlock(RegCode reg);
 
     int saveInStack(int id);
 
-    struct StackElement{
+    struct StackElement {
         int id;
         Type *type;
         std::string name;
         int blockDepth = -1; //Only working in registers
         bool blocked = false; //Register can't be used
 
-        StackElement() : id(-1), type(nullptr), name(""){}
-        StackElement(int id, Type* type) : id(id), type(type), name(""){}
-        StackElement(int id, Type* type, std::string name) : id(id), type(type), name(name){}
+        StackElement() : id(-1), type(nullptr), name("") {}
+
+        StackElement(int id, Type *type) : id(id), type(type), name("") {}
+
+        StackElement(int id, Type *type, std::string name) : id(id), type(type), name(name) {}
 
         void reset() {
             id = -1;
@@ -146,19 +160,25 @@ public:
 
     };
 
-    StackElement& get(int id);
-    StackElement& get(RegCode reg);
+    StackElement &get(int id);
+
+    StackElement &get(RegCode reg);
+
     yytokentype typeOf(int id);
-    Type* getType(int id);
+
+    Type *getType(int id);
 
     void assign(int varId, int expId);
+
     void assign(int varId, RegCode expRegister);
+
     void assign(int varId, std::string value);
 
     void pop();
 
     std::string getInstruction(StackElement &element);
-    std::string getInstruction(std::size_t offset, bool inGlobal, Type* type);
+
+    std::string getInstruction(std::size_t offset, bool inGlobal, Type *type);
 
     size_t currentStackSize();
 
@@ -168,13 +188,17 @@ public:
 
     void saveReturn(int i);
 
-    void assign(int varOffset, bool  varInGlobal, int expOffset, bool  expInGlobal, Type* type);
+    void assign(int varOffset, bool varInGlobal, int expOffset, bool expInGlobal, Type *type);
+
     std::size_t offsetOf(int id, bool &offsetFromGlobal);
+
     std::size_t offsetOf(int id) {
         bool nop;
         return offsetOf(id, nop);
     };
-    static char letter(Type* type);
+
+    static char letter(Type *type);
+
     std::string offsetToString(int offset, bool inGlobal);
 
 private:
@@ -190,16 +214,19 @@ private:
     std::array<StackElement, 6> registers32Bits;
     std::array<StackElement, 4> registers64Bits;
 
-    std::deque<StackElement>& stack();
+    std::deque<StackElement> &stack();
 
     template<typename T>
     bool haveFreeRegister(T &registers, int &id);
+
     template<typename T>
     int lastRegister(T &registers);
+
     template<typename T>
-    RegCode addToRegister(T &registers, Type* type, int id);
+    RegCode addToRegister(T &registers, Type *type, int id);
 
     int id = 0;
+
     int getId();
 
     int currentDepth = 0;
@@ -212,4 +239,4 @@ private:
 
 };
 
-std::ostream& operator<<(std::ostream& os, RegCode const& reg);
+std::ostream &operator<<(std::ostream &os, RegCode const &reg);

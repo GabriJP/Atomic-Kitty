@@ -1,9 +1,0 @@
-int a(int M, int N):
-    if M is 0:
-        return N + 1
-    elif N is 0:
-        return a(M - 1, 1)
-    else:
-        return a(M - 1, a(M, N - 1))
-
-print(a(1,1))

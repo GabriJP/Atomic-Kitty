@@ -105,14 +105,14 @@ VISIBLE                                                  \n|{WORD}|\s{1,3}|{ABRE
                                                              return FIN_DE_LINEA;
                                                          }
 
-^{TABULADOR}+             	                         {
+^{TABULADOR}+                                            {
                                                              int i;
                                                              int tabsEncontrados = 0;
                                                              for (i = 0; yytext[i] != '\0'; i++){
                                                                  if (yytext[i] == ' '){
                                                                      i += 3;
                                                                  }
-                                                                 tabsEncontrados++;
+                                                                  tabsEncontrados++;
                                                              }
                                                              tabulado = tabsEncontrados;
                                                          }

@@ -78,13 +78,14 @@ public:
     virtual yytokentype getType() = 0;
 
     std::size_t size();
+
     virtual std::size_t realSize() = 0;
 
     virtual std::string toString() = 0;
 
     virtual bool equals(Type *type) = 0;
 
-    virtual Type* clone() = 0;
+    virtual Type *clone() = 0;
 };
 
 #pragma clang diagnostic pop
@@ -99,7 +100,9 @@ public:
     bool isTuple() override;
 
     Type *getSubType(int pos);
+
     int length();
+
     std::size_t offsetOf(int pos);
 
     TupleType *add(Type *other) override;
@@ -113,7 +116,7 @@ public:
     bool equals(Type *type) override;
 
 
-    Type* clone() override;
+    Type *clone() override;
 
 };
 
@@ -124,6 +127,7 @@ private:
     size_t _size = 0;
 public:
     PrimitiveType(yytokentype id);
+
     PrimitiveType(yytokentype id, std::size_t size);
 
     bool isTuple() override;
@@ -138,10 +142,10 @@ public:
 
     bool equals(Type *type) override;
 
-    Type* clone() override;
+    Type *clone() override;
 
 };
 
-std::ostream& operator<<(std::ostream& os, yytokentype const& yytoken);
+std::ostream &operator<<(std::ostream &os, yytokentype const &yytoken);
 
-bool isNumberType(Type* type);
+bool isNumberType(Type *type);

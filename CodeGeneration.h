@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
@@ -66,33 +67,46 @@ extern std::stack<int> returnLabels;
 extern int fines;
 
 void initQ();
+
 void endQ();
+
 int opera(int left, int right, const char *op);
+
 void logError(std::string str);
+
 int createFunction(char *name, Type *returnType, vector<ParameterNode *> *v);
+
 int callSystemFunction(std::string name, int paramId, int returnLabel);
+
 void functionEnd(int endLabel);
+
 int ne();
-int callFunction(char* funcName, int paramId, int returnLabel);
-int callFunctionInit(char* name);
+
+int callFunction(char *funcName, int paramId, int returnLabel);
+
+int callFunctionInit(char *name);
+
 int generateReturn(int expId);
+
 int primitiveExp(yytokentype tipo);
+
 int buildExpList(int exp, int exp_l);
+
 bool isASystemFunction(std::string);
+
 void forInst(std::string variable, ValoresRango range, int loopLabel, int exitLabel);
 
-template <typename T>
+template<typename T>
 int primitiveExp(yytokentype tipo, T n) {
     int id = primitiveExp(tipo);
     RegCode reg = memStack.load(id);
     gc << "\t" << reg << " = " << std::to_string(n) << "; \n";
     gc.flush();
     return id;
-}
-;
+};
 
 int primitiveExp(yytokentype tipo, char c);
 
 void yyerror(const char *str);
 
-int addNewVar(Type* type, char* name);
+int addNewVar(Type *type, char *name);
